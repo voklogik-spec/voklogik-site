@@ -107,6 +107,10 @@ legend{font:500 .95rem "Bricolage Grotesque",sans-serif;color:var(--muted);paddi
 .btn{font:700 1rem "Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;padding:11px 18px;border-radius:6px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--accent)}
 .btn:hover{background:var(--accent);color:var(--on-accent)}
 footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line)}
+table.sched{width:100%;border-collapse:collapse;font-size:.95rem}
+table.sched th,table.sched td{padding:6px 10px 6px 0;text-align:left;border-bottom:1px solid var(--line)}
+table.sched th{color:var(--muted);font-weight:500}
+.linklike{background:none;border:0;padding:0;margin:6px 0 0;color:var(--accent);font:600 .95rem "Bricolage Grotesque",sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 @media (max-width:820px){.hero,.two{grid-template-columns:1fr}.hero{gap:28px;padding-top:16px}}
 @media (max-width:420px){.grid,.g2,.sum{grid-template-columns:1fr}nav a{margin-left:14px}}
 @media print{
@@ -188,6 +192,16 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
       <div class="f"><label for="term">Loan term</label><select id="term"><option value="30" selected>30 years</option><option value="20">20 years</option><option value="15">15 years</option><option value="10">10 years</option></select></div>
       <div class="f" id="armF1" hidden><label for="armYrs">Fixed period term</label><select id="armYrs"><option value="3">3 years</option><option value="5" selected>5 years</option><option value="7">7 years</option><option value="10">10 years</option></select></div>
       <div class="f" id="armF2" hidden><label for="armRate">Rate after that (%)</label><input id="armRate" type="number" inputmode="decimal" min="0" step="0.05" value="7.5"></div>
+      <div class="f w" id="armCapsGroup" hidden>
+        <button type="button" class="linklike" id="capsToggle">+ Add rate caps (optional)</button>
+        <div id="armCapsWrap" hidden style="margin-top:12px">
+          <div class="grid">
+            <div class="f"><label for="armCapInit">Initial adjustment cap (%)</label><input id="armCapInit" type="number" inputmode="decimal" min="0" step="0.25" value="2"></div>
+            <div class="f"><label for="armCapPeriodic">Periodic adjustment cap (%)</label><input id="armCapPeriodic" type="number" inputmode="decimal" min="0" step="0.25" value="2"></div>
+            <div class="f"><label for="armCapLife">Lifetime cap (%)</label><input id="armCapLife" type="number" inputmode="decimal" min="0" step="0.25" value="5"></div>
+          </div>
+        </div>
+      </div>
       <div class="f"><label for="tax">Property tax ($/year)</label><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="4800"></div>
       <div class="f w"><label for="ins">Home insurance ($/year)</label><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="1500"></div>
       <div class="f w" id="hoaF" hidden><label for="hoaIn" id="hoaL">HOA / association dues ($/month)</label><input id="hoaIn" type="number" inputmode="decimal" min="0" step="10" value="300"></div>
@@ -199,6 +213,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
       <div class="k">Estimated monthly payment</div>
       <div class="big" id="total">$0</div>
       <div class="k" id="armNote" hidden></div>
+      <div class="k" id="armRange" hidden></div>
       <div class="bar" aria-hidden="true"><i id="b1" style="background:var(--accent)"></i><i id="b2" style="background:var(--ochre)"></i><i id="b3" style="background:var(--clay)"></i><i id="b4" style="background:var(--mi)"></i><i id="b5" style="background:var(--hoa)"></i></div>
       <ul class="leg">
         <li style="--c:var(--accent)"><span>Principal and interest</span><b id="pi">$0</b></li>
@@ -212,6 +227,17 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
         <div><span class="k">Total interest over the loan</span><b id="int">$0</b></div>
         <div><span class="k">Loan-to-value</span><b id="ltv">0%</b></div>
         <div id="cashS" hidden><span class="k">Cash to you at closing</span><b id="cashV">$0</b></div>
+      </div>
+      <div style="margin-top:18px">
+        <button type="button" class="btn" id="schedToggle">Show amortization schedule</button>
+        <div id="schedWrap" hidden style="margin-top:14px">
+          <div class="scroll">
+            <table class="sched">
+              <thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Ending balance</th></tr></thead>
+              <tbody id="schedBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <div class="details" id="details">
         <h3 class="dh">Your details</h3>
@@ -250,9 +276,35 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     </div>
     <div>
       <p>Property tax and insurance are your yearly amounts divided by 12. When your down payment or equity is under 20%, mortgage insurance is added as a yearly percentage of the loan. For condos, co-ops and PUDs, monthly association dues are added too. Lender fees are not included, so your lender's quote may be higher.</p>
-      <p>For an adjustable-rate mortgage (ARM), the first payment uses the starting rate. After the fixed period, we recalculate the payment on the remaining balance at the rate you enter and assume it stays there. Real ARMs can adjust every year within caps, so ask your lender for the terms.</p>
+      <p>For an adjustable-rate mortgage (ARM), the first payment uses the starting rate. After the fixed period, we recalculate the payment on the remaining balance at the rate you enter and assume it stays there. Real ARMs can adjust every year within periodic and lifetime caps, so ask your lender for the exact terms. If you enter your caps, we show the payment range they imply.</p>
+      <p>Further down the page, you can view a year-by-year amortization schedule and compare the cost of buying with renting over time.</p>
       <p>For a refinance, a rate-and-term loan replaces your current balance. A cash-out loan adds the cash you take to that balance. Delayed financing is for a home you bought with cash and now want to borrow against.</p>
     </div>
+  </div>
+</section>
+
+<section id="rvb">
+  <h2>Renting vs. buying</h2>
+  <p class="lede">See how the cost of this purchase compares with renting over time.</p>
+  <button type="button" class="btn" id="rvbToggle">Compare renting vs. buying</button>
+  <div id="rvbWrap" hidden style="margin-top:18px">
+  <div class="calc">
+    <div class="grid">
+      <div class="f"><label for="rvbRent">Monthly rent ($)</label><input id="rvbRent" type="number" inputmode="decimal" min="0" step="50" value="2200"></div>
+      <div class="f"><label for="rvbGrowth">Annual rent increase (%)</label><input id="rvbGrowth" type="number" inputmode="decimal" min="0" step="0.5" value="3"></div>
+      <div class="f"><label for="rvbYears">Years to compare</label><select id="rvbYears"><option value="3">3 years</option><option value="5" selected>5 years</option><option value="7">7 years</option><option value="10">10 years</option></select></div>
+      <div class="f"><label for="rvbAppr">Home appreciation per year (%)</label><input id="rvbAppr" type="number" inputmode="decimal" min="0" step="0.5" value="3"></div>
+    </div>
+    <div style="margin-top:18px">
+      <div class="bar" aria-hidden="true"><i id="rvbBarRent" style="background:var(--clay);width:0%"></i></div>
+      <ul class="leg" style="margin:8px 0 16px"><li style="--c:var(--clay)"><span>Total rent paid</span><b id="rvbRentTotal">$0</b></li></ul>
+      <div class="bar" aria-hidden="true"><i id="rvbBarBuy" style="background:var(--accent);width:0%"></i></div>
+      <ul class="leg" style="margin:8px 0 16px"><li style="--c:var(--accent)"><span>Net cost of buying, after equity and appreciation</span><b id="rvbBuyTotal">$0</b></li></ul>
+      <p class="k" id="rvbTake" style="margin:0 0 10px"></p>
+      <p class="k" style="margin:0 0 10px"><strong>How this is worked out:</strong> Renting adds up what you'd pay in rent, going up a little each year by the rate you set. Buying adds up your monthly payments, then subtracts the part that pays down your loan and any rise in the home's value, since that money isn't really a cost — it's yours.</p>
+      <p class="k" style="margin:0">This does not include your down payment, closing costs, maintenance, selling costs, or what you could earn investing the money instead. Taxes, insurance and your payment are assumed to stay level except for the rent growth rate you enter.</p>
+    </div>
+  </div>
   </div>
 </section>
 
@@ -361,13 +413,96 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     T(MU);font("italic",8.5);
     d.splitTextToSize("This is an estimate for planning only and is not a loan offer. Lender fees and other costs are not included, and your lender's quote may differ.",W-90).forEach(function(t,i){d.text(t,L,746+i*11)});
     T(OR);font("bold",11);d.text("Voklogik",L+W,746,{align:"right"});
+    if(schedOpen){
+      var rows=buildSchedule();
+      d.addPage();var yy=60;
+      T(INK);font("bold",16);d.text("Amortization schedule",L,yy);yy+=10;
+      D(OC);d.setLineWidth(1.2);d.line(L,yy,L+W,yy);yy+=24;d.setLineWidth(0.5);
+      var cols=[L,L+70,L+230,L+390],heads=["Year","Principal paid","Interest paid","Ending balance"];
+      T(MU);font("bold",10);heads.forEach(function(h,i){d.text(h,cols[i],yy)});yy+=6;
+      D(LN);d.line(L,yy,L+W,yy);yy+=18;
+      rows.forEach(function(rr){
+        if(yy>760){d.addPage();yy=60}
+        T(INK);font("normal",10);
+        d.text(String(rr.year),cols[0],yy);
+        d.text(usd.format(rr.principal),cols[1],yy);
+        d.text(usd.format(rr.interest),cols[2],yy);
+        d.text(usd.format(rr.balance),cols[3],yy);
+        yy+=16;
+      });
+    }
     return d;
   }
   function pmt(P,r,N){return r===0?P/N:P*r/(1-Math.pow(1+r,-N))}
+  function loanState(){
+    var refi=document.querySelector('input[name="type"]:checked').value==="refi";
+    var arm=document.querySelector('input[name="rtype"]:checked').value==="arm";
+    var sub=$("rsub").value,price=n("price"),down=Math.min(n("down"),100);
+    var years=parseInt($("term").value,10),N=years*12;
+    var loan=refi?(sub==="cash"?n("bal")+n("cash"):sub==="delay"?n("delAmt"):n("bal")):price*(1-down/100);
+    var r=n("rate")/100/12,k=Math.min(parseInt($("armYrs").value,10)*12,N),r2=arm?n("armRate")/100/12:null;
+    return {loan:loan,r:r,N:N,arm:arm&&k<N,k:k,r2:r2,price:price};
+  }
+  function monthlyAmort(s){
+    if(!(s.loan>0)||!(s.N>0))return [];
+    var bal=s.loan,pi1=pmt(s.loan,s.r,s.N),pi2=null;
+    if(s.arm){var g=Math.pow(1+s.r,s.k),B=s.r===0?s.loan-pi1*s.k:s.loan*g-pi1*(g-1)/s.r;pi2=pmt(B,s.r2,s.N-s.k)}
+    var out=[];
+    for(var m=1;m<=s.N;m++){
+      var afterArm=s.arm&&m>s.k,rate=afterArm?s.r2:s.r,pay=afterArm?pi2:pi1;
+      var interest=bal*rate,princ=Math.min(pay-interest,bal);
+      bal=Math.max(bal-princ,0);
+      out.push({interest:interest,principal:princ,balance:bal,pay:pay});
+    }
+    return out;
+  }
+  function buildSchedule(){
+    var s=loanState(),m=monthlyAmort(s),rows=[],yp=0,yi=0;
+    for(var i=0;i<m.length;i++){
+      yp+=m[i].principal;yi+=m[i].interest;
+      if((i+1)%12===0||i===m.length-1){rows.push({year:Math.ceil((i+1)/12),principal:yp,interest:yi,balance:m[i].balance});yp=0;yi=0}
+    }
+    return rows;
+  }
+  var schedOpen=false;
+  function renderSchedule(){
+    var rows=buildSchedule();
+    $("schedBody").innerHTML=rows.map(function(r){
+      return "<tr><td>"+r.year+"</td><td>"+usd.format(r.principal)+"</td><td>"+usd.format(r.interest)+"</td><td>"+usd.format(r.balance)+"</td></tr>";
+    }).join("");
+  }
+  function renderRentVsBuy(){
+    var refi=document.querySelector('input[name="type"]:checked').value==="refi";
+    $("rvb").hidden=refi;
+    if(refi)return;
+    var yrs=parseInt($("rvbYears").value,10),rent0=n("rvbRent"),g=n("rvbGrowth")/100,appr=n("rvbAppr")/100;
+    var s=loanState();
+    if(!(s.loan>0)||!(s.N>0)){$("rvbRentTotal").textContent="$0";$("rvbBuyTotal").textContent="$0";$("rvbTake").textContent="";return}
+    var mo=monthlyAmort(s),months=Math.min(yrs*12,mo.length);
+    var totalNow=parseFloat(($("total").textContent||"0").replace(/[^0-9.]/g,""))||0;
+    var piNow=parseFloat(($("pi").textContent||"0").replace(/[^0-9.]/g,""))||0;
+    var extras=Math.max(0,totalNow-piNow);
+    var totalOwn=0,principalPaid=0;
+    for(var i=0;i<months;i++){totalOwn+=mo[i].pay+extras;principalPaid+=mo[i].principal}
+    var apprGain=(s.price||0)*(Math.pow(1+appr,yrs)-1);
+    var netBuy=Math.max(totalOwn-principalPaid-apprGain,0);
+    var totalRent=0;
+    for(var y=0;y<yrs;y++){totalRent+=rent0*12*Math.pow(1+g,y)}
+    $("rvbRentTotal").textContent=usd.format(totalRent);
+    $("rvbBuyTotal").textContent=usd.format(netBuy);
+    var diff=totalRent-netBuy;
+    $("rvbTake").textContent=diff>=0
+      ?"Buying looks about "+usd.format(diff)+" cheaper than renting over "+yrs+" years, after equity and appreciation."
+      :"Renting looks about "+usd.format(-diff)+" cheaper than buying over "+yrs+" years, after equity and appreciation.";
+    var maxv=Math.max(totalRent,netBuy)||1;
+    $("rvbBarRent").style.width=(totalRent/maxv*100)+"%";
+    $("rvbBarBuy").style.width=(netBuy/maxv*100)+"%";
+  }
   function calc(){
     var refi=document.querySelector('input[name="type"]:checked').value==="refi";
     var arm=document.querySelector('input[name="rtype"]:checked').value==="arm";
-    $("armF1").hidden=!arm;$("armF2").hidden=!arm;
+    $("armF1").hidden=!arm;$("armF2").hidden=!arm;$("armCapsGroup").hidden=!arm;
+    if(!arm&&capsOpen){capsOpen=false;$("armCapsWrap").hidden=true;$("capsToggle").textContent="+ Add rate caps (optional)"}
     $("downF").hidden=refi;var inv=document.querySelector('input[name="occ"]:checked').value==="inv";var ownSub=document.querySelector('input[name="own"]:checked').value;$("ownF").hidden=inv;
     var on=inv?"Investment property loans often carry higher rates than owner-occupied loans. Enter the rate your lender quotes.":ownSub==="second"?"Second home loans often require a larger down payment and can carry slightly higher rates than a primary residence.":ownSub==="pied"?"A pied-à-terre is typically financed like a second home. Lender rules vary, so confirm requirements.":"";
     $("occNote").textContent=on;$("occNote").hidden=!on;
@@ -381,7 +516,13 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     var price=n("price"),down=Math.min(n("down"),100),years=parseInt($("term").value,10),N=years*12;
     var loan=refi?(sub==="cash"?n("bal")+n("cash"):sub==="delay"?n("delAmt"):n("bal")):price*(1-down/100),r=n("rate")/100/12,pi;
     pi=pmt(loan,r,N);var totInt=pi*N-loan,after=null,k=parseInt($("armYrs").value,10)*12;
-    if(arm&&k<N){var g=Math.pow(1+r,k),B=r===0?loan-pi*k:loan*g-pi*(g-1)/r,pi2=pmt(B,n("armRate")/100/12,N-k);totInt=pi*k+pi2*(N-k)-loan;after=pi2}
+    var capBest=null,capWorst=null;
+    if(arm&&k<N){
+      var g=Math.pow(1+r,k),B=r===0?loan-pi*k:loan*g-pi*(g-1)/r,pi2=pmt(B,n("armRate")/100/12,N-k);totInt=pi*k+pi2*(N-k)-loan;after=pi2;
+      var startRate=n("rate"),capInit=n("armCapInit"),capLife=n("armCapLife");
+      var worstRate=Math.min(startRate+capInit,startRate+capLife),bestRate=Math.max(startRate-capInit,0);
+      capWorst=pmt(B,worstRate/100/12,N-k);capBest=pmt(B,bestRate/100/12,N-k);
+    }
     var needMI=price>0&&loan/price>0.8+1e-9,mi=needMI?loan*n("miRate")/100/12:0;
     var pt=$("ptype").value,hasHOA=pt==="condo"||pt==="coop"||pt==="pud",hoa=hasHOA?n("hoaIn"):0;
     var tx=n("tax")/12,ins=n("ins")/12,tot=pi+tx+ins+mi+hoa;
@@ -392,6 +533,8 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     $("total").textContent=usd.format(tot);
     $("armNote").hidden=after===null;
     if(after!==null)$("armNote").textContent="First "+(k/12)+" years. After that, about "+usd.format(after+tx+ins+mi+hoa)+"/month at "+n("armRate")+"%.";
+    $("armRange").hidden=capWorst===null||!capsOpen;
+    if(capWorst!==null)$("armRange").textContent="Based on your caps, the payment after year "+(k/12)+" could range from about "+usd.format(capBest+tx+ins+mi+hoa)+" to "+usd.format(capWorst+tx+ins+mi+hoa)+" per month.";
     $("pi").textContent=usd.format(pi);$("tx").textContent=usd.format(tx);$("in").textContent=usd.format(ins);
     $("loan").textContent=usd.format(loan);$("ltv").textContent=price?Math.round(loan/price*1000)/10+"%":"n/a";
     var msg="";
@@ -402,8 +545,30 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     $("cashS").hidden=!(refi&&sub==="cash");$("cashV").textContent=usd.format(n("cash"));$("int").textContent=usd.format(Math.max(totInt,0));
     var d=tot||1;
     $("b1").style.width=(pi/d*100)+"%";$("b2").style.width=(tx/d*100)+"%";$("b3").style.width=(ins/d*100)+"%";$("b4").style.width=(mi/d*100)+"%";$("b5").style.width=(hoa/d*100)+"%";
+    if(schedOpen)renderSchedule();
+    renderRentVsBuy();
   }
   document.querySelectorAll("input,select").forEach(function(e){e.addEventListener("input",calc)});
+  $("schedToggle").addEventListener("click",function(){
+    schedOpen=!schedOpen;
+    $("schedWrap").hidden=!schedOpen;
+    this.textContent=schedOpen?"Hide amortization schedule":"Show amortization schedule";
+    if(schedOpen)renderSchedule();
+  });
+  var capsOpen=false;
+  $("capsToggle").addEventListener("click",function(){
+    capsOpen=!capsOpen;
+    $("armCapsWrap").hidden=!capsOpen;
+    this.textContent=capsOpen?"− Hide rate caps":"+ Add rate caps (optional)";
+    calc();
+  });
+  var rvbOpen=false;
+  $("rvbToggle").addEventListener("click",function(){
+    rvbOpen=!rvbOpen;
+    $("rvbWrap").hidden=!rvbOpen;
+    this.textContent=rvbOpen?"Hide renting vs. buying comparison":"Compare renting vs. buying";
+    if(rvbOpen)renderRentVsBuy();
+  });
   var LIMIT=5,UK="voklogik:reports",CK="voklogik:contact",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",PAY_MONTH="https://buy.stripe.com/5kQdR91Ga2wyfHm5PY9MY01",mem=0,IDS=["cName","cEmail","cPhone"];
   function contact(){return IDS.map(function(id){return $(id).value.trim()}).filter(Boolean)}
   function used(){var v=0;try{v=parseInt(localStorage.getItem(UK),10)||0}catch(e){}return Math.max(v,mem)}
