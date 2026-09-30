@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Voklogik: The mortgage calculator that makes sense</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DMN78R5ESY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DMN78R5ESY');
+</script>
 <meta name="description" content="Voklogik: The mortgage calculator that makes sense. See your full monthly payment for a purchase or refinance and save it as a PDF.">
 <link rel="canonical" href="https://voklogik.com/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -148,8 +155,8 @@ table.sched th{color:var(--muted);font-weight:500}
     <p class="k" id="prepPrint"></p>
     <fieldset><legend>Transaction type</legend>
       <div class="seg">
-        <label><input type="radio" name="type" value="purchase" checked>Purchase</label>
-        <label><input type="radio" name="type" value="refi">Refinance</label>
+        <label><input type="radio" name="type" value="purchase" checked onclick="track('select_transaction_type',{type:'purchase'})">Purchase</label>
+        <label><input type="radio" name="type" value="refi" onclick="track('select_transaction_type',{type:'refi'})">Refinance</label>
       </div>
     </fieldset>
     <div class="f" style="margin-bottom:18px">
@@ -257,8 +264,8 @@ table.sched th{color:var(--muted);font-weight:500}
         <b id="payTitle">You have used your free reports.</b>
         <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan.</p>
         <div class="plans">
-          <div class="plan"><strong>$4.99</strong><span class="k">One-time</span><p>25 more reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden>Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span></div>
-          <div class="plan"><strong>$9.99</strong><span class="k">Per month</span><p>Unlimited reports. Cancel any time.</p><a class="cta" id="payMonth" href="#" target="_blank" rel="noopener" hidden>Subscribe</a><span class="k" id="payMonthSoon">Coming soon</span></div>
+          <div class="plan"><strong>$4.99</strong><span class="k">One-time</span><p>25 more reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span></div>
+          <div class="plan"><strong>$9.99</strong><span class="k">Per month</span><p>Unlimited reports. Cancel any time.</p><a class="cta" id="payMonth" href="#" target="_blank" rel="noopener" hidden onclick="track('click_subscribe')">Subscribe</a><span class="k" id="payMonthSoon">Coming soon</span></div>
         </div>
         <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
         <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -434,6 +441,7 @@ table.sched th{color:var(--muted);font-weight:500}
     return d;
   }
   function pmt(P,r,N){return r===0?P/N:P*r/(1-Math.pow(1+r,-N))}
+  function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
   function loanState(){
     var refi=document.querySelector('input[name="type"]:checked').value==="refi";
     var arm=document.querySelector('input[name="rtype"]:checked').value==="arm";
@@ -554,6 +562,7 @@ table.sched th{color:var(--muted);font-weight:500}
     $("schedWrap").hidden=!schedOpen;
     this.textContent=schedOpen?"Hide amortization schedule":"Show amortization schedule";
     if(schedOpen)renderSchedule();
+    track("toggle_amortization_schedule",{open:schedOpen});
   });
   var capsOpen=false;
   $("capsToggle").addEventListener("click",function(){
@@ -568,6 +577,7 @@ table.sched th{color:var(--muted);font-weight:500}
     $("rvbWrap").hidden=!rvbOpen;
     this.textContent=rvbOpen?"Hide renting vs. buying comparison":"Compare renting vs. buying";
     if(rvbOpen)renderRentVsBuy();
+    track("toggle_rent_vs_buy",{open:rvbOpen});
   });
   var LIMIT=5,UK="voklogik:reports",CK="voklogik:contact",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",PAY_MONTH="https://buy.stripe.com/5kQdR91Ga2wyfHm5PY9MY01",mem=0,IDS=["cName","cEmail","cPhone"];
   function contact(){return IDS.map(function(id){return $(id).value.trim()}).filter(Boolean)}
@@ -627,6 +637,7 @@ table.sched th{color:var(--muted);font-weight:500}
     },2000);
   }
   $("printBtn").addEventListener("click",function(){
+    track("click_print");
     allow(function(free){
       var c=contact();$("prepPrint").textContent=c.length?"Prepared for  "+c.join("   |   "):"";
       try{window.print();if(free)bump()}catch(e){}
@@ -645,11 +656,11 @@ table.sched th{color:var(--muted);font-weight:500}
     window.claude.use("downloads").then(function(dl){
       if(!dl||!window.jspdf)return;
       pdfBtn.hidden=false;
-      pdfBtn.addEventListener("click",function(){savePdf(dl)});
+      pdfBtn.addEventListener("click",function(){track("click_save_pdf");savePdf(dl)});
     }).catch(function(){});
   }else if(window.jspdf){
     pdfBtn.hidden=false;
-    pdfBtn.addEventListener("click",function(){savePdf(null)});
+    pdfBtn.addEventListener("click",function(){track("click_save_pdf");savePdf(null)});
   }
 })();
 </script>
