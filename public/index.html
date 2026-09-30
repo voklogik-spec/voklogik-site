@@ -98,6 +98,8 @@ legend{font:500 .95rem "Bricolage Grotesque",sans-serif;color:var(--muted);paddi
 .chips input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
 .chips label:has(input:checked){background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
 .chips label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.note{margin:18px 0 0;padding:14px 16px;border-radius:6px;background:var(--bg);border-left:4px solid var(--ochre);font-size:.95rem}
+.note a{color:var(--accent);font-weight:700}
 .details{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
 .dh{font:700 1.1rem "Bricolage Grotesque",sans-serif;margin:0 0 12px}
 .paywall{margin-top:20px;padding:18px;border:1px solid var(--accent);border-radius:8px;background:var(--bg)}
@@ -143,7 +145,7 @@ table.sched th{color:var(--muted);font-weight:500}
 <div class="wrap">
 <header>
   <div class="bw"><a class="brand" href="#top">Voklogik</a><span class="tag">The mortgage calculator that makes sense</span></div>
-  <nav><a href="#how">How it works</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
+  <nav><a href="/affordability.html">Affordability</a><a href="#how">How it works</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
 </header>
 
 <main id="top">
@@ -259,6 +261,7 @@ table.sched th{color:var(--muted);font-weight:500}
         </div>
         <p class="k" style="margin:10px 0 0">Optional. This appears on your PDF or printout and stays in this browser. Voklogik does not receive it.</p>
       </div>
+      <div class="note" id="affordCta" hidden><strong>Wondering if this fits your budget?</strong> See your housing and debt-to-income ratios with the <a href="/affordability.html" id="affordCtaLink" onclick="track('click_affordability_cta')">Affordability Check</a>.</div>
       <div class="acts" id="acts">
         <button type="button" class="btn" id="printBtn">Print</button>
         <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
@@ -599,6 +602,15 @@ table.sched th{color:var(--muted);font-weight:500}
     $("b1").style.width=(pi/d*100)+"%";$("b2").style.width=(tx/d*100)+"%";$("b3").style.width=(ins/d*100)+"%";$("b4").style.width=(mi/d*100)+"%";$("b5").style.width=(hoa/d*100)+"%";
     if(schedOpen)renderSchedule();
     renderRentVsBuy();
+    $("affordCta").hidden = !(loan>0&&tot>0);
+    if(loan>0&&tot>0){
+      try{
+        localStorage.setItem("voklogik:payment",JSON.stringify({
+          total:tot, loan:loan, ratePct:n("rate"), years:parseInt($("term").value,10),
+          extras:Math.max(tot-pi,0), savedAt:Date.now()
+        }));
+      }catch(e){}
+    }
   }
   document.querySelectorAll("input,select").forEach(function(e){e.addEventListener("input",calc)});
   $("schedToggle").addEventListener("click",function(){
