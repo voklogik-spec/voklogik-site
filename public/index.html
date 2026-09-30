@@ -140,10 +140,11 @@ table.sched th{color:var(--muted);font-weight:500}
 <div class="wrap">
 <header>
   <div class="bw"><a class="brand" href="#top">Voklogik</a><span class="tag">The mortgage calculator that makes sense</span></div>
-  <nav><a href="#how">How it works</a><a href="#contact">Contact</a></nav>
+  <nav><a href="#how">How it works</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
 </header>
 
 <main id="top">
+<div id="iosBanner"><span>On iPhone: tap the Share icon, then "Add to Home Screen" to install Voklogik.</span><button type="button" id="iosBannerClose" aria-label="Dismiss">&times;</button></div>
 <div class="hero">
   <div>
     <h1>Know your monthly payment before you make an offer.</h1>
@@ -442,6 +443,46 @@ table.sched th{color:var(--muted);font-weight:500}
   }
   function pmt(P,r,N){return r===0?P/N:P*r/(1-Math.pow(1+r,-N))}
   function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
+
+  // --- PWA install support ---
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})});
+  }
+  var standalone=(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||window.navigator.standalone===true;
+  if(standalone)track("pwa_launch");
+
+  var deferredInstallPrompt=null;
+  window.addEventListener("beforeinstallprompt",function(e){
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    $("installBtn").style.display="inline-block";
+    track("pwa_install_available");
+  });
+  $("installBtn").addEventListener("click",function(){
+    if(!deferredInstallPrompt)return;
+    track("pwa_install_clicked");
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(function(choice){
+      track("pwa_install_outcome",{outcome:choice.outcome});
+      deferredInstallPrompt=null;
+      $("installBtn").style.display="none";
+    });
+  });
+  window.addEventListener("appinstalled",function(){track("pwa_installed")});
+
+  // iOS has no install prompt API -- show simple instructions instead.
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  if(isIOS&&!standalone){
+    try{
+      if(!localStorage.getItem("voklogik:iosBannerDismissed")){
+        $("iosBanner").style.display="flex";
+      }
+    }catch(e){$("iosBanner").style.display="flex"}
+  }
+  $("iosBannerClose").addEventListener("click",function(){
+    $("iosBanner").style.display="none";
+    try{localStorage.setItem("voklogik:iosBannerDismissed","1")}catch(e){}
+  });
   function loanState(){
     var refi=document.querySelector('input[name="type"]:checked').value==="refi";
     var arm=document.querySelector('input[name="rtype"]:checked').value==="arm";
