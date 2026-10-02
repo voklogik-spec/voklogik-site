@@ -134,6 +134,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
       <span class="rowright"><span class="rowvalue" id="incomeSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
+      <h3 style="font-size:1.05rem; margin:0 0 8px">Borrower 1 income</h3>
       <p class="k" style="margin:0 0 14px">Turn on any income sources that apply. Each adds to your total below.</p>
       <div class="bubbles">
         <button type="button" class="bubble" data-src="employment" aria-pressed="true">+ Employment income</button>
@@ -152,6 +153,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
               <option value="monthly" selected>Monthly</option>
               <option value="semimonthly">Semi-monthly (twice a month)</option>
               <option value="biweekly">Bi-weekly (every 2 weeks)</option>
+              <option value="weekly">Weekly</option>
               <option value="hourly">Hourly</option>
             </select>
           </div>
@@ -164,10 +166,10 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
       <div class="source" id="srcSelfemp" hidden>
         <p class="k" style="margin:0 0 14px">For a sole proprietor (Schedule C). Most conventional lenders average two years of net profit, adding back depreciation and depletion since those reduce your taxes but not your real cash flow.</p>
         <div class="grid">
-          <div class="f w"><label for="y1net">Most recent tax year \u2014 Net profit, Line 31 ($)</label><input id="y1net" type="number" inputmode="decimal" step="500" value="85000"></div>
+          <div class="f w"><label for="y1net">Most recent tax year &mdash; Net profit, Line 31 ($)</label><input id="y1net" type="number" inputmode="decimal" step="500" value="85000"></div>
           <div class="f"><label for="y1dep">Depreciation, Line 13 ($)</label><input id="y1dep" type="number" inputmode="decimal" min="0" step="100" value="6000"></div>
           <div class="f"><label for="y1depl">Depletion, Line 12 ($, rare)</label><input id="y1depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>
-          <div class="f w"><label for="y2net">Prior tax year \u2014 Net profit ($)</label><input id="y2net" type="number" inputmode="decimal" step="500" value="72000"></div>
+          <div class="f w"><label for="y2net">Prior tax year &mdash; Net profit ($)</label><input id="y2net" type="number" inputmode="decimal" step="500" value="72000"></div>
           <div class="f"><label for="y2dep">Depreciation ($)</label><input id="y2dep" type="number" inputmode="decimal" min="0" step="100" value="5000"></div>
           <div class="f"><label for="y2depl">Depletion ($, rare)</label><input id="y2depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>
         </div>
@@ -186,6 +188,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
               <option value="monthly" selected>Monthly</option>
               <option value="semimonthly">Semi-monthly</option>
               <option value="biweekly">Bi-weekly</option>
+              <option value="weekly">Weekly</option>
             </select>
           </div>
         </div>
@@ -243,6 +246,12 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
         <p class="srctotal" id="additionalTotal"></p>
       </div>
 
+      <div id="borrowersContainer"></div>
+
+      <div class="source" style="margin-top:18px">
+        <button type="button" class="bubble" id="addBorrowerBtn" aria-pressed="false">+ Add a co-borrower</button>
+      </div>
+
       <button type="button" class="editlink" id="incomeDone" style="margin-top:18px">Done &#8594;</button>
     </div>
   </div>
@@ -283,7 +292,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
   <div class="stat">
     <div class="stathead">
       <span class="rowlabel">Housing Ratio</span>
-      <span class="statword" id="frontWord">\u2014</span>
+      <span class="statword" id="frontWord">&mdash;</span>
     </div>
     <div class="statpct" id="frontPct" style="color:var(--accent)">0%</div>
     <button type="button" class="infobtn" data-info="frontInfo">What's included?</button>
@@ -292,11 +301,11 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
   <div class="stat">
     <div class="stathead">
       <span class="rowlabel">Debt-to-Income Ratio (DTI)</span>
-      <span class="statword" id="backWord">\u2014</span>
+      <span class="statword" id="backWord">&mdash;</span>
     </div>
     <div class="statpct" id="backPct" style="color:var(--accent)">0%</div>
     <button type="button" class="infobtn" data-info="backInfo">What's included?</button>
-    <div class="infobox" id="backInfo" hidden>Your monthly payment plus your other monthly debts, divided by your gross monthly income. Conventional guidelines often cap this around 36%, though many programs allow up to 43\u201350% with strong compensating factors.</div>
+    <div class="infobox" id="backInfo" hidden>Your monthly payment plus your other monthly debts, divided by your gross monthly income. Conventional guidelines often cap this around 36%, though many programs allow up to 43&ndash;50% with strong compensating factors.</div>
   </div>
   <p class="k" style="margin:16px 20px 4px">If either ratio looks high, open Monthly Payment above and try a smaller loan amount or a lower rate.</p>
   <div class="acts">
@@ -321,7 +330,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
 
 </main>
 
-<footer>\u00a9 Voklogik. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> \u00b7 <a href="/terms.html">Terms</a></footer>
+<footer>&copy; Voklogik. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a></footer>
 </div>
 <script>
 (function(){
@@ -335,6 +344,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     if(freq==="monthly")return amt;
     if(freq==="semimonthly")return amt*2;
     if(freq==="biweekly")return amt*26/12;
+    if(freq==="weekly")return amt*52/12;
     if(freq==="hourly")return amt*(hoursWk||40)*52/12;
     return amt;
   }
@@ -364,7 +374,9 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
   // ---- income source bubbles ----
   var sources={employment:true,selfemp:false,retirement:false,additional:false};
   var srcElId={employment:"srcEmployment",selfemp:"srcSelfemp",retirement:"srcRetirement",additional:"srcAdditional"};
-  document.querySelectorAll(".bubble").forEach(function(btn){
+  var borrowers=[{prefix:"",state:sources}]; // borrower 1 is always present
+
+  document.querySelectorAll('.bubble[data-src]').forEach(function(btn){
     btn.addEventListener("click",function(){
       var key=btn.getAttribute("data-src");
       sources[key]=!sources[key];
@@ -374,17 +386,129 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     });
   });
 
-  function employmentIncome(){
-    if(!sources.employment)return 0;
-    var v=freqToMonthly(n("wageAmt"),$("wageFreq").value,n("hoursWk"));
-    $("employmentTotal").textContent="= "+usd.format(v)+"/mo";
+  // ---- dynamically add any number of additional borrowers ----
+  function borrowerTemplate(num){
+    var p="b"+num;
+    return ''
+      +'<div class="source" id="'+p+'Wrap" style="border:1px solid var(--line); border-radius:8px; padding:16px; margin-top:14px">'
+      +'<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">'
+      +'<h3 style="font-size:1.05rem; margin:0">Borrower '+num+' income</h3>'
+      +'<button type="button" class="editlink" data-removeborrower="'+p+'Wrap">Remove</button>'
+      +'</div>'
+      +'<div class="bubbles">'
+      +'<button type="button" class="bubble" data-srcn="employment" data-prefix="'+p+'" aria-pressed="false">+ Employment income</button>'
+      +'<button type="button" class="bubble" data-srcn="selfemp" data-prefix="'+p+'" aria-pressed="false">+ Self-employed income</button>'
+      +'<button type="button" class="bubble" data-srcn="retirement" data-prefix="'+p+'" aria-pressed="false">+ Retirement / Social Security / Pension</button>'
+      +'<button type="button" class="bubble" data-srcn="additional" data-prefix="'+p+'" aria-pressed="false">+ Additional income</button>'
+      +'</div>'
+      +'<div class="source" id="'+p+'srcEmployment" hidden>'
+      +'<div class="grid">'
+      +'<div class="f"><label for="'+p+'wageAmt">Gross employment income ($)</label><input id="'+p+'wageAmt" type="number" inputmode="decimal" min="0" step="50" value="5000"></div>'
+      +'<div class="f"><label for="'+p+'wageFreq">Paid</label><select id="'+p+'wageFreq">'
+      +'<option value="annual">Annually</option><option value="monthly" selected>Monthly</option>'
+      +'<option value="semimonthly">Semi-monthly (twice a month)</option><option value="biweekly">Bi-weekly (every 2 weeks)</option>'
+      +'<option value="weekly">Weekly</option><option value="hourly">Hourly</option></select></div>'
+      +'</div>'
+      +'<div class="f" id="'+p+'hoursField" hidden style="margin-top:14px"><label for="'+p+'hoursWk">Hours per week</label><input id="'+p+'hoursWk" type="number" inputmode="decimal" min="1" max="120" step="1" value="40"></div>'
+      +'<p class="srctotal" id="'+p+'employmentTotal"></p>'
+      +'</div>'
+      +'<div class="source" id="'+p+'srcSelfemp" hidden>'
+      +'<p class="k" style="margin:0 0 14px">For a sole proprietor (Schedule C), averaged over two years.</p>'
+      +'<div class="grid">'
+      +'<div class="f w"><label for="'+p+'y1net">Most recent tax year &mdash; Net profit, Line 31 ($)</label><input id="'+p+'y1net" type="number" inputmode="decimal" step="500" value="85000"></div>'
+      +'<div class="f"><label for="'+p+'y1dep">Depreciation, Line 13 ($)</label><input id="'+p+'y1dep" type="number" inputmode="decimal" min="0" step="100" value="6000"></div>'
+      +'<div class="f"><label for="'+p+'y1depl">Depletion, Line 12 ($, rare)</label><input id="'+p+'y1depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>'
+      +'<div class="f w"><label for="'+p+'y2net">Prior tax year &mdash; Net profit ($)</label><input id="'+p+'y2net" type="number" inputmode="decimal" step="500" value="72000"></div>'
+      +'<div class="f"><label for="'+p+'y2dep">Depreciation ($)</label><input id="'+p+'y2dep" type="number" inputmode="decimal" min="0" step="100" value="5000"></div>'
+      +'<div class="f"><label for="'+p+'y2depl">Depletion ($, rare)</label><input id="'+p+'y2depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>'
+      +'</div>'
+      +'<div id="'+p+'trendNote" class="note" hidden></div>'
+      +'<p class="srctotal" id="'+p+'selfempTotal"></p>'
+      +'</div>'
+      +'<div class="source" id="'+p+'srcRetirement" hidden>'
+      +'<div class="grid">'
+      +'<div class="f"><label for="'+p+'retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="'+p+'retAmt" type="number" inputmode="decimal" min="0" step="50" value="2500"></div>'
+      +'<div class="f"><label for="'+p+'retFreq">Paid</label><select id="'+p+'retFreq">'
+      +'<option value="annual">Annually</option><option value="monthly" selected>Monthly</option>'
+      +'<option value="semimonthly">Semi-monthly</option><option value="biweekly">Bi-weekly</option><option value="weekly">Weekly</option></select></div>'
+      +'</div>'
+      +'<div class="f" style="margin-top:14px"><label>Is a portion of this income non-taxable?</label>'
+      +'<div class="seg"><label><input type="radio" name="'+p+'nontax" value="no" checked>No</label><label><input type="radio" name="'+p+'nontax" value="yes">Yes</label></div></div>'
+      +'<div id="'+p+'nontaxFields" hidden style="margin-top:14px">'
+      +'<div class="f" style="margin-bottom:14px"><label>Enter the non-taxable portion as</label>'
+      +'<div class="seg"><label><input type="radio" name="'+p+'nontaxMode" value="pct" checked>%</label><label><input type="radio" name="'+p+'nontaxMode" value="amt">$ amount</label></div></div>'
+      +'<div class="grid">'
+      +'<div class="f" id="'+p+'nontaxPctField"><label for="'+p+'nontaxPct">Non-taxable portion (%)</label><input id="'+p+'nontaxPct" type="number" inputmode="decimal" min="0" max="100" step="1" value="100"></div>'
+      +'<div class="f" id="'+p+'nontaxAmtField" hidden><label for="'+p+'nontaxAmt">Non-taxable amount ($/month)</label><input id="'+p+'nontaxAmt" type="number" inputmode="decimal" min="0" step="25" value="0"></div>'
+      +'<div class="f"><label for="'+p+'grossUp">Gross-up rate (%)</label><input id="'+p+'grossUp" type="number" inputmode="decimal" min="0" max="50" step="1" value="25"></div>'
+      +'</div></div>'
+      +'<p class="srctotal" id="'+p+'retirementTotal"></p>'
+      +'</div>'
+      +'<div class="source" id="'+p+'srcAdditional" hidden>'
+      +'<p class="k" style="margin:0 0 14px">Bonus, commission, or other income, averaged over two years.</p>'
+      +'<div class="grid">'
+      +'<div class="f w"><label for="'+p+'addType">Income type</label><select id="'+p+'addType">'
+      +'<option value="bonus" selected>Bonus</option><option value="commission">Commission</option><option value="other">Other</option></select></div>'
+      +'<div class="f w" id="'+p+'addOtherField" hidden><label for="'+p+'addOtherLabel">Describe this income</label><input id="'+p+'addOtherLabel" type="text" placeholder="e.g. overtime, side contract work"></div>'
+      +'</div>'
+      +'<div class="grid" style="margin-top:14px">'
+      +'<div class="f"><label for="'+p+'addY1">Most recent year ($)</label><input id="'+p+'addY1" type="number" inputmode="decimal" min="0" step="500" value="6000"></div>'
+      +'<div class="f"><label for="'+p+'addY2">Previous year ($)</label><input id="'+p+'addY2" type="number" inputmode="decimal" min="0" step="500" value="5000"></div>'
+      +'</div>'
+      +'<div class="f" id="'+p+'bonusTimingField" style="margin-top:14px"><label>When is this bonus typically paid?</label>'
+      +'<div class="seg"><label><input type="radio" name="'+p+'bonusTiming" value="dec" checked>In December, for that same year</label>'
+      +'<label><input type="radio" name="'+p+'bonusTiming" value="janmar">In Jan&ndash;Mar, for the prior year\'s work</label></div></div>'
+      +'<div id="'+p+'bonusTimingNote" class="note" hidden></div>'
+      +'<div id="'+p+'addTrendNote" class="note" hidden></div>'
+      +'<p class="srctotal" id="'+p+'additionalTotal"></p>'
+      +'</div>'
+      +'<p class="k" style="margin:16px 0 0"><strong>Borrower '+num+' total:</strong> <span id="'+p+'IncomeSubtotal">$0/mo</span></p>'
+      +'</div>';
+  }
+
+  function addBorrower(){
+    var num=borrowers.length+1;
+    var p="b"+num;
+    var div=document.createElement("div");
+    div.innerHTML=borrowerTemplate(num);
+    $("borrowersContainer").appendChild(div.firstChild);
+
+    var state={employment:false,selfemp:false,retirement:false,additional:false};
+    borrowers.push({prefix:p,state:state});
+
+    document.querySelectorAll('.bubble[data-prefix="'+p+'"]').forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var key=btn.getAttribute("data-srcn");
+        state[key]=!state[key];
+        btn.setAttribute("aria-pressed",state[key]);
+        $(p+srcElId[key]).hidden=!state[key];
+        recompute();
+      });
+    });
+    $(p+"Wrap").querySelectorAll("input,select").forEach(function(e){e.addEventListener("input",recompute)});
+    $(p+"Wrap").querySelectorAll('input[name="'+p+'nontax"],input[name="'+p+'nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
+    $(p+"Wrap").querySelector('[data-removeborrower]').addEventListener("click",function(){
+      borrowers=borrowers.filter(function(b){return b.prefix!==p});
+      $(p+"Wrap").remove();
+      recompute();
+    });
+
+    $("addBorrowerBtn").textContent="+ Add another co-borrower";
+    recompute();
+  }
+  $("addBorrowerBtn").addEventListener("click",addBorrower);
+
+  function employmentIncome(p,state){
+    if(!state.employment)return 0;
+    var v=freqToMonthly(n(p+"wageAmt"),$(p+"wageFreq").value,n(p+"hoursWk"));
+    $(p+"employmentTotal").textContent="= "+usd.format(v)+"/mo";
     return v;
   }
-  function selfEmpIncome(){
-    if(!sources.selfemp)return 0;
-    var y1=n("y1net")+n("y1dep")+n("y1depl");
-    var y2=n("y2net")+n("y2dep")+n("y2depl");
-    var tn=$("trendNote");
+  function selfEmpIncome(p,state){
+    if(!state.selfemp)return 0;
+    var y1=n(p+"y1net")+n(p+"y1dep")+n(p+"y1depl");
+    var y2=n(p+"y2net")+n(p+"y2dep")+n(p+"y2depl");
+    var tn=$(p+"trendNote");
     if(y1<y2){
       tn.hidden=false;tn.className="note warn";
       tn.textContent="Your most recent year is lower than the prior year. Many lenders use the lower year alone, or ask for a written explanation, rather than averaging. Ask your loan officer how a declining trend will be treated.";
@@ -395,44 +519,44 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
       tn.hidden=true;
     }
     var v=(y1+y2)/24;
-    $("selfempTotal").textContent="= "+usd.format(v)+"/mo";
+    $(p+"selfempTotal").textContent="= "+usd.format(v)+"/mo";
     return v;
   }
-  function retirementIncome(){
-    if(!sources.retirement)return 0;
-    var base=freqToMonthly(n("retAmt"),$("retFreq").value);
-    var hasNontax=sel("nontax")==="yes";
-    $("nontaxFields").hidden=!hasNontax;
+  function retirementIncome(p,state){
+    if(!state.retirement)return 0;
+    var base=freqToMonthly(n(p+"retAmt"),$(p+"retFreq").value);
+    var hasNontax=sel(p+"nontax")==="yes";
+    $(p+"nontaxFields").hidden=!hasNontax;
     if(!hasNontax){
-      $("retirementTotal").textContent="= "+usd.format(base)+"/mo";
+      $(p+"retirementTotal").textContent="= "+usd.format(base)+"/mo";
       return base;
     }
-    var mode=sel("nontaxMode");
-    $("nontaxPctField").hidden = mode!=="pct";
-    $("nontaxAmtField").hidden = mode!=="amt";
-    var nontax = mode==="pct" ? base*(n("nontaxPct")/100) : Math.min(n("nontaxAmt"),base);
+    var mode=sel(p+"nontaxMode");
+    $(p+"nontaxPctField").hidden = mode!=="pct";
+    $(p+"nontaxAmtField").hidden = mode!=="amt";
+    var nontax = mode==="pct" ? base*(n(p+"nontaxPct")/100) : Math.min(n(p+"nontaxAmt"),base);
     var taxable = Math.max(base-nontax,0);
-    var grossed = nontax*(1+n("grossUp")/100);
+    var grossed = nontax*(1+n(p+"grossUp")/100);
     var total = taxable+grossed;
-    $("retirementTotal").textContent="Taxable "+usd.format(taxable)+" + non-taxable grossed up "+usd.format(grossed)+" = "+usd.format(total)+"/mo used";
+    $(p+"retirementTotal").textContent="Taxable "+usd.format(taxable)+" + non-taxable grossed up "+usd.format(grossed)+" = "+usd.format(total)+"/mo used";
     return total;
   }
-  function additionalIncome(){
-    if(!sources.additional)return 0;
-    var type=$("addType").value;
-    $("addOtherField").hidden = type!=="other";
-    $("bonusTimingField").hidden = type!=="bonus";
+  function additionalIncome(p,state){
+    if(!state.additional)return 0;
+    var type=$(p+"addType").value;
+    $(p+"addOtherField").hidden = type!=="other";
+    $(p+"bonusTimingField").hidden = type!=="bonus";
 
-    var bt=$("bonusTimingNote");
-    if(type==="bonus"&&sel("bonusTiming")==="janmar"){
+    var bt=$(p+"bonusTimingNote");
+    if(type==="bonus"&&sel(p+"bonusTiming")==="janmar"){
       bt.hidden=false;bt.className="note";
       bt.textContent="Since this bonus is paid early in the following year for the prior year's work, what you call your \"most recent year\" is really last year's bonus, received a few months ago. Lenders will usually want to see it received in at least the most recent two years before counting it, and may ask about this year's expected amount separately.";
     }else{
       bt.hidden=true;
     }
 
-    var y1=n("addY1"), y2=n("addY2");
-    var tn=$("addTrendNote");
+    var y1=n(p+"addY1"), y2=n(p+"addY2");
+    var tn=$(p+"addTrendNote");
     if(y1<y2){
       tn.hidden=false;tn.className="note warn";
       tn.textContent="This income is lower in the most recent year than the year before. Many lenders use the lower year alone, or ask why it declined, rather than simply averaging.";
@@ -444,9 +568,12 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     }
 
     var v=(y1+y2)/24;
-    var label = type==="other" ? ($("addOtherLabel").value||"Other income") : (type==="bonus"?"Bonus":"Commission");
-    $("additionalTotal").textContent=label+": ("+usd.format(y1)+" + "+usd.format(y2)+") \u00f7 24 = "+usd.format(v)+"/mo";
+    var label = type==="other" ? ($(p+"addOtherLabel").value||"Other income") : (type==="bonus"?"Bonus":"Commission");
+    $(p+"additionalTotal").textContent=label+": ("+usd.format(y1)+" + "+usd.format(y2)+") \u00f7 24 = "+usd.format(v)+"/mo";
     return v;
+  }
+  function borrowerIncome(p,state){
+    return employmentIncome(p,state)+selfEmpIncome(p,state)+retirementIncome(p,state)+additionalIncome(p,state);
   }
 
   // ---- payment (pulled from the main calculator via localStorage) ----
@@ -478,9 +605,13 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
 
   // ---- master recompute ----
   function recompute(){
-    $("hoursField").hidden = $("wageFreq").value!=="hourly";
-
-    var income = employmentIncome()+selfEmpIncome()+retirementIncome()+additionalIncome();
+    var income=0;
+    borrowers.forEach(function(b){
+      if($(b.prefix+"hoursField"))$(b.prefix+"hoursField").hidden = $(b.prefix+"wageFreq").value!=="hourly";
+      var v=borrowerIncome(b.prefix,b.state);
+      if(b.prefix!=="")$(b.prefix+"IncomeSubtotal").textContent=usd.format(v)+"/mo";
+      income+=v;
+    });
     $("incomeSummary").textContent=usd.format(income)+"/mo";
 
     var p=paymentTotal();
@@ -504,16 +635,19 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     word($("backWord"),back,36,43);
   }
 
-  document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
+  document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute)});
 
   // ---- print & PDF ----
   function activeIncomeLines(){
     var lines=[];
-    if(sources.employment)lines.push(["Employment income",$("employmentTotal").textContent.replace(/^=\s*/,"")]);
-    if(sources.selfemp)lines.push(["Self-employed income",$("selfempTotal").textContent.replace(/^=\s*/,"")]);
-    if(sources.retirement)lines.push(["Retirement/SS/Pension",$("retirementTotal").textContent]);
-    if(sources.additional)lines.push([$("addType").value==="other"?($("addOtherLabel").value||"Other income"):($("addType").value==="bonus"?"Bonus":"Commission"),$("additionalTotal").textContent]);
+    borrowers.forEach(function(b,i){
+      var p=b.prefix, tag=i===0?"":("Borrower "+(i+1)+" \u2014 ");
+      if(b.state.employment)lines.push([tag+"Employment income",$(p+"employmentTotal").textContent.replace(/^=\s*/,"")]);
+      if(b.state.selfemp)lines.push([tag+"Self-employed income",$(p+"selfempTotal").textContent.replace(/^=\s*/,"")]);
+      if(b.state.retirement)lines.push([tag+"Retirement/SS/Pension",$(p+"retirementTotal").textContent]);
+      if(b.state.additional)lines.push([tag+($(p+"addType").value==="other"?($(p+"addOtherLabel").value||"Other income"):($(p+"addType").value==="bonus"?"Bonus":"Commission")),$(p+"additionalTotal").textContent]);
+    });
     return lines;
   }
   $("printBtn").addEventListener("click",function(){try{window.print()}catch(e){}});
