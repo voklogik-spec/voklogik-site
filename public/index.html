@@ -9,7 +9,7 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-DMN78R5ESY');
+  gtag('config', 'G-DMN78R5ESY', {page_location: location.href.replace(/([?&])session_id=[^&#]*&?/,'$1').replace(/[?&]$/,'')});
 </script>
 <meta name="description" content="Voklogik: The mortgage calculator that makes sense. See your full monthly payment for a purchase or refinance and save it as a PDF.">
 <link rel="canonical" href="https://voklogik.com/">
@@ -267,6 +267,7 @@ table.sched th{color:var(--muted);font-weight:500}
         <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
       </div>
       <p class="k" id="freeNote" style="margin:12px 0 0"></p>
+      <p class="k" id="manageSub" hidden style="margin:4px 0 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
       <div class="paywall" id="paywall" hidden>
         <b id="payTitle">You have used your free reports.</b>
         <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan.</p>
@@ -328,9 +329,10 @@ table.sched th{color:var(--muted);font-weight:500}
 </section>
 </main>
 
-<footer>© Voklogik. Estimates are for planning only and are not a loan offer. <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>
+<footer>© Voklogik. Estimates are for planning only and are not a loan offer. <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a></footer>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/jspdf.umd.min.js"></script>
+<script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
@@ -449,6 +451,7 @@ table.sched th{color:var(--muted);font-weight:500}
   }
   function pmt(P,r,N){return r===0?P/N:P*r/(1-Math.pow(1+r,-N))}
   function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
+  window.track=track; // inline onclick attributes call track() from the global scope
 
   // --- PWA install support ---
   if("serviceWorker" in navigator){
@@ -607,7 +610,7 @@ table.sched th{color:var(--muted);font-weight:500}
       try{
         localStorage.setItem("voklogik:payment",JSON.stringify({
           total:tot, loan:loan, ratePct:n("rate"), years:parseInt($("term").value,10),
-          extras:Math.max(tot-pi,0), savedAt:Date.now()
+          extras:Math.max(tot-pi,0), price:price, refi:refi, savedAt:Date.now()
         }));
       }catch(e){}
     }
@@ -660,6 +663,7 @@ table.sched th{color:var(--muted);font-weight:500}
     var left=Math.max(LIMIT-used(),0),ok=left>0||paid();
     $("freeNote").textContent=left>0?left+" of "+LIMIT+" free reports left.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":""));
     $("acts").hidden=!ok;$("paywall").hidden=ok;
+    $("manageSub").hidden=!(ent&&ent.sub);
     $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
     var cid="client_reference_id="+encodeURIComponent(getVid());
     [["payPack",PAY_PACK],["payMonth",PAY_MONTH]].forEach(function(q){if(q[1])$(q[0]).href=q[1]+(q[1].indexOf("?")<0?"?":"&")+cid;$(q[0]).hidden=!q[1];$(q[0]+"Soon").hidden=!!q[1]});
@@ -677,21 +681,73 @@ table.sched th{color:var(--muted);font-weight:500}
     }
     gate();
   }
+  // The estimate a visitor typed in is saved when they click a pay link, and restored when Stripe sends them back.
+  var SK="voklogik:scenario";
+  function saveScenario(){
+    try{
+      var snap={t:Date.now(),v:{},r:{}};
+      document.querySelectorAll("input[id],select[id]").forEach(function(e){
+        if(e.type==="radio"||e.type==="checkbox")return;
+        snap.v[e.id]=e.value;
+      });
+      document.querySelectorAll('input[type="radio"]:checked').forEach(function(e){snap.r[e.name]=e.value});
+      localStorage.setItem(SK,JSON.stringify(snap));
+    }catch(e){}
+  }
+  function restoreScenario(){
+    try{
+      var raw=localStorage.getItem(SK);
+      if(!raw)return false;
+      localStorage.removeItem(SK); // single use
+      var snap=JSON.parse(raw);
+      if(!snap||Date.now()-snap.t>2*60*60*1000)return false; // ignore anything older than 2 hours
+      Object.keys(snap.v).forEach(function(id){var e=document.getElementById(id);if(e)e.value=snap.v[id]});
+      var radios=document.querySelectorAll('input[type="radio"]');
+      Object.keys(snap.r).forEach(function(name){
+        radios.forEach(function(e){if(e.name===name)e.checked=(e.value===snap.r[name])});
+      });
+      return true;
+    }catch(e){return false}
+  }
   function bump(){mem+=1;try{localStorage.setItem(UK,String(Math.max(used(),mem)))}catch(e){}gate()}
   try{var sv=JSON.parse(localStorage.getItem(CK)||"{}");IDS.forEach(function(id){if(sv[id])$(id).value=sv[id]})}catch(e){}
   IDS.forEach(function(id){$(id).addEventListener("input",function(){try{var o={};IDS.forEach(function(k){o[k]=$(k).value});localStorage.setItem(CK,JSON.stringify(o))}catch(e){}})});
+  var restored=false;
+  var sessionMatch=location.search.match(/[?&]session_id=(cs_(?:live|test)_[A-Za-z0-9]+)/);
+  var sessionId=sessionMatch?sessionMatch[1]:null;
+  if(/[?&]paid=1/.test(location.search))restored=restoreScenario();
   calc();gate();refresh();
+  // If Stripe sent the customer back to a different browser than the one they paid from,
+  // ask the server to attach the purchase to this browser (needs the session id in the return address).
+  function claimSession(){
+    return fetch(API+"claim",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:getVid(),session:sessionId})})
+      .then(function(r){return r.json()}).catch(function(){return null});
+  }
+  function hideSessionId(){
+    try{history.replaceState(null,"",location.pathname+location.search.replace(/([?&])session_id=[^&#]*&?/,"$1").replace(/[?&]$/,"")+location.hash)}catch(e){}
+  }
   if(/[?&]paid=1/.test(location.search)){
-    var tries=0,iv=setInterval(function(){
+    var tries=0,iv=null,movedNote="",stuckNote="";
+    var tick=function(){
       tries++;
-      refresh().then(function(){
+      (sessionId?claimSession():Promise.resolve(null)).then(function(c){
+        if(c&&c.ok){movedNote=c.moved?" We linked it to this browser.":"";hideSessionId()}
+        if(c&&c.reason==="already linked")stuckNote="This payment is already linked to another browser. If you need it moved, contact hello@voklogik.com.";
+        return refresh();
+      }).then(function(){
         if(paid()||tries>=15){
           clearInterval(iv);
-          $("freeNote").textContent=paid()?"Thank you! Your payment is confirmed.":"We have not received your payment confirmation yet. If you were charged, contact hello@voklogik.com.";
+          $("freeNote").textContent=paid()?"Thank you! Your payment is confirmed."+movedNote+(restored?" Your estimate has been restored.":""):(stuckNote||"We have not received your payment confirmation yet. If you were charged, contact hello@voklogik.com.");
         }
       });
-    },2000);
+    };
+    tick();iv=setInterval(tick,2000);
   }
+  $("payPack").addEventListener("click",saveScenario);
+  $("payMonth").addEventListener("click",saveScenario);
+  function refreshIfWaiting(){if(!document.hidden&&!$("paywall").hidden)refresh()}
+  document.addEventListener("visibilitychange",refreshIfWaiting);
+  window.addEventListener("focus",refreshIfWaiting);
   $("printBtn").addEventListener("click",function(){
     track("click_print");
     allow(function(free){

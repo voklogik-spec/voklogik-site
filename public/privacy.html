@@ -42,7 +42,7 @@ footer{margin:48px 0 40px;padding-top:20px;border-top:1px solid var(--line);colo
 <ul>
 <li><strong>Your details.</strong> If you type your name, email or phone into the "Your details" section, it is saved only in your browser and is used to print on your PDF or printout. We do not receive it.</li>
 <li><strong>A random ID and report counts.</strong> Your browser stores a random ID and a count of the free reports you have used. If you buy a plan, the ID links your purchase to your browser so your reports unlock.</li>
-<li><strong>Purchase information.</strong> Payments are handled by Stripe. We never see or store your card number. Stripe tells us that a payment succeeded, which plan you bought, the email you gave at checkout, and your random ID. We store your random ID, how many paid reports you have left, whether a subscription is active, and your checkout email.</li>
+<li><strong>Purchase information.</strong> Payments are handled by Stripe. We never see or store your card number. Stripe tells us that a payment succeeded, which plan you bought, the email you gave at checkout, and your random ID. We store your random ID, how many paid reports you have left, whether a subscription is active, and your checkout email. When you return from checkout, your browser sends the order reference from the address to our server so we can attach the purchase to the browser you are using. We remove that reference from the address once it is used and do not send it to our analytics. If you use the Manage subscription link, that page is hosted by Stripe, which asks for the email you used at checkout and handles the sign-in.</li>
 <li><strong>Technical information.</strong> Our hosting provider, Netlify, may log your IP address, browser type and the pages you request.</li>
 </ul>
 
@@ -80,7 +80,7 @@ footer{margin:48px 0 40px;padding-top:20px;border-top:1px solid var(--line);colo
 <p>Questions or requests: <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
 
 </main>
-<footer><a href="/">Home</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · Questions? <a href="mailto:hello@voklogik.com">hello@voklogik.com</a></footer>
+<footer><a href="/">Home</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a> · Questions? <a href="mailto:hello@voklogik.com">hello@voklogik.com</a></footer>
 </div>
 </body>
 </html>

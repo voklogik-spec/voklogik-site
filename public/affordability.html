@@ -27,7 +27,8 @@
 <meta property="og:image" content="https://voklogik.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/jspdf.umd.min.js"></script>
+<script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <style>
 :root{--bg:#F2E6D3;--ink:#3B2416;--muted:#6E5240;--line:#DCC7AA;--accent:#C4581C;--on-accent:#fff;--ochre:#E2A03F;--clay:#8C4A2A;--panel:#FBF5EA;--good:#4B7A3D;--warn:#9C3B2E;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -302,6 +303,39 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     </div>
   </div>
 
+  <!-- Property in mind (optional) -->
+  <div class="row" id="rowProperty">
+    <button type="button" class="rowhead" data-row="rowProperty">
+      <span class="rowlabel">Property in Mind (optional)</span>
+      <span class="rowright"><span class="rowvalue" id="propSummary">Not set</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <div class="f" style="margin-bottom:14px">
+        <label>Do you have a property in mind?</label>
+        <div class="seg">
+          <label><input type="radio" name="hasProp" value="no" checked>No</label>
+          <label><input type="radio" name="hasProp" value="yes">Yes</label>
+        </div>
+      </div>
+      <div id="propFields" hidden>
+        <div class="f" style="margin-bottom:14px">
+          <label for="propAddr">Property address (optional)</label>
+          <input id="propAddr" type="text" autocomplete="off" placeholder="Street, city, state, ZIP">
+          <span class="k">Stays in your browser. It's only used to help you look up an estimate and to print on your PDF.</span>
+        </div>
+        <div class="grid">
+          <div class="f"><label for="propValue">Estimated value or purchase price ($)</label><input id="propValue" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 400000"></div>
+          <div class="f"><label for="propLiens">Other loans on the property ($, optional)</label><input id="propLiens" type="number" inputmode="decimal" min="0" step="1000" placeholder="0"></div>
+        </div>
+        <p class="k" id="propPrefill" style="margin:10px 0 0"></p>
+        <p class="k" style="margin:6px 0 0">Your loan amount comes from the Monthly Payment section above. "Other loans" means a second mortgage or home equity line that would sit behind it. For a purchase, lenders generally use the lower of the purchase price and the appraised value.</p>
+        <div class="note" style="margin:14px 0 0">Need an estimate? These free sites let you search an address (each opens in a new tab): <a href="https://www.zillow.com" target="_blank" rel="noopener noreferrer">Zillow</a>, <a href="https://www.redfin.com" target="_blank" rel="noopener noreferrer">Redfin</a> and <a href="https://www.realtor.com" target="_blank" rel="noopener noreferrer">Realtor.com</a>. Their numbers can differ from each other and from an appraisal, which is what a lender relies on. A county assessor's site shows an assessed value, which usually isn't market value.</div>
+        <p class="srctotal" id="propLine"></p>
+      </div>
+      <button type="button" class="editlink" id="propDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- Ratios -->
@@ -323,6 +357,24 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <div class="statpct" id="backPct" style="color:var(--accent)">0%</div>
     <button type="button" class="infobtn" data-info="backInfo">What's included?</button>
     <div class="infobox" id="backInfo" hidden>Your monthly payment plus your other monthly debts, divided by your gross monthly income. Conventional guidelines often cap this around 36%, though many programs allow up to 43&ndash;50% with strong compensating factors.</div>
+  </div>
+  <div class="stat" id="ltvStat" hidden>
+    <div class="stathead">
+      <span class="rowlabel">Loan-to-Value (LTV)</span>
+      <span class="statword" id="ltvWord">&mdash;</span>
+    </div>
+    <div class="statpct" id="ltvPct" style="color:var(--accent)">0%</div>
+    <button type="button" class="infobtn" data-info="ltvInfo">What's included?</button>
+    <div class="infobox" id="ltvInfo" hidden>Your loan amount divided by the property's value. On a conventional loan, mortgage insurance usually applies when this is above 80%.</div>
+  </div>
+  <div class="stat" id="cltvStat" hidden>
+    <div class="stathead">
+      <span class="rowlabel">Combined Loan-to-Value (CLTV)</span>
+      <span class="statword" id="cltvWord">&mdash;</span>
+    </div>
+    <div class="statpct" id="cltvPct" style="color:var(--accent)">0%</div>
+    <button type="button" class="infobtn" data-info="cltvInfo">What's included?</button>
+    <div class="infobox" id="cltvInfo" hidden>Your loan plus any other loans secured by the property (a second mortgage or home equity line), divided by the property's value. Lenders set their own CLTV limits by program.</div>
   </div>
   <p class="k" style="margin:16px 20px 4px">If either ratio looks high, open Monthly Payment above and try a smaller loan amount or a lower rate.</p>
   <div class="acts">
@@ -355,7 +407,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
 </main>
 
-<footer>&copy; Voklogik. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a></footer>
+<footer>&copy; Voklogik. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a> &middot; <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a></footer>
 </div>
 <script>
 (function(){
@@ -383,7 +435,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   document.querySelectorAll(".rowhead").forEach(function(btn){
     btn.addEventListener("click",function(){toggleRow(btn.getAttribute("data-row"))});
   });
-  ["incomeDone","paymentDone","debtsDone"].forEach(function(id){
+  ["incomeDone","paymentDone","debtsDone","propDone"].forEach(function(id){
     $(id).addEventListener("click",function(e){
       e.stopPropagation();
       $(id).parentNode.parentNode.classList.remove("open");
@@ -671,6 +723,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       if(!(d.loan>0))return false;
       $("pLoan").value=Math.round(d.loan);
       $("pRate").value=d.ratePct;
+      if(d.price>0){
+        $("propValue").value=Math.round(d.price);
+        $("propPrefill").textContent=d.refi?"Prefilled with the home value from your payment calculator.":"Prefilled with the purchase price from your payment calculator.";
+      }
       pmtYears=d.years||30;
       pmtExtras=d.extras||0;
       usingSaved=true;
@@ -686,6 +742,30 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("paymentSource").textContent = usingSaved
       ? "Carried over from your payment calculator ("+pmtYears+"-year term). Adjust the loan amount or rate below to see how it changes your ratios."
       : "No payment found from the calculator yet \u2014 enter a loan amount and rate directly, or go use the payment calculator first.";
+  }
+
+  // ---- property in mind: LTV and CLTV ----
+  var propOn=false;
+  function propertyStats(){
+    var yes=sel("hasProp")==="yes";
+    $("propFields").hidden=!yes;
+    var value=n("propValue"), liens=n("propLiens"), loan=n("pLoan");
+    propOn=yes&&value>0&&loan>0;
+    $("ltvStat").hidden=!propOn;
+    $("cltvStat").hidden=!propOn;
+    if(!yes){$("propSummary").textContent="Not set";$("propLine").textContent="";return}
+    if(!propOn){$("propSummary").textContent="Add a value";$("propLine").textContent="";return}
+    var ltv=loan/value*100, cltv=(loan+liens)/value*100;
+    $("propSummary").textContent="LTV "+ltv.toFixed(1)+"%";
+    $("propLine").textContent="LTV "+ltv.toFixed(1)+"% ("+usd.format(loan)+" loan on "+usd.format(value)+")"+(liens>0?"; CLTV "+cltv.toFixed(1)+"% with "+usd.format(liens)+" in other loans":"");
+    $("ltvPct").textContent=ltv.toFixed(1)+"%";
+    $("cltvPct").textContent=cltv.toFixed(1)+"%";
+    var lw=$("ltvWord");
+    if(ltv<=80){lw.textContent="80% or under";lw.className="statword good"}
+    else{lw.textContent="Over 80%";lw.className="statword warn"}
+    var cw=$("cltvWord");
+    cw.textContent=liens>0?"Includes other loans":"Same as LTV";
+    cw.className="statword good";
   }
 
   // ---- master recompute ----
@@ -727,8 +807,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     }
     word($("frontWord"),front,28,36);
     word($("backWord"),back,36,43);
+    propertyStats();
   }
 
+  document.querySelectorAll('input[name="hasProp"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute)});
 
@@ -889,6 +971,16 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     row("Housing ratio",$("frontPct").textContent+"  ("+$("frontWord").textContent+")");
     row("Debt-to-income ratio (DTI)",$("backPct").textContent+"  ("+$("backWord").textContent+")");
 
+    if(propOn){
+      head("Property");
+      var addr=$("propAddr").value.trim();
+      if(addr)para(addr);
+      row("Estimated value or purchase price",usd.format(n("propValue")));
+      if(n("propLiens")>0)row("Other loans on the property",usd.format(n("propLiens")));
+      row("Loan-to-value (LTV)",$("ltvPct").textContent);
+      row("Combined loan-to-value (CLTV)",$("cltvPct").textContent);
+      para("The value is an estimate you entered. Lenders rely on an appraisal and, for a purchase, generally use the lower of the price and the appraised value.");
+    }
     y+=10;para("This is an estimate for planning only and is not a loan offer, pre-approval, or guarantee of approval. Actual qualifying income and ratios are determined by your lender's underwriting guidelines.");
     return d;
   }
