@@ -1,0 +1,5 @@
+{
+  "_how_to_add": "Add one object per lender inside the lenders list below. Fields: name; type (Bank | Credit union | Mortgage broker | Mortgage lender); national (true = shown only in its headquarters state); hqState (2-letter code); nmls (optional); phone (optional); website (optional, must start with https://); logo (optional, a file you upload into the logos folder, written like logos/my-bank.png, only use a logo the lender gave you permission to show); hours (optional, applies to the whole lender, e.g. Mon-Fri 9-5); note (optional, one short factual line, 200 characters max, no rates or payment claims); locations (a list of objects with state, city, address, and optional hours). The directory and the Find a lender link stay hidden on the site until this list has at least one entry.",
+  "updated": "2026-10-05",
+  "lenders": []
+}
