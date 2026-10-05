@@ -101,7 +101,20 @@ h2{font-size:clamp(1.4rem,2.8vw,1.8rem);letter-spacing:-.02em;margin:0 0 8px;lin
 footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line)}
 .editlink{background:none;border:0;color:var(--accent);text-decoration:underline;font-size:.9rem;cursor:pointer;padding:0}
 .pmtdetail{margin:6px 0 14px;font-size:.9rem;color:var(--muted)}
-@media (max-width:640px){.grid,.two{grid-template-columns:1fr}}
+.note a{color:var(--accent);font-weight:700;text-decoration:underline}
+.chk{display:flex;gap:8px;align-items:center;margin-top:10px;cursor:pointer;color:var(--ink)}
+input[type="checkbox"]{width:auto;padding:0;margin:0}
+.lender{border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-top:12px;background:var(--panel);overflow-wrap:anywhere}
+.lender h3{font-size:1.1rem;margin:0 0 4px}
+.lhead{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.llogo{width:52px;height:52px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid var(--line);padding:4px;flex:none}
+.lender .lnote{font-style:italic;color:var(--muted);margin-top:8px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.lender p{margin:2px 0;font-size:.95rem}
+.lender .links{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px}
+.lender .links a{color:var(--accent);font-weight:700;text-decoration:underline}
+.debtline{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px}
+@media (max-width:640px){.grid,.two{grid-template-columns:1fr}.debtline{grid-template-columns:1fr 1fr}.debtline .editlink{grid-column:1/-1;justify-self:start}}
 .acts{display:flex;flex-wrap:wrap;gap:10px;margin:18px 20px 4px}
 .btn{font:700 1rem "Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;padding:11px 18px;border-radius:6px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--accent)}
 .btn:hover{background:var(--accent);color:var(--on-accent)}
@@ -118,7 +131,7 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
 <div class="wrap">
 <header>
   <div class="bw"><a class="brand" href="/">Voklogik</a><span class="tag">The mortgage calculator that makes sense</span></div>
-  <nav><a href="/">Payment calculator</a><a href="/#contact">Contact</a></nav>
+  <nav><a href="/">Payment calculator</a><a href="#lenderSection" id="findLenderLink" hidden>Find a lender</a><a href="/#contact">Contact</a></nav>
 </header>
 
 <main>
@@ -280,7 +293,11 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
       <span class="rowright"><span class="rowvalue" id="debtsSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <div class="f"><label for="otherDebts">Car loans, credit cards, student loans, etc. ($/month)</label><input id="otherDebts" type="number" inputmode="decimal" min="0" step="25" value="0"></div>
+      <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
+      <div id="debtsList"></div>
+      <div class="note warn" id="debtsShortWarn" hidden style="margin:0 0 12px"></div>
+      <button type="button" class="bubble" id="addDebtBtn" style="margin-top:6px">+ Add a debt</button>
+      <p class="srctotal" id="debtsTotalLine"></p>
       <button type="button" class="editlink" id="debtsDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -313,6 +330,14 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
   </div>
 </div>
+
+<section id="lenderSection" hidden>
+  <h2>Would you like to reach out to a lender?</h2>
+  <p class="lede" style="margin-bottom:16px">Choose a state to see banks, credit unions and mortgage brokers with a local presence.</p>
+  <div class="f" style="max-width:340px"><label for="lenderState">State</label><select id="lenderState"></select></div>
+  <div id="lenderResults"></div>
+  <p class="k" style="margin:18px 0 0">Listed alphabetically. The order does not rank or recommend anyone. Voklogik is not a lender or mortgage broker and does not endorse any lender shown. Confirm a lender's licensing and terms yourself; mortgage originators can be looked up at <a href="https://www.nmlsconsumeraccess.org" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">nmlsconsumeraccess.org</a>. Local bank, credit union or broker? <a href="mailto:hello@voklogik.com?subject=Lender%20listing%20request" style="color:var(--accent);text-decoration:underline">Request a listing</a>.</p>
+</section>
 
 <section>
   <h2>About the self-employed income method</h2>
@@ -576,6 +601,66 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     return employmentIncome(p,state)+selfEmpIncome(p,state)+retirementIncome(p,state)+additionalIncome(p,state);
   }
 
+  // ---- itemized other monthly debts ----
+  var debtLines=[], debtSeq=0;
+  function debtTemplate(id){
+    var t="debt"+id;
+    return ''
+      +'<div class="debtwrap" id="'+t+'Wrap">'
+      +'<div class="debtline">'
+      +'<div class="f"><label for="'+t+'Type">Type</label><select id="'+t+'Type">'
+      +'<option value="card">Credit card</option><option value="auto">Auto loan</option>'
+      +'<option value="student">Student loan</option><option value="personal">Personal loan</option>'
+      +'<option value="support">Child support / alimony</option><option value="other">Other</option></select></div>'
+      +'<div class="f"><label for="'+t+'Amt">Monthly payment ($)</label><input id="'+t+'Amt" type="number" inputmode="decimal" min="0" step="10" placeholder="0"></div>'
+      +'<button type="button" class="editlink" data-removedebt="'+id+'" aria-label="Remove this debt">Remove</button>'
+      +'</div>'
+      +'<div class="f" id="'+t+'LeftField" hidden style="margin-bottom:12px"><label for="'+t+'Left">Payments left (optional)</label><input id="'+t+'Left" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 8"></div>'
+      +'<div class="note" id="'+t+'Note" hidden style="margin:0 0 12px">10 or fewer payments left: some lenders may leave this debt out of your DTI. We count it by default, to be cautious. Check with your lender before leaving it out.'
+      +'<label class="chk"><input type="checkbox" id="'+t+'Excl"> Leave this out of my DTI</label></div>'
+      +'</div>';
+  }
+  function addDebt(skipRecompute){
+    debtSeq++;
+    var id=debtSeq;
+    var div=document.createElement("div");
+    div.innerHTML=debtTemplate(id);
+    $("debtsList").appendChild(div.firstChild);
+    debtLines.push(id);
+    var wrap=$("debt"+id+"Wrap");
+    wrap.querySelectorAll("input,select").forEach(function(e){
+      e.addEventListener("input",recompute);
+      e.addEventListener("change",recompute);
+    });
+    wrap.querySelector("[data-removedebt]").addEventListener("click",function(){
+      debtLines=debtLines.filter(function(x){return x!==id});
+      wrap.remove();
+      recompute();
+    });
+    if(!skipRecompute)recompute();
+  }
+  function debtInfo(id){
+    var type=$("debt"+id+"Type").value;
+    var installment=(type==="auto"||type==="student"||type==="personal");
+    var raw=$("debt"+id+"Left").value, left=parseFloat(raw);
+    var short=installment&&raw!==""&&isFinite(left)&&left<=10;
+    return {amt:n("debt"+id+"Amt"),installment:installment,short:short,excluded:short&&$("debt"+id+"Excl").checked};
+  }
+  var SHORT_DEBT_WARN_PCT=5; // rule of thumb: combined short-term payments above this % of gross monthly income are often still counted
+  function debtTotals(){
+    var counted=0, excluded=0, shortTotal=0;
+    debtLines.forEach(function(id){
+      var info=debtInfo(id);
+      $("debt"+id+"LeftField").hidden=!info.installment;
+      $("debt"+id+"Note").hidden=!info.short;
+      if(!info.short){$("debt"+id+"Excl").checked=false;info.excluded=false}
+      if(info.short)shortTotal+=info.amt;
+      if(info.excluded)excluded+=info.amt;else counted+=info.amt;
+    });
+    return {counted:counted,excluded:excluded,shortTotal:shortTotal};
+  }
+  $("addDebtBtn").addEventListener("click",function(){addDebt()});
+
   // ---- payment (pulled from the main calculator via localStorage) ----
   var pmtExtras=0, pmtYears=30, usingSaved=false;
   function loadSavedPayment(){
@@ -618,8 +703,17 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     $("paymentSummary").textContent=usd.format(p.total)+"/mo";
     $("pmtDetail").textContent="Principal & interest: "+usd.format(p.pi)+"/mo, plus "+usd.format(pmtExtras)+"/mo taxes, insurance & fees carried over.";
 
-    var debts=n("otherDebts");
+    var dt=debtTotals(), debts=dt.counted;
     $("debtsSummary").textContent=usd.format(debts)+"/mo";
+    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"");
+    var shortPct = income>0 ? dt.shortTotal/income*100 : 0;
+    var sw=$("debtsShortWarn");
+    if(dt.shortTotal>0&&shortPct>SHORT_DEBT_WARN_PCT){
+      sw.hidden=false;
+      sw.textContent="Your short-term installment payments add up to "+usd.format(dt.shortTotal)+"/mo, about "+shortPct.toFixed(1)+"% of your gross monthly income. A payment this large is often still counted even with 10 or fewer payments left, so leaving it out may not be allowed. Ask your lender before relying on it.";
+    }else{
+      sw.hidden=true;
+    }
 
     var front = income>0 ? (p.total/income*100) : 0;
     var back = income>0 ? ((p.total+debts)/income*100) : 0;
@@ -637,6 +731,110 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
 
   document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute)});
+
+  // ---- optional lender directory: data comes from /lenders.json and the section stays hidden until it has entries ----
+  var US_STATES=[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["DC","District of Columbia"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]];
+  var lenderList=[];
+  function stateName(code){
+    for(var i=0;i<US_STATES.length;i++){if(US_STATES[i][0]===code)return US_STATES[i][1]}
+    return code;
+  }
+  // National lenders appear only in their headquarters state; local lenders appear in every state where they have a location.
+  function lendersForState(list,st){
+    return list.filter(function(l){
+      if(!l||!l.name)return false;
+      if(l.national)return l.hqState===st;
+      return l.hqState===st||(l.locations||[]).some(function(loc){return loc.state===st});
+    }).sort(function(a,b){return String(a.name).localeCompare(String(b.name))});
+  }
+  function safeUrl(u){return (typeof u==="string"&&/^https?:\/\//i.test(u))?u:null}
+  var LOGO_RE=/^logos\/[A-Za-z0-9._-]+\.(png|jpe?g|svg|webp)$/i; // logos must be files uploaded to this site's logos folder
+  function safeLogo(u){return (typeof u==="string"&&LOGO_RE.test(u))?"/"+u:null}
+  function lenderCard(l,st){
+    var card=document.createElement("div");card.className="lender";
+    var head=document.createElement("div");head.className="lhead";
+    var logo=safeLogo(l.logo);
+    if(logo){
+      var img=document.createElement("img");
+      img.setAttribute("src",logo);
+      img.setAttribute("alt",l.name+" logo");
+      img.setAttribute("loading","lazy");
+      img.className="llogo";
+      img.addEventListener("error",function(){img.hidden=true});
+      head.appendChild(img);
+    }
+    var titleBox=document.createElement("div");
+    var h=document.createElement("h3");h.textContent=l.name;titleBox.appendChild(h);
+    var bits=[];
+    if(l.type)bits.push(l.type);
+    if(l.national&&l.hqState)bits.push("Headquartered in "+stateName(l.hqState));
+    if(l.nmls)bits.push("NMLS #"+l.nmls);
+    if(bits.length){var meta=document.createElement("p");meta.className="k";meta.textContent=bits.join(" \u00b7 ");titleBox.appendChild(meta)}
+    head.appendChild(titleBox);
+    card.appendChild(head);
+    var anyLocHours=false;
+    (l.locations||[]).filter(function(loc){return loc.state===st}).forEach(function(loc){
+      var p=document.createElement("p");
+      p.textContent=[loc.address,loc.city,st].filter(Boolean).join(", ");
+      card.appendChild(p);
+      if(loc.hours){
+        anyLocHours=true;
+        var hp=document.createElement("p");hp.className="k";hp.textContent="Hours: "+loc.hours;card.appendChild(hp);
+      }
+    });
+    if(l.hours&&!anyLocHours){
+      var hp2=document.createElement("p");hp2.className="k";hp2.textContent="Hours: "+l.hours;card.appendChild(hp2);
+    }
+    if(l.note){
+      var np=document.createElement("p");np.className="lnote";np.textContent=String(l.note).slice(0,200);card.appendChild(np);
+    }
+    var links=document.createElement("div");links.className="links";
+    if(l.phone){
+      var tel=document.createElement("a");
+      tel.setAttribute("href","tel:"+String(l.phone).replace(/[^0-9+]/g,""));
+      tel.textContent=l.phone;links.appendChild(tel);
+    }
+    var url=safeUrl(l.website);
+    if(url){
+      var web=document.createElement("a");
+      web.setAttribute("href",url);web.setAttribute("target","_blank");web.setAttribute("rel","noopener noreferrer");
+      web.textContent="Website";links.appendChild(web);
+    }
+    if(links.children&&links.children.length)card.appendChild(links);
+    return card;
+  }
+  function renderLenders(){
+    var st=$("lenderState").value, box=$("lenderResults");
+    box.textContent="";
+    if(!st)return;
+    var hits=lendersForState(lenderList,st);
+    if(!hits.length){
+      var p=document.createElement("p");
+      p.textContent="No lenders are listed in "+stateName(st)+" yet.";
+      box.appendChild(p);
+      return;
+    }
+    hits.forEach(function(l){box.appendChild(lenderCard(l,st))});
+  }
+  function initLenders(){
+    var sel=$("lenderState");
+    var first=document.createElement("option");first.value="";first.textContent="Choose a state";sel.appendChild(first);
+    US_STATES.forEach(function(s){
+      var o=document.createElement("option");o.value=s[0];o.textContent=s[1];sel.appendChild(o);
+    });
+    sel.addEventListener("change",renderLenders);
+    try{
+      fetch("/lenders.json",{cache:"no-store"})
+        .then(function(r){return r.ok?r.json():null})
+        .then(function(d){
+          if(d&&Array.isArray(d.lenders)){
+            lenderList=d.lenders.filter(function(l){return l&&l.name});
+            if(lenderList.length){$("lenderSection").hidden=false;$("findLenderLink").hidden=false}
+          }
+        })
+        .catch(function(){});
+    }catch(e){}
+  }
 
   // ---- print & PDF ----
   function activeIncomeLines(){
@@ -681,7 +879,13 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     row("Total monthly payment",$("paymentSummary").textContent,true);
 
     head("Debts & ratios");
-    row("Other monthly debts",$("debtsSummary").textContent);
+    debtLines.forEach(function(id){
+      var info=debtInfo(id);
+      if(info.amt>0)row("   "+$("debt"+id+"Type").selectedOptions[0].text+(info.excluded?" (left out of DTI)":""),usd.format(info.amt)+"/mo");
+    });
+    if(debtLines.some(function(id){return debtInfo(id).excluded}))para("Debts marked as left out assume your lender excludes installment loans with 10 or fewer payments remaining. Confirm this with your lender.");
+    if(debtLines.some(function(id){return debtInfo(id).excluded})&&!$("debtsShortWarn").hidden)para($("debtsShortWarn").textContent);
+    row("Total other monthly debts",$("debtsSummary").textContent);
     row("Housing ratio",$("frontPct").textContent+"  ("+$("frontWord").textContent+")");
     row("Debt-to-income ratio (DTI)",$("backPct").textContent+"  ("+$("backWord").textContent+")");
 
@@ -696,6 +900,8 @@ footer{padding:28px 0 40px;color:var(--muted);font-size:.95rem;border-top:1px so
     });
   }
 
+  addDebt(true);
+  initLenders();
   var hadSaved=loadSavedPayment();
   updatePaymentSource();
   if(!hadSaved)toggleRow("rowPayment",true);
