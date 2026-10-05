@@ -28,16 +28,30 @@ export default async (req) => {
     const key = "session:" + obj.id;
     if (await log.get(key)) return json({ received: true, duplicate: true });
 
+    // Every paid session gets a record, so the claim function can later move the purchase
+    // to whichever browser the customer comes back in.
+    const record = {
+      state: "credited",
+      vid: null,
+      mode: obj.mode,
+      subscription: obj.subscription || null,
+      credits: obj.mode === "payment" ? PACK_CREDITS : 0,
+      email: obj.customer_details?.email || null,
+      at: new Date().toISOString(),
+    };
+
     const id = obj.client_reference_id;
     if (!ID_RE.test(id || "")) {
-      // Paid without going through the site's buttons: keep a record so you can fix it by hand.
+      // Paid without going through the site's buttons: nobody to credit yet.
+      // The customer's return page can claim it with the session id.
       await log.setJSON("unclaimed:" + obj.id, {
-        email: obj.customer_details?.email || null,
+        email: record.email,
         mode: obj.mode,
         amount: obj.amount_total,
-        at: new Date().toISOString(),
+        at: record.at,
       });
-      await log.set(key, "unclaimed");
+      record.state = "unclaimed";
+      await log.setJSON(key, record);
       return json({ received: true, unclaimed: true });
     }
 
@@ -51,7 +65,8 @@ export default async (req) => {
     }
     ent.email = obj.customer_details?.email || ent.email;
     await setEnt(id, ent);
-    await log.set(key, "done");
+    record.vid = id;
+    await log.setJSON(key, record); // written last, after the credit is in place
     return json({ received: true });
   }
 
