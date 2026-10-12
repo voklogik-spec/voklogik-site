@@ -155,6 +155,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   .pr-row.big b{color:#C4581C}
   .pr-sub{display:flex;justify-content:space-between;font-weight:700;margin-top:10px;padding:3px 8px;background:#F2E6D3;break-after:avoid}
   .pr-small{font-size:8pt;color:#6E5240;margin:0 0 3px 14px;line-height:1.3;break-inside:avoid}
+  .pr-or{color:#C4581C;font-size:12pt}
+  .pr-w{font-style:normal;font-weight:700;font-size:10pt;margin-left:10px}
+  .pr-w.good{color:#4B7A3D}
+  .pr-w.warn{color:#9C3B2E}
   .pr-text{margin:3px 0}
   .pr-para{font-size:8.5pt;color:#6E5240;margin-top:10px;padding-top:6px;border-top:1px solid #DCC7AA}
 }
@@ -1098,8 +1102,12 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var det=mode==="detailed",S=[];
     var pay=paymentTotal(),income=$("incomeSummary").textContent;
     var dt=debtTotals(),debtTotal=dt.counted+rentalLoss;
-    var front=$("frontPct").textContent+"  ("+$("frontWord").textContent+")";
-    var back=$("backPct").textContent+"  ("+$("backWord").textContent+")";
+    var inc0=lastIncome,p2=function(x){return (isFinite(x)?x:0).toFixed(2)+"%"};
+    var frontV=p2(inc0>0?pay.total/inc0*100:0),backV=p2(inc0>0?(pay.total+debtTotal)/inc0*100:0);
+    var loanN=n("pLoan"),valN=n("propValue"),liensN=n("propLiens");
+    var ltvV=p2(valN>0?loanN/valN*100:0),cltvV=p2(valN>0?(loanN+liensN)/valN*100:0);
+    var wcls=function(id){return $(id).className.indexOf("warn")>-1?"warn":"good"};
+    var RR=function(a,v,id){return {k:"row",a:a,b:v,w:$(id).textContent,wc:wcls(id)}};
     var R=function(a,b,big){return {k:"row",a:a,b:b,big:big}};
     var Sm=function(t){return {k:"small",t:t}};
     var rate=n("pRate")+"%", loanTxt=usd.format(n("pLoan"));
@@ -1107,8 +1115,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       var s=[R("Gross monthly income",income,1),R("Total monthly payment",$("paymentSummary").textContent,1),
         R("Loan amount",loanTxt),R("Interest rate",rate),R("Loan term",pmtYears+" years"),
         R("Other monthly debts",usd.format(debtTotal)+"/mo"),
-        R("Housing ratio",front),R("Debt-to-income ratio (DTI)",back)];
-      if(propOn){s.push(R("Loan-to-value (LTV)",$("ltvPct").textContent));s.push(R("Combined loan-to-value (CLTV)",$("cltvPct").textContent))}
+        RR("Housing ratio",frontV,"frontWord"),RR("Debt-to-income ratio (DTI)",backV,"backWord")];
+      if(propOn){s.push(RR("Loan-to-value (LTV)",ltvV,"ltvWord"));s.push(RR("Combined loan-to-value (CLTV)",cltvV,"cltvWord"))}
       S.push({head:"Summary",items:[].concat(s)});
     }else{
       // income, by borrower
@@ -1158,8 +1166,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       db.push(R("Total other monthly debts",usd.format(debtTotal)+"/mo",1));
       S.push({head:"Other monthly debts",items:db});
       // ratios
-      var rt=[R("Housing ratio",front),Sm("Monthly payment "+usd.format(pay.total)+" ÷ gross monthly income "+usd.format(lastIncome)),
-        R("Debt-to-income ratio (DTI)",back),Sm("(Monthly payment "+usd.format(pay.total)+" + other debts "+usd.format(debtTotal)+") ÷ gross monthly income "+usd.format(lastIncome))];
+      var rt=[RR("Housing ratio",frontV,"frontWord"),Sm("Monthly payment "+usd.format(pay.total)+" ÷ gross monthly income "+usd.format(lastIncome)),
+        RR("Debt-to-income ratio (DTI)",backV,"backWord"),Sm("(Monthly payment "+usd.format(pay.total)+" + other debts "+usd.format(debtTotal)+") ÷ gross monthly income "+usd.format(lastIncome))];
       S.push({head:"Ratios",items:rt});
       if(propOn){
         var pr=[],addr=$("propAddr").value.trim();
@@ -1167,8 +1175,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         pr.push(R("Estimated value or purchase price",usd.format(n("propValue"))));
         pr.push(R("Loan amount",loanTxt));
         if(n("propLiens")>0)pr.push(R("Other loans on the property",usd.format(n("propLiens"))));
-        pr.push(R("Loan-to-value (LTV)",$("ltvPct").textContent));
-        pr.push(R("Combined loan-to-value (CLTV)",$("cltvPct").textContent));
+        pr.push(RR("Loan-to-value (LTV)",ltvV,"ltvWord"));
+        pr.push(RR("Combined loan-to-value (CLTV)",cltvV,"cltvWord"));
         pr.push(Sm("The value is an estimate you entered. Lenders rely on an appraisal and, for a purchase, generally use the lower of the price and the appraised value."));
         S.push({head:"Property in mind",items:pr});
       }
@@ -1185,7 +1193,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     rep.sections.forEach(function(sec){
       h+='<div class="pr-sec"><h2>'+esc(sec.head)+'</h2>';
       sec.items.forEach(function(it){
-        if(it.k==="row")h+='<div class="pr-row'+(it.big?' big':'')+'"><span>'+esc(it.a)+'</span><b>'+esc(it.b)+'</b></div>';
+        if(it.k==="row"&&it.w)h+='<div class="pr-row"><span>'+esc(it.a)+'</span><span><b class="pr-or">'+esc(it.b)+'</b><em class="pr-w '+it.wc+'">'+esc(it.w)+'</em></span></div>';
+        else if(it.k==="row")h+='<div class="pr-row'+(it.big?' big':'')+'"><span>'+esc(it.a)+'</span><b>'+esc(it.b)+'</b></div>';
         else if(it.k==="sub")h+='<div class="pr-sub"><span>'+esc(it.a)+'</span><span>'+esc(it.b||"")+'</span></div>';
         else if(it.k==="small")h+='<div class="pr-small">'+esc(it.t)+'</div>';
         else if(it.k==="text")h+='<div class="pr-text">'+esc(it.t)+'</div>';
@@ -1213,6 +1222,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var CLAY=[140,74,42],CREAM=[242,230,211];
     function head(t){chk(40);T(CLAY);font("bold",14);d.text(t,L,y);y+=8;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=20}
     function row(a,b,big){chk();T(INK);font(big?"bold":"normal",big?18:11);d.text(a,L,y);if(big)T(OR);font("bold",big?18:11);d.text(b,L+W,y,{align:"right"});y+=big?26:18}
+    function ratioRow(a,val,word,cls){chk();T(INK);font("normal",11);d.text(a,L,y);var wc=cls==="warn"?[156,59,46]:[75,122,61];font("bold",11);var ww=d.getTextWidth(word);T(wc);d.text(word,L+W,y,{align:"right"});font("bold",13);T(OR);d.text(val,L+W-ww-10,y,{align:"right"});y+=20}
     function para(t){T(MU);font("normal",9);d.splitTextToSize(t,W).forEach(function(x){chk();d.text(x,L,y);y+=12})}
     function small(t){T(MU);font("normal",8);d.splitTextToSize(t,W-16).forEach(function(x){chk(12);d.text(x,L+16,y);y+=10});y+=3}
 
@@ -1225,7 +1235,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     rep.sections.forEach(function(sec){
       head(sec.head);
       sec.items.forEach(function(it){
-        if(it.k==="row")row(it.a,it.b,it.big);
+        if(it.k==="row"&&it.w)ratioRow(it.a,it.b,it.w,it.wc);
+        else if(it.k==="row")row(it.a,it.b,it.big);
         else if(it.k==="sub"){chk(34);y+=4;d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(L,y-12,W,18,"F");T(INK);font("bold",11);d.text(it.a,L+6,y);if(it.b)d.text(it.b,L+W-6,y,{align:"right"});y+=18}
         else if(it.k==="small")small(it.t);
         else if(it.k==="text"){T(INK);font("normal",11);d.splitTextToSize(it.t,W).forEach(function(x){chk();d.text(x,L,y);y+=15})}
