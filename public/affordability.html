@@ -116,15 +116,47 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .lender .links a{color:var(--accent);font-weight:700;text-decoration:underline}
 .debtline{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px}
 @media (max-width:640px){.grid,.two{grid-template-columns:1fr}.debtline{grid-template-columns:1fr 1fr}.debtline .editlink{grid-column:1/-1;justify-self:start}}
+/* income type circles and years side by side */
+.circles{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.circ{position:relative;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--bg);cursor:pointer;font:600 .95rem "Bricolage Grotesque",sans-serif;color:var(--ink)}
+.circ input[type="checkbox"]{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.circ .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);flex:none;box-sizing:border-box}
+.circ:has(input:checked){border-color:var(--accent)}
+.circ:has(input:checked) .dot{background:var(--accent);border-color:var(--accent);box-shadow:inset 0 0 0 3px var(--panel)}
+.circ:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.subpanel{border-top:1px solid var(--line);padding:16px 0 4px;margin-top:6px}
+.subtitle{font:700 1rem "Bricolage Grotesque",sans-serif;margin:0 0 6px}
+.yrow{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(var(--yc,2),minmax(0,1fr));gap:8px 10px;align-items:center;margin-bottom:8px}
+.yhead span{font:700 .82rem "Bricolage Grotesque",sans-serif;color:var(--muted)}
+.rl{font-size:.92rem;color:var(--ink)}
+.yc .ycap{display:none}
+@media (max-width:640px){
+  .yrow{grid-template-columns:repeat(var(--yc,2),minmax(0,1fr))}
+  .yrow .rl{grid-column:1/-1;margin-bottom:-2px}
+  .yhead{display:none}
+  .yc .ycap{display:block;font-size:.78rem;color:var(--muted);margin-bottom:2px}
+}
 .acts{display:flex;flex-wrap:wrap;gap:10px;margin:18px 20px 4px}
 .btn{font:700 1rem "Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;padding:11px 18px;border-radius:6px;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--accent)}
 .btn:hover{background:var(--accent);color:var(--on-accent)}
+#printReport{display:none}
+@page{margin:16mm}
 @media print{
-  :root:root:root{--bg:#fff;--ink:#000;--muted:#333;--line:#bbb;--panel:#fff;--accent:#C4581C;--on-accent:#fff}
-  header nav,.acts,.bubbles,.editlink,section{display:none!important}
-  .row:not(.open) .rowbody{display:block!important}
-  .chev{display:none}
-  .rowhead{cursor:default}
+  html,body{background:#fff!important}
+  .wrap{display:none!important}
+  #printReport{display:block;color:#3B2416;font:11pt/1.4 "Helvetica Neue",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pr-top{display:flex;justify-content:space-between;align-items:flex-end;background:#F2E6D3;border-bottom:3px solid #C4581C;padding:14px 16px 10px;margin-bottom:18px}
+  .pr-brand{font:700 24pt "Helvetica Neue",Arial,sans-serif;color:#C4581C}
+  .pr-meta{display:flex;flex-direction:column;align-items:flex-end;font-style:italic;font-size:10pt;color:#6E5240}
+  .pr-sec{margin:0 0 16px}
+  .pr-sec h2{font:700 13pt "Helvetica Neue",Arial,sans-serif;margin:0 0 8px;padding-bottom:3px;border-bottom:1px solid #DCC7AA;color:#8C4A2A;break-after:avoid}
+  .pr-row{display:flex;justify-content:space-between;gap:16px;padding:2px 0;break-inside:avoid}
+  .pr-row.big{font-size:15pt;margin-top:6px}
+  .pr-row.big b{color:#C4581C}
+  .pr-sub{display:flex;justify-content:space-between;font-weight:700;margin-top:10px;padding:3px 8px;background:#F2E6D3;break-after:avoid}
+  .pr-small{font-size:8pt;color:#6E5240;margin:0 0 3px 14px;line-height:1.3;break-inside:avoid}
+  .pr-text{margin:3px 0}
+  .pr-para{font-size:8.5pt;color:#6E5240;margin-top:10px;padding-top:6px;border-top:1px solid #DCC7AA}
 }
 </style>
 </head>
@@ -176,21 +208,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         <p class="srctotal" id="employmentTotal"></p>
       </div>
 
-      <!-- Self-employed -->
-      <div class="source" id="srcSelfemp" hidden>
-        <p class="k" style="margin:0 0 14px">For a sole proprietor (Schedule C). Most conventional lenders average two years of net profit, adding back depreciation and depletion since those reduce your taxes but not your real cash flow.</p>
-        <div class="grid">
-          <div class="f w"><label for="y1net">Most recent tax year &mdash; Net profit, Line 31 ($)</label><input id="y1net" type="number" inputmode="decimal" step="500" value="85000"></div>
-          <div class="f"><label for="y1dep">Depreciation, Line 13 ($)</label><input id="y1dep" type="number" inputmode="decimal" min="0" step="100" value="6000"></div>
-          <div class="f"><label for="y1depl">Depletion, Line 12 ($, rare)</label><input id="y1depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>
-          <div class="f w"><label for="y2net">Prior tax year &mdash; Net profit ($)</label><input id="y2net" type="number" inputmode="decimal" step="500" value="72000"></div>
-          <div class="f"><label for="y2dep">Depreciation ($)</label><input id="y2dep" type="number" inputmode="decimal" min="0" step="100" value="5000"></div>
-          <div class="f"><label for="y2depl">Depletion ($, rare)</label><input id="y2depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>
-        </div>
-        <div id="trendNote" class="note" hidden></div>
-        <p class="k" style="margin:10px 0 0">S-corps, partnerships, corporations, and businesses under two years old use different calculations. See the note below.</p>
-        <p class="srctotal" id="selfempTotal"></p>
-      </div>
+      <!-- Self-employed (built by script) -->
+      <div class="source" id="srcSelfemp" hidden></div>
 
       <!-- Retirement / SS / Pension -->
       <div class="source" id="srcRetirement" hidden>
@@ -231,34 +250,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         <p class="srctotal" id="retirementTotal"></p>
       </div>
 
-      <!-- Additional income -->
-      <div class="source" id="srcAdditional" hidden>
-        <p class="k" style="margin:0 0 14px">Bonus, commission, and similar income is usually qualified as a 2-year average, the same way self-employment income is.</p>
-        <div class="grid">
-          <div class="f w"><label for="addType">Income type</label>
-            <select id="addType">
-              <option value="bonus" selected>Bonus</option>
-              <option value="commission">Commission</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div class="f w" id="addOtherField" hidden><label for="addOtherLabel">Describe this income</label><input id="addOtherLabel" type="text" placeholder="e.g. overtime, side contract work"></div>
-        </div>
-        <div class="grid" style="margin-top:14px">
-          <div class="f"><label for="addY1">Most recent year ($)</label><input id="addY1" type="number" inputmode="decimal" min="0" step="500" value="6000"></div>
-          <div class="f"><label for="addY2">Previous year ($)</label><input id="addY2" type="number" inputmode="decimal" min="0" step="500" value="5000"></div>
-        </div>
-        <div class="f" id="bonusTimingField" style="margin-top:14px">
-          <label>When is your bonus typically paid?</label>
-          <div class="seg">
-            <label><input type="radio" name="bonusTiming" value="dec" checked>In December, for that same year</label>
-            <label><input type="radio" name="bonusTiming" value="janmar">In Jan–Mar, for the prior year's work</label>
-          </div>
-        </div>
-        <div id="bonusTimingNote" class="note" hidden></div>
-        <div id="addTrendNote" class="note" hidden></div>
-        <p class="srctotal" id="additionalTotal"></p>
-      </div>
+      <!-- Additional income (built by script) -->
+      <div class="source" id="srcAdditional" hidden></div>
 
       <div id="borrowersContainer"></div>
 
@@ -377,10 +370,18 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <div class="infobox" id="cltvInfo" hidden>Your loan plus any other loans secured by the property (a second mortgage or home equity line), divided by the property's value. Lenders set their own CLTV limits by program.</div>
   </div>
   <p class="k" style="margin:16px 20px 4px">If either ratio looks high, open Monthly Payment above and try a smaller loan amount or a lower rate.</p>
-  <div class="acts">
+  <div class="acts" style="align-items:flex-end">
+    <div class="f" style="min-width:240px">
+      <label id="rptLbl">Report detail</label>
+      <div class="seg" role="radiogroup" aria-labelledby="rptLbl">
+        <label><input type="radio" name="rptMode" value="simple" checked>Simple</label>
+        <label><input type="radio" name="rptMode" value="detailed">Detailed</label>
+      </div>
+    </div>
     <button type="button" class="btn" id="printBtn">Print</button>
     <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
   </div>
+  <p class="k" style="margin:4px 20px 14px">Simple shows the main numbers. Detailed adds each income source by borrower, what is in the monthly payment and other debts, and the property address.</p>
 </div>
 
 <section id="lenderSection" hidden>
@@ -392,15 +393,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 </section>
 
 <section>
-  <h2>About the self-employed income method</h2>
+  <h2>About the income methods</h2>
   <div class="two">
     <div>
       <h3 style="font-size:1.1rem;margin:0 0 6px">What it covers</h3>
-      <p>The standard 2-year averaging method for a sole proprietor filing Schedule C: net profit plus depreciation and depletion added back, averaged over 24 months.</p>
+      <p>Two-year averages (with an optional, non-standard three-year average) of the income on your tax returns: sole proprietor, partnership, S corporation, C corporation, farm, rental and royalty income, plus bonus, commission, capital gains, and interest and dividends. Add-backs such as depreciation follow common cash-flow methods.</p>
     </div>
     <div>
       <h3 style="font-size:1.1rem;margin:0 0 6px">What it doesn't cover</h3>
-      <p>S-corporations, partnerships, corporations, rental income, and businesses under two years old all use different calculations. A loan officer or underwriter reviewing your actual returns will give you the real number.</p>
+      <p>Businesses under two years old, business liquidity tests, special treatment of money left inside a corporation, and each lender's own rules. Rental income is simplified. A loan officer or underwriter reviewing your actual returns will give you the real number.</p>
     </div>
   </div>
 </section>
@@ -409,6 +410,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
 <footer>&copy; Voklogik. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a> &middot; <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a></footer>
 </div>
+<div id="printReport" aria-hidden="true"></div>
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
@@ -448,6 +450,226 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     });
   });
 
+  // ---- income types: selectable circles, years side by side, optional 3-year average ----
+  var YCAP=["Most recent year","Prior year","Two years back"];
+  var DECL_BIZ="Your most recent year is lower than the prior year. Many lenders use the lower year alone, or ask for a written explanation, rather than averaging. Ask your loan officer how a declining trend will be treated.";
+  var GROW_BIZ="Your income grew quickly year over year. That's good news, but a large jump sometimes prompts a lender to ask for more documentation.";
+  var DECL_ADD="This income is lower in the most recent year than the year before. Many lenders use the lower year alone, or ask why it declined, rather than simply averaging.";
+  var GROW_ADD="This income grew quickly year over year. That's good news, but a large jump sometimes prompts a lender to ask for more documentation that it will continue.";
+  // Row fields: s = +1 adds / -1 subtracts; neg = a loss (negative number) is allowed; own = scaled by ownership share; info = shown but not added.
+  var BIZ=[
+    {key:"sc",label:"Sole proprietor (Schedule C)",
+     help:"Net profit plus depreciation and depletion. Those two reduce your taxes but not your real cash flow, so lenders add them back.",
+     rows:[
+      {id:"net",label:"Net profit, Line 31",sh:"net profit",s:1,neg:1,def:[85000,72000]},
+      {id:"dep",label:"Depreciation, Line 13",sh:"depreciation",s:1,def:[6000,5000]},
+      {id:"depl",label:"Depletion, Line 12 (rare)",sh:"depletion",s:1,def:[0,0]}]},
+    {key:"pt",label:"Partnership (Form 1065 & K-1)",own:1,dist:["k1"],
+     help:"Ordinary income and guaranteed payments from your K-1, plus your share of depreciation, depletion and amortization from the partnership return.",
+     rows:[
+      {id:"k1",label:"Ordinary business income, K-1 Box 1",sh:"K-1 ordinary income",s:1,neg:1},
+      {id:"gp",label:"Guaranteed payments, K-1 Box 4",sh:"guaranteed payments",s:1},
+      {id:"da",label:"Depreciation, depletion & amortization (business total)",sh:"depreciation, depletion & amortization",s:1,own:1},
+      {id:"dist",label:"Distributions paid to you, K-1 Box 19 (optional)",info:1}]},
+    {key:"sco",label:"S Corp (Form 1120S & K-1)",own:1,dist:["k1"],
+     help:"The W-2 wages you pay yourself, plus your K-1 income, plus your share of depreciation, depletion and amortization. Lenders usually want K-1 income to be paid out as distributions or backed by business cash.",
+     rows:[
+      {id:"w2",label:"W-2 wages from the S corp, Box 1",sh:"W-2 wages",s:1},
+      {id:"k1",label:"Ordinary business income, K-1 Box 1",sh:"K-1 ordinary income",s:1,neg:1},
+      {id:"da",label:"Depreciation, depletion & amortization (business total)",sh:"depreciation, depletion & amortization",s:1,own:1},
+      {id:"dist",label:"Distributions paid to you, K-1 Box 16 (optional)",info:1}]},
+    {key:"cc",label:"C Corp (Form 1120)",own:1,
+     help:"W-2 wages plus your ownership share of the corporation's after-tax income and add-backs. Ask your lender how money left inside the business is treated.",
+     rows:[
+      {id:"w2",label:"W-2 wages from the corporation, Box 1",sh:"W-2 wages",s:1},
+      {id:"ti",label:"Taxable income, Line 30 (business total)",sh:"taxable income",s:1,neg:1,own:1},
+      {id:"tax",label:"Total tax, Line 31 (business total)",sh:"total tax",s:-1,own:1},
+      {id:"da",label:"Depreciation, depletion & amortization (business total)",sh:"depreciation, depletion & amortization",s:1,own:1}]},
+    {key:"farm",label:"Farm income (Schedule F)",
+     help:"Net farm profit plus depreciation, depletion and amortization. Farm income swings with weather and prices, so some lenders look at three years.",
+     rows:[
+      {id:"net",label:"Net farm profit, Line 34",sh:"net farm profit",s:1,neg:1},
+      {id:"dep",label:"Depreciation, Line 14",sh:"depreciation",s:1},
+      {id:"depl",label:"Depletion & amortization (rare)",sh:"depletion & amortization",s:1}]},
+    {key:"rent",label:"Rents or royalties (Schedule E)",
+     extra:"Monthly payment still owed on these rentals: principal, interest, taxes and insurance ($/mo)",
+     help:"Rents and royalties minus expenses, then adding back depreciation, mortgage interest, taxes and insurance. If you still owe a mortgage on the property, its monthly payment is subtracted. A net loss counts as a monthly debt, not as negative income.",
+     rows:[
+      {id:"rents",label:"Rents received, Line 3",sh:"rents",s:1},
+      {id:"roy",label:"Royalties received, Line 4",sh:"royalties",s:1},
+      {id:"exp",label:"Total expenses, Line 20 (enter as a positive number)",sh:"total expenses",s:-1},
+      {id:"dep",label:"Depreciation, Line 18",sh:"depreciation",s:1},
+      {id:"int",label:"Mortgage interest, Line 12",sh:"mortgage interest",s:1},
+      {id:"tax",label:"Taxes, Line 16",sh:"taxes",s:1},
+      {id:"ins",label:"Insurance, Line 9",sh:"insurance",s:1}]}
+  ];
+  var ADDL=[
+    {key:"bonus",label:"Bonus",timing:1,
+     rows:[{id:"amt",label:"Bonus received",sh:"bonus",s:1,def:[6000,5000]}]},
+    {key:"commission",label:"Commission",
+     rows:[{id:"amt",label:"Commission received",sh:"commission",s:1}]},
+    {key:"capgain",label:"Capital gains (Schedule D)",
+     help:"Capital gains are less predictable than wages. Many lenders want a consistent history and may ignore one-time sales, so some look at three years instead of two. Ask your lender.",
+     rows:[{id:"net",label:"Net capital gain or loss, Schedule D Line 16",sh:"net capital gain",s:1,neg:1}]},
+    {key:"intdiv",label:"Interest & dividends",
+     help:"Lenders may count this only if you can document the accounts that earn it and they will still be there after closing. Money you use for your down payment or closing costs usually can't also count as income.",
+     rows:[
+      {id:"int",label:"Taxable interest, Form 1040 Line 2b",sh:"interest",s:1},
+      {id:"div",label:"Ordinary dividends, Form 1040 Line 3b",sh:"dividends",s:1}]},
+    {key:"other",label:"Other",otherLabel:1,
+     rows:[{id:"amt",label:"Amount received",sh:"amount",s:1}]}
+  ];
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+  function panelHtml(base,c,p){
+    var h='<div class="subpanel" id="'+base+'_panel" hidden><h4 class="subtitle">'+esc(c.label)+'</h4>';
+    if(c.help)h+='<p class="k" style="margin:0 0 12px">'+esc(c.help)+'</p>';
+    if(c.otherLabel)h+='<div class="f" style="margin-bottom:12px"><label for="'+base+'_label">Describe this income</label><input id="'+base+'_label" type="text" placeholder="e.g. overtime, side contract work"></div>';
+    if(c.own)h+='<div class="f" style="max-width:260px;margin-bottom:12px"><label for="'+base+'_own">Your ownership share (%)</label><input id="'+base+'_own" type="number" inputmode="decimal" min="0" max="100" step="1" value="100"></div>';
+    h+='<div class="ytable" style="--yc:2"><div class="yrow yhead"><span></span>';
+    for(var y=1;y<=3;y++)h+='<span'+(y===3?' class="c3" hidden':'')+'>'+YCAP[y-1]+'</span>';
+    h+='</div>';
+    c.rows.forEach(function(r){
+      h+='<div class="yrow"><label class="rl" for="'+base+'_'+r.id+'_1">'+esc(r.label)+'</label>';
+      for(var y=1;y<=3;y++){
+        var dv=(r.def&&r.def[y-1]!==undefined)?' value="'+r.def[y-1]+'"':'';
+        h+='<div class="yc'+(y===3?' c3':'')+'"'+(y===3?' hidden':'')+'><span class="ycap" aria-hidden="true">'+YCAP[y-1]+'</span>'
+          +'<input id="'+base+'_'+r.id+'_'+y+'" type="number" inputmode="decimal" step="'+(r.neg?500:100)+'"'+(r.neg?'':' min="0"')+dv+' placeholder="0" aria-label="'+esc(r.label+', '+YCAP[y-1])+'"></div>';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+    if(c.extra)h+='<div class="f" style="max-width:460px;margin-top:12px"><label for="'+base+'_pitia">'+esc(c.extra)+'</label><input id="'+base+'_pitia" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>';
+    if(c.timing)h+='<div class="f" style="margin-top:14px"><label>When is this bonus typically paid?</label>'
+      +'<div class="seg"><label><input type="radio" name="'+p+'bonusTiming" value="dec" checked>In December, for that same year</label>'
+      +'<label><input type="radio" name="'+p+'bonusTiming" value="janmar">In Jan&ndash;Mar, for the prior year\'s work</label></div></div>'
+      +'<div id="'+base+'_tnote" class="note" hidden></div>';
+    h+='<label class="chk"><input type="checkbox" id="'+base+'_3"> Use a 3-year average (non-standard)</label>';
+    h+='<p class="k" style="margin:4px 0 0">Most lenders average two years. A third year is less common and is mainly used when a lender asks for it, for example when income swings widely from year to year.</p>';
+    h+='<div id="'+base+'_note" class="note" hidden></div><p class="srctotal" id="'+base+'_total"></p></div>';
+    return h;
+  }
+  function groupHtml(p,kind,list,intro,aria){
+    var h='<p class="k" style="margin:0 0 12px">'+esc(intro)+'</p><div class="circles" role="group" aria-label="'+esc(aria)+'">';
+    list.forEach(function(c,i){
+      h+='<label class="circ"><input type="checkbox" id="'+p+kind+'_'+c.key+'_on"'+(i===0?' checked':'')+'><span class="dot" aria-hidden="true"></span><span>'+esc(c.label)+'</span></label>';
+    });
+    h+='</div>';
+    list.forEach(function(c){h+=panelHtml(p+kind+'_'+c.key,c,p)});
+    h+='<p class="srctotal" id="'+p+kind+'Total"></p>';
+    return h;
+  }
+  function selfEmpHtml(p){return groupHtml(p,"bz",BIZ,"Select every kind of self-employment income you have, then enter the figures from your tax returns. Most lenders average two years and add back items like depreciation, which reduce your taxes but not your real cash flow.","Types of self-employment income")}
+  function additionalHtml(p){return groupHtml(p,"ad",ADDL,"Select each type that applies. Bonus, commission, capital gains, and interest or dividends are usually averaged over two years, because lenders want income that is likely to continue.","Types of additional income")}
+  $("srcSelfemp").innerHTML=selfEmpHtml("");
+  $("srcAdditional").innerHTML=additionalHtml("");
+
+  var subResults={}, rentalLoss=0, lastIncome=0, pmtParts=null;
+  function numOrNull(id,neg){var raw=$(id).value,x=parseFloat(raw);if(raw===""||!isFinite(x))return null;return (!neg&&x<0)?0:x}
+  function groupIncome(p,kind,list,isAdd){
+    var res=[];subResults[p+kind]=res;
+    var total=0,count=0;
+    list.forEach(function(c){
+      var base=p+kind+"_"+c.key, panel=$(base+"_panel");
+      var on=$(base+"_on").checked;
+      panel.hidden=!on;
+      if(!on)return;
+      count++;
+      var use3=$(base+"_3").checked;
+      panel.querySelector(".ytable").style.setProperty("--yc",use3?3:2);
+      panel.querySelectorAll(".c3").forEach(function(e){e.hidden=!use3});
+      var own=c.own?Math.min(n(base+"_own"),100)/100:1;
+      var yd=function(y){
+        var sum=0,any=false;
+        c.rows.forEach(function(r){
+          if(r.info)return;
+          var x=numOrNull(base+"_"+r.id+"_"+y,r.neg);
+          if(x===null)return;
+          any=true;sum+=r.s*x*(r.own?own:1);
+        });
+        return {sum:sum,any:any};
+      };
+      var yrs=[yd(1),yd(2)],msgs=[],warn=false;
+      if(use3){
+        var d3=yd(3);
+        if(d3.any)yrs.push(d3);
+        else msgs.push("Enter the third year's figures to use a 3-year average. Until then this uses two years.");
+      }
+      var v=yrs.reduce(function(a,y){return a+y.sum},0)/(12*yrs.length);
+      if(!yrs[1].any&&yrs[0].any)msgs.push("Only one year is filled in, so it is spread over two years. Enter the prior year too.");
+      if(yrs[0].sum<yrs[1].sum){msgs.push(isAdd?DECL_ADD:DECL_BIZ);warn=true}
+      else if(yrs[1].sum>0&&yrs[0].sum>yrs[1].sum*1.5)msgs.push(isAdd?GROW_ADD:GROW_BIZ);
+      if(yrs.some(function(y){return y.sum<0})){msgs.push("At least one year shows a loss. Lenders subtract losses from your income and may ask you to explain them.");warn=true}
+      if(c.dist){
+        var sd=0,anyd=false,sk=0;
+        for(var y=1;y<=yrs.length;y++){
+          var dx=numOrNull(base+"_dist_"+y,false);
+          if(dx!==null){anyd=true;sd+=dx}
+          for(var k=0;k<c.dist.length;k++){var kx=numOrNull(base+"_"+c.dist[k]+"_"+y,true);if(kx!==null)sk+=kx}
+        }
+        if(sk>0&&!anyd)msgs.push("Lenders usually check that K-1 income is actually paid out to you as distributions, or that the business has enough cash on hand. Enter your distributions to compare.");
+        else if(anyd&&sd<sk){msgs.push("Your K-1 distributions are lower than your K-1 income. Lenders often count only the distributions, or ask for proof the business has the cash, so your qualifying income may be lower than shown.");warn=true}
+      }
+      if(c.timing){
+        var bt=$(base+"_tnote");
+        if(sel(p+"bonusTiming")==="janmar"){
+          bt.hidden=false;bt.className="note";
+          bt.textContent="Since this bonus is paid early in the following year for the prior year's work, what you call your \"most recent year\" is really last year's bonus, received a few months ago. Lenders will usually want to see it received in at least the most recent two years before counting it, and may ask about this year's expected amount separately.";
+        }else bt.hidden=true;
+      }
+      var label=c.otherLabel?($(base+"_label").value.trim()||"Other income"):c.label;
+      var span=yrs.length+"-year average", contribute=v, text, small=[];
+      var tsum=yrs.reduce(function(a,y){return a+y.sum},0);
+      if(c.own&&own<1)small.push("Ownership share of "+Math.round(own*100)+"% applied to the items marked as business totals.");
+      for(var yy=1;yy<=yrs.length;yy++){
+        var terms=[];
+        for(var ri=0;ri<c.rows.length;ri++){
+          var rw=c.rows[ri];
+          if(rw.info)continue;
+          var xv=numOrNull(base+"_"+rw.id+"_"+yy,rw.neg);
+          if(xv===null||xv===0)continue;
+          terms.push({sg:rw.s,t:(rw.sh||rw.label)+" "+usd.format(xv*(rw.own?own:1))});
+        }
+        var expr=terms.map(function(t,k){return (k===0?(t.sg<0?"less ":""):(t.sg<0?" less ":" plus "))+t.t}).join("");
+        if(terms.length===1&&terms[0].sg>0)small.push(YCAP[yy-1]+": "+terms[0].t);
+        else small.push(YCAP[yy-1]+": "+(expr||"nothing entered")+" = "+usd.format(yrs[yy-1].sum));
+      }
+      small.push("Total "+usd.format(tsum)+" ÷ "+(12*yrs.length)+" months = "+usd.format(v)+"/mo ("+span+")");
+      if(c.extra){
+        var pit=n(base+"_pitia");
+        if(pit>0)small.push("Less "+usd.format(pit)+"/mo still owed on the rentals.");
+        v-=pit;
+        if(v<0){
+          rentalLoss+=-v;contribute=0;
+          small.push("Net rental loss of "+usd.format(-v)+"/mo is counted as a monthly debt, not as negative income.");
+          text="Net rental loss of "+usd.format(-v)+"/mo ("+span+", after the rental payment), counted as a monthly debt";
+          res.push({label:label,text:"$0/mo",amt:0,small:small});
+        }else{
+          contribute=v;
+          small.push("Net rental income "+usd.format(v)+"/mo.");
+          text="= "+usd.format(v)+"/mo ("+span+", after the rental payment)";
+          res.push({label:label,text:usd.format(v)+"/mo",amt:v,small:small});
+        }
+      }else{
+        text="= "+usd.format(v)+"/mo ("+span+")";
+        res.push({label:label,text:usd.format(v)+"/mo",amt:v,small:small});
+      }
+      var note=$(base+"_note");
+      if(msgs.length){note.hidden=false;note.className="note"+(warn?" warn":"");note.textContent=msgs.join(" ")}
+      else note.hidden=true;
+      $(base+"_total").textContent=text;
+      total+=contribute;
+    });
+    $(p+kind+"Total").textContent = count===0 ? "Select at least one type above." : (count>1 ? "Total from the types selected: "+usd.format(total)+"/mo" : "");
+    return total;
+  }
+  function selfEmpIncome(p,state){
+    if(!state.selfemp){subResults[p+"bz"]=[];return 0}
+    return groupIncome(p,"bz",BIZ,false);
+  }
+  function additionalIncome(p,state){
+    if(!state.additional){subResults[p+"ad"]=[];return 0}
+    return groupIncome(p,"ad",ADDL,true);
+  }
   // ---- income source bubbles ----
   var sources={employment:true,selfemp:false,retirement:false,additional:false};
   var srcElId={employment:"srcEmployment",selfemp:"srcSelfemp",retirement:"srcRetirement",additional:"srcAdditional"};
@@ -489,19 +711,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="f" id="'+p+'hoursField" hidden style="margin-top:14px"><label for="'+p+'hoursWk">Hours per week</label><input id="'+p+'hoursWk" type="number" inputmode="decimal" min="1" max="120" step="1" value="40"></div>'
       +'<p class="srctotal" id="'+p+'employmentTotal"></p>'
       +'</div>'
-      +'<div class="source" id="'+p+'srcSelfemp" hidden>'
-      +'<p class="k" style="margin:0 0 14px">For a sole proprietor (Schedule C), averaged over two years.</p>'
-      +'<div class="grid">'
-      +'<div class="f w"><label for="'+p+'y1net">Most recent tax year &mdash; Net profit, Line 31 ($)</label><input id="'+p+'y1net" type="number" inputmode="decimal" step="500" value="85000"></div>'
-      +'<div class="f"><label for="'+p+'y1dep">Depreciation, Line 13 ($)</label><input id="'+p+'y1dep" type="number" inputmode="decimal" min="0" step="100" value="6000"></div>'
-      +'<div class="f"><label for="'+p+'y1depl">Depletion, Line 12 ($, rare)</label><input id="'+p+'y1depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>'
-      +'<div class="f w"><label for="'+p+'y2net">Prior tax year &mdash; Net profit ($)</label><input id="'+p+'y2net" type="number" inputmode="decimal" step="500" value="72000"></div>'
-      +'<div class="f"><label for="'+p+'y2dep">Depreciation ($)</label><input id="'+p+'y2dep" type="number" inputmode="decimal" min="0" step="100" value="5000"></div>'
-      +'<div class="f"><label for="'+p+'y2depl">Depletion ($, rare)</label><input id="'+p+'y2depl" type="number" inputmode="decimal" min="0" step="100" value="0"></div>'
-      +'</div>'
-      +'<div id="'+p+'trendNote" class="note" hidden></div>'
-      +'<p class="srctotal" id="'+p+'selfempTotal"></p>'
-      +'</div>'
+      +'<div class="source" id="'+p+'srcSelfemp" hidden>'+selfEmpHtml(p)+'</div>'
       +'<div class="source" id="'+p+'srcRetirement" hidden>'
       +'<div class="grid">'
       +'<div class="f"><label for="'+p+'retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="'+p+'retAmt" type="number" inputmode="decimal" min="0" step="50" value="2500"></div>'
@@ -521,24 +731,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'</div></div>'
       +'<p class="srctotal" id="'+p+'retirementTotal"></p>'
       +'</div>'
-      +'<div class="source" id="'+p+'srcAdditional" hidden>'
-      +'<p class="k" style="margin:0 0 14px">Bonus, commission, or other income, averaged over two years.</p>'
-      +'<div class="grid">'
-      +'<div class="f w"><label for="'+p+'addType">Income type</label><select id="'+p+'addType">'
-      +'<option value="bonus" selected>Bonus</option><option value="commission">Commission</option><option value="other">Other</option></select></div>'
-      +'<div class="f w" id="'+p+'addOtherField" hidden><label for="'+p+'addOtherLabel">Describe this income</label><input id="'+p+'addOtherLabel" type="text" placeholder="e.g. overtime, side contract work"></div>'
-      +'</div>'
-      +'<div class="grid" style="margin-top:14px">'
-      +'<div class="f"><label for="'+p+'addY1">Most recent year ($)</label><input id="'+p+'addY1" type="number" inputmode="decimal" min="0" step="500" value="6000"></div>'
-      +'<div class="f"><label for="'+p+'addY2">Previous year ($)</label><input id="'+p+'addY2" type="number" inputmode="decimal" min="0" step="500" value="5000"></div>'
-      +'</div>'
-      +'<div class="f" id="'+p+'bonusTimingField" style="margin-top:14px"><label>When is this bonus typically paid?</label>'
-      +'<div class="seg"><label><input type="radio" name="'+p+'bonusTiming" value="dec" checked>In December, for that same year</label>'
-      +'<label><input type="radio" name="'+p+'bonusTiming" value="janmar">In Jan&ndash;Mar, for the prior year\'s work</label></div></div>'
-      +'<div id="'+p+'bonusTimingNote" class="note" hidden></div>'
-      +'<div id="'+p+'addTrendNote" class="note" hidden></div>'
-      +'<p class="srctotal" id="'+p+'additionalTotal"></p>'
-      +'</div>'
+      +'<div class="source" id="'+p+'srcAdditional" hidden>'+additionalHtml(p)+'</div>'
       +'<p class="k" style="margin:16px 0 0"><strong>Borrower '+num+' total:</strong> <span id="'+p+'IncomeSubtotal">$0/mo</span></p>'
       +'</div>';
   }
@@ -562,7 +755,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         recompute();
       });
     });
-    $(p+"Wrap").querySelectorAll("input,select").forEach(function(e){e.addEventListener("input",recompute)});
+    $(p+"Wrap").querySelectorAll("input,select").forEach(function(e){e.addEventListener("input",recompute);if(e.type==="checkbox"||e.type==="radio")e.addEventListener("change",recompute)});
     $(p+"Wrap").querySelectorAll('input[name="'+p+'nontax"],input[name="'+p+'nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
     $(p+"Wrap").querySelector('[data-removeborrower]').addEventListener("click",function(){
       borrowers=borrowers.filter(function(b){return b.prefix!==p});
@@ -579,24 +772,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     if(!state.employment)return 0;
     var v=freqToMonthly(n(p+"wageAmt"),$(p+"wageFreq").value,n(p+"hoursWk"));
     $(p+"employmentTotal").textContent="= "+usd.format(v)+"/mo";
-    return v;
-  }
-  function selfEmpIncome(p,state){
-    if(!state.selfemp)return 0;
-    var y1=n(p+"y1net")+n(p+"y1dep")+n(p+"y1depl");
-    var y2=n(p+"y2net")+n(p+"y2dep")+n(p+"y2depl");
-    var tn=$(p+"trendNote");
-    if(y1<y2){
-      tn.hidden=false;tn.className="note warn";
-      tn.textContent="Your most recent year is lower than the prior year. Many lenders use the lower year alone, or ask for a written explanation, rather than averaging. Ask your loan officer how a declining trend will be treated.";
-    }else if(y2>0&&y1>y2*1.5){
-      tn.hidden=false;tn.className="note";
-      tn.textContent="Your income grew quickly year over year. That's good news, but a large jump sometimes prompts a lender to ask for more documentation.";
-    }else{
-      tn.hidden=true;
-    }
-    var v=(y1+y2)/24;
-    $(p+"selfempTotal").textContent="= "+usd.format(v)+"/mo";
     return v;
   }
   function retirementIncome(p,state){
@@ -617,37 +792,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var total = taxable+grossed;
     $(p+"retirementTotal").textContent="Taxable "+usd.format(taxable)+" + non-taxable grossed up "+usd.format(grossed)+" = "+usd.format(total)+"/mo used";
     return total;
-  }
-  function additionalIncome(p,state){
-    if(!state.additional)return 0;
-    var type=$(p+"addType").value;
-    $(p+"addOtherField").hidden = type!=="other";
-    $(p+"bonusTimingField").hidden = type!=="bonus";
-
-    var bt=$(p+"bonusTimingNote");
-    if(type==="bonus"&&sel(p+"bonusTiming")==="janmar"){
-      bt.hidden=false;bt.className="note";
-      bt.textContent="Since this bonus is paid early in the following year for the prior year's work, what you call your \"most recent year\" is really last year's bonus, received a few months ago. Lenders will usually want to see it received in at least the most recent two years before counting it, and may ask about this year's expected amount separately.";
-    }else{
-      bt.hidden=true;
-    }
-
-    var y1=n(p+"addY1"), y2=n(p+"addY2");
-    var tn=$(p+"addTrendNote");
-    if(y1<y2){
-      tn.hidden=false;tn.className="note warn";
-      tn.textContent="This income is lower in the most recent year than the year before. Many lenders use the lower year alone, or ask why it declined, rather than simply averaging.";
-    }else if(y2>0&&y1>y2*1.5){
-      tn.hidden=false;tn.className="note";
-      tn.textContent="This income grew quickly year over year. That's good news, but a large jump sometimes prompts a lender to ask for more documentation that it will continue.";
-    }else{
-      tn.hidden=true;
-    }
-
-    var v=(y1+y2)/24;
-    var label = type==="other" ? ($(p+"addOtherLabel").value||"Other income") : (type==="bonus"?"Bonus":"Commission");
-    $(p+"additionalTotal").textContent=label+": ("+usd.format(y1)+" + "+usd.format(y2)+") \u00f7 24 = "+usd.format(v)+"/mo";
-    return v;
   }
   function borrowerIncome(p,state){
     return employmentIncome(p,state)+selfEmpIncome(p,state)+retirementIncome(p,state)+additionalIncome(p,state);
@@ -729,6 +873,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       }
       pmtYears=d.years||30;
       pmtExtras=d.extras||0;
+      pmtParts=(d.parts&&isFinite(d.parts.tax)&&isFinite(d.parts.ins))?{tax:+d.parts.tax||0,ins:+d.parts.ins||0,mi:+d.parts.mi||0,hoa:+d.parts.hoa||0,hoaLabel:String(d.parts.hoaLabel||"HOA / association dues").slice(0,40)}:null;
       usingSaved=true;
       return true;
     }catch(e){return false}
@@ -771,21 +916,23 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   // ---- master recompute ----
   function recompute(){
     var income=0;
+    rentalLoss=0;
     borrowers.forEach(function(b){
       if($(b.prefix+"hoursField"))$(b.prefix+"hoursField").hidden = $(b.prefix+"wageFreq").value!=="hourly";
       var v=borrowerIncome(b.prefix,b.state);
       if(b.prefix!=="")$(b.prefix+"IncomeSubtotal").textContent=usd.format(v)+"/mo";
       income+=v;
     });
+    lastIncome=income;
     $("incomeSummary").textContent=usd.format(income)+"/mo";
 
     var p=paymentTotal();
     $("paymentSummary").textContent=usd.format(p.total)+"/mo";
     $("pmtDetail").textContent="Principal & interest: "+usd.format(p.pi)+"/mo, plus "+usd.format(pmtExtras)+"/mo taxes, insurance & fees carried over.";
 
-    var dt=debtTotals(), debts=dt.counted;
+    var dt=debtTotals(), debts=dt.counted+rentalLoss;
     $("debtsSummary").textContent=usd.format(debts)+"/mo";
-    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"");
+    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"")+(rentalLoss>0?" (includes "+usd.format(rentalLoss)+"/mo net rental loss from Schedule E)":"");
     var shortPct = income>0 ? dt.shortTotal/income*100 : 0;
     var sw=$("debtsShortWarn");
     if(dt.shortTotal>0&&shortPct>SHORT_DEBT_WARN_PCT){
@@ -812,7 +959,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   document.querySelectorAll('input[name="hasProp"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
-  document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute)});
+  document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute);if(e.type==="checkbox"||e.type==="radio")e.addEventListener("change",recompute)});
 
   // ---- optional lender directory: data comes from /lenders.json and the section stays hidden until it has entries ----
   var US_STATES=[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["DC","District of Columbia"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]];
@@ -918,70 +1065,174 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     }catch(e){}
   }
 
-  // ---- print & PDF ----
-  function activeIncomeLines(){
-    var lines=[];
-    borrowers.forEach(function(b,i){
-      var p=b.prefix, tag=i===0?"":("Borrower "+(i+1)+" \u2014 ");
-      if(b.state.employment)lines.push([tag+"Employment income",$(p+"employmentTotal").textContent.replace(/^=\s*/,"")]);
-      if(b.state.selfemp)lines.push([tag+"Self-employed income",$(p+"selfempTotal").textContent.replace(/^=\s*/,"")]);
-      if(b.state.retirement)lines.push([tag+"Retirement/SS/Pension",$(p+"retirementTotal").textContent]);
-      if(b.state.additional)lines.push([tag+($(p+"addType").value==="other"?($(p+"addOtherLabel").value||"Other income"):($(p+"addType").value==="bonus"?"Bonus":"Commission")),$(p+"additionalTotal").textContent]);
-    });
-    return lines;
+  // ---- print & PDF: one report model (Simple or Detailed), two renderers ----
+  function rptMode(){var e=document.querySelector('input[name="rptMode"]:checked');return e?e.value:"simple"}
+  function freqSmall(amt,freq,hrs,v){
+    var A=usd.format(amt),t;
+    if(freq==="annual")t=A+" per year, divided by 12";
+    else if(freq==="monthly")t=A+" per month";
+    else if(freq==="semimonthly")t=A+" twice a month, times 2";
+    else if(freq==="biweekly")t=A+" every two weeks, times 26, divided by 12";
+    else if(freq==="weekly")t=A+" per week, times 52, divided by 12";
+    else t=A+" per hour, times "+(hrs||40)+" hours a week, times 52, divided by 12";
+    return freq==="monthly"?t:t+" = "+usd.format(v)+"/mo";
   }
-  $("printBtn").addEventListener("click",function(){try{window.print()}catch(e){}});
+  function incomeLinesFor(b){
+    var p=b.prefix,st=b.state,out=[];
+    if(st.employment){
+      var ev=employmentIncome(p,st);
+      out.push({label:"Employment income",amt:ev,small:[freqSmall(n(p+"wageAmt"),$(p+"wageFreq").value,n(p+"hoursWk"),ev)]});
+    }
+    if(st.selfemp)(subResults[p+"bz"]||[]).forEach(function(r){out.push(r)});
+    if(st.retirement){
+      var rv=retirementIncome(p,st),rs=[freqSmall(n(p+"retAmt"),$(p+"retFreq").value,0,freqToMonthly(n(p+"retAmt"),$(p+"retFreq").value))];
+      var tt=$(p+"retirementTotal").textContent;
+      if(tt.charAt(0)!=="=")rs.push(tt);
+      out.push({label:"Retirement / Social Security / Pension",amt:rv,small:rs});
+    }
+    if(st.additional)(subResults[p+"ad"]||[]).forEach(function(r){out.push(r)});
+    return out;
+  }
+  function buildReport(mode){
+    recompute();
+    var det=mode==="detailed",S=[];
+    var pay=paymentTotal(),income=$("incomeSummary").textContent;
+    var dt=debtTotals(),debtTotal=dt.counted+rentalLoss;
+    var front=$("frontPct").textContent+"  ("+$("frontWord").textContent+")";
+    var back=$("backPct").textContent+"  ("+$("backWord").textContent+")";
+    var R=function(a,b,big){return {k:"row",a:a,b:b,big:big}};
+    var Sm=function(t){return {k:"small",t:t}};
+    var rate=n("pRate")+"%", loanTxt=usd.format(n("pLoan"));
+    if(!det){
+      var s=[R("Gross monthly income",income,1),R("Total monthly payment",$("paymentSummary").textContent,1),
+        R("Loan amount",loanTxt),R("Interest rate",rate),R("Loan term",pmtYears+" years"),
+        R("Other monthly debts",usd.format(debtTotal)+"/mo"),
+        R("Housing ratio",front),R("Debt-to-income ratio (DTI)",back)];
+      if(propOn){s.push(R("Loan-to-value (LTV)",$("ltvPct").textContent));s.push(R("Combined loan-to-value (CLTV)",$("cltvPct").textContent))}
+      S.push({head:"Summary",items:[].concat(s)});
+    }else{
+      // income, by borrower
+      var inc=[];
+      borrowers.forEach(function(b,i){
+        var lines=incomeLinesFor(b);
+        if(!lines.length)return;
+        var sub=0;lines.forEach(function(l){sub+=l.amt});
+        if(borrowers.length>1)inc.push({k:"sub",a:"Borrower "+(i+1),b:usd.format(sub)+"/mo"});
+        lines.forEach(function(l){
+          inc.push(R(l.label,usd.format(l.amt)+"/mo"));
+          (l.small||[]).forEach(function(t){inc.push(Sm(t))});
+        });
+      });
+      inc.push(R("Gross monthly income",income,1));
+      S.push({head:"Gross monthly income",items:inc});
+      // payment
+      var pm=[R("Loan amount",loanTxt),R("Interest rate",rate),R("Loan term",pmtYears+" years"),R("Principal & interest",usd.format(pay.pi)+"/mo")];
+      var parts=pmtParts;
+      var psum=parts?(parts.tax+parts.ins+parts.mi+parts.hoa):0;
+      if(parts&&Math.abs(psum-pmtExtras)<1.5){
+        pm.push(R("Property tax",usd.format(parts.tax)+"/mo"));
+        pm.push(R("Home insurance",usd.format(parts.ins)+"/mo"));
+        if(parts.mi>0)pm.push(R("Mortgage insurance",usd.format(parts.mi)+"/mo"));
+        if(parts.hoa>0)pm.push(R(parts.hoaLabel||"HOA / association dues",usd.format(parts.hoa)+"/mo"));
+      }else if(pmtExtras>0){
+        pm.push(R("Taxes, insurance & fees carried over",usd.format(pmtExtras)+"/mo"));
+      }
+      pm.push(R("Total monthly payment",$("paymentSummary").textContent,1));
+      pm.push(Sm($("paymentSource").textContent));
+      S.push({head:"Monthly payment",items:pm});
+      // debts
+      var db=[];
+      debtLines.forEach(function(id){
+        var info=debtInfo(id);
+        if(!(info.amt>0))return;
+        db.push(R($("debt"+id+"Type").selectedOptions[0].text+(info.excluded?" (left out of DTI)":""),usd.format(info.amt)+"/mo"));
+        var left=$("debt"+id+"Left").value;
+        if(info.installment&&left!=="")db.push(Sm(left+" payment"+(parseFloat(left)===1?"":"s")+" left"));
+      });
+      if(rentalLoss>0){db.push(R("Net rental loss (Schedule E)",usd.format(rentalLoss)+"/mo"));db.push(Sm("A rental that costs more than it earns is counted as a monthly debt."))}
+      if(!db.length)db.push({k:"text",t:"No other monthly debts entered."});
+      if(debtLines.some(function(id){return debtInfo(id).excluded})){
+        db.push(Sm("Debts marked as left out assume your lender excludes installment loans with 10 or fewer payments remaining. Confirm this with your lender."));
+        if(!$("debtsShortWarn").hidden)db.push(Sm($("debtsShortWarn").textContent));
+      }
+      db.push(R("Total other monthly debts",usd.format(debtTotal)+"/mo",1));
+      S.push({head:"Other monthly debts",items:db});
+      // ratios
+      var rt=[R("Housing ratio",front),Sm("Monthly payment "+usd.format(pay.total)+" ÷ gross monthly income "+usd.format(lastIncome)),
+        R("Debt-to-income ratio (DTI)",back),Sm("(Monthly payment "+usd.format(pay.total)+" + other debts "+usd.format(debtTotal)+") ÷ gross monthly income "+usd.format(lastIncome))];
+      S.push({head:"Ratios",items:rt});
+      if(propOn){
+        var pr=[],addr=$("propAddr").value.trim();
+        if(addr){pr.push({k:"text",t:"Property address: "+addr})}
+        pr.push(R("Estimated value or purchase price",usd.format(n("propValue"))));
+        pr.push(R("Loan amount",loanTxt));
+        if(n("propLiens")>0)pr.push(R("Other loans on the property",usd.format(n("propLiens"))));
+        pr.push(R("Loan-to-value (LTV)",$("ltvPct").textContent));
+        pr.push(R("Combined loan-to-value (CLTV)",$("cltvPct").textContent));
+        pr.push(Sm("The value is an estimate you entered. Lenders rely on an appraisal and, for a purchase, generally use the lower of the price and the appraised value."));
+        S.push({head:"Property in mind",items:pr});
+      }
+    }
+    return {
+      sub:"Affordability summary"+(det?" (detailed)":""),
+      date:new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),
+      sections:S,
+      disclaimer:"This is an estimate for planning only and is not a loan offer, pre-approval, or guarantee of approval. Actual qualifying income and ratios are determined by your lender's underwriting guidelines."
+    };
+  }
+  function renderPrint(rep){
+    var h='<div class="pr-top"><div class="pr-brand">Voklogik</div><div class="pr-meta"><span>'+esc(rep.sub)+'</span><span>'+esc(rep.date)+'</span></div></div>';
+    rep.sections.forEach(function(sec){
+      h+='<div class="pr-sec"><h2>'+esc(sec.head)+'</h2>';
+      sec.items.forEach(function(it){
+        if(it.k==="row")h+='<div class="pr-row'+(it.big?' big':'')+'"><span>'+esc(it.a)+'</span><b>'+esc(it.b)+'</b></div>';
+        else if(it.k==="sub")h+='<div class="pr-sub"><span>'+esc(it.a)+'</span><span>'+esc(it.b||"")+'</span></div>';
+        else if(it.k==="small")h+='<div class="pr-small">'+esc(it.t)+'</div>';
+        else if(it.k==="text")h+='<div class="pr-text">'+esc(it.t)+'</div>';
+      });
+      h+='</div>';
+    });
+    h+='<div class="pr-para">'+esc(rep.disclaimer)+'</div>';
+    return h;
+  }
+  function fillPrint(){
+    try{$("printReport").innerHTML=renderPrint(buildReport(rptMode()))}catch(e){}
+  }
+  window.addEventListener("beforeprint",fillPrint);
+  $("printBtn").addEventListener("click",function(){fillPrint();try{window.print()}catch(e){}});
 
   function buildPdf(){
     var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
+    var rep=buildReport(rptMode());
     var d=new J({unit:"pt",format:"letter"}),PW=612,L=56,W=PW-2*L,y=64;
     var OR=[196,88,28],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170];
     function T(c){d.setTextColor(c[0],c[1],c[2])}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
     function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
     function chk(need){if(y+ (need||18) >740){d.addPage();y=64}}
-    function head(t){chk(40);T(INK);font("bold",14);d.text(t,L,y);y+=8;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=20}
-    function row(a,b,big){chk();T(INK);font(big?"bold":"normal",big?18:11);d.text(a,L,y);font("bold",big?18:11);d.text(b,L+W,y,{align:"right"});y+=big?26:18}
+    var CLAY=[140,74,42],CREAM=[242,230,211];
+    function head(t){chk(40);T(CLAY);font("bold",14);d.text(t,L,y);y+=8;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=20}
+    function row(a,b,big){chk();T(INK);font(big?"bold":"normal",big?18:11);d.text(a,L,y);if(big)T(OR);font("bold",big?18:11);d.text(b,L+W,y,{align:"right"});y+=big?26:18}
     function para(t){T(MU);font("normal",9);d.splitTextToSize(t,W).forEach(function(x){chk();d.text(x,L,y);y+=12})}
+    function small(t){T(MU);font("normal",8);d.splitTextToSize(t,W-16).forEach(function(x){chk(12);d.text(x,L+16,y);y+=10});y+=3}
 
+    d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(0,0,PW,104,"F");
     T(OR);font("bold",22);d.text("Voklogik",L,y);y+=6;
-    T(MU);font("italic",11);d.text("Affordability summary",L,y+16);
-    d.text(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),L+W,y+16,{align:"right"});
+    T(MU);font("italic",11);d.text(rep.sub,L,y+16);
+    d.text(rep.date,L+W,y+16,{align:"right"});
     y+=34;D(OR);d.setLineWidth(2);d.line(L,y,L+W,y);y+=26;
 
-    head("Income");
-    activeIncomeLines().forEach(function(l){row(l[0],l[1])});
-    y+=6;row("Gross monthly income",$("incomeSummary").textContent,true);
-
-    head("Monthly payment");
-    para($("paymentSource").textContent);
-    row("Loan amount",usd.format(n("pLoan")));
-    row("Interest rate",n("pRate")+"%");
-    para($("pmtDetail").textContent);
-    row("Total monthly payment",$("paymentSummary").textContent,true);
-
-    head("Debts & ratios");
-    debtLines.forEach(function(id){
-      var info=debtInfo(id);
-      if(info.amt>0)row("   "+$("debt"+id+"Type").selectedOptions[0].text+(info.excluded?" (left out of DTI)":""),usd.format(info.amt)+"/mo");
+    rep.sections.forEach(function(sec){
+      head(sec.head);
+      sec.items.forEach(function(it){
+        if(it.k==="row")row(it.a,it.b,it.big);
+        else if(it.k==="sub"){chk(34);y+=4;d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(L,y-12,W,18,"F");T(INK);font("bold",11);d.text(it.a,L+6,y);if(it.b)d.text(it.b,L+W-6,y,{align:"right"});y+=18}
+        else if(it.k==="small")small(it.t);
+        else if(it.k==="text"){T(INK);font("normal",11);d.splitTextToSize(it.t,W).forEach(function(x){chk();d.text(x,L,y);y+=15})}
+      });
+      y+=8;
     });
-    if(debtLines.some(function(id){return debtInfo(id).excluded}))para("Debts marked as left out assume your lender excludes installment loans with 10 or fewer payments remaining. Confirm this with your lender.");
-    if(debtLines.some(function(id){return debtInfo(id).excluded})&&!$("debtsShortWarn").hidden)para($("debtsShortWarn").textContent);
-    row("Total other monthly debts",$("debtsSummary").textContent);
-    row("Housing ratio",$("frontPct").textContent+"  ("+$("frontWord").textContent+")");
-    row("Debt-to-income ratio (DTI)",$("backPct").textContent+"  ("+$("backWord").textContent+")");
-
-    if(propOn){
-      head("Property");
-      var addr=$("propAddr").value.trim();
-      if(addr)para(addr);
-      row("Estimated value or purchase price",usd.format(n("propValue")));
-      if(n("propLiens")>0)row("Other loans on the property",usd.format(n("propLiens")));
-      row("Loan-to-value (LTV)",$("ltvPct").textContent);
-      row("Combined loan-to-value (CLTV)",$("cltvPct").textContent);
-      para("The value is an estimate you entered. Lenders rely on an appraisal and, for a purchase, generally use the lower of the price and the appraised value.");
-    }
-    y+=10;para("This is an estimate for planning only and is not a loan offer, pre-approval, or guarantee of approval. Actual qualifying income and ratios are determined by your lender's underwriting guidelines.");
+    y+=6;para(rep.disclaimer);
     return d;
   }
   if(window.jspdf){
