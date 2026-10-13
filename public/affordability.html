@@ -293,10 +293,34 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <div class="rowbody">
       <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
       <div id="debtsList"></div>
+      <div class="debtwrap" id="ownedDebtRow" hidden style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Payments on other properties</strong><strong id="ownedDebtAmt">$0/mo</strong></div>
+        <p class="k" id="ownedDebtNote" style="margin:6px 0 0"></p>
+      </div>
+      <div class="debtwrap" id="rentalLossRow" hidden style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Rental loss (Schedule E)</strong><strong id="rentalLossAmt">$0/mo</strong></div>
+        <p class="k" id="rentalLossNote" style="margin:6px 0 0"></p>
+      </div>
       <div class="note warn" id="debtsShortWarn" hidden style="margin:0 0 12px"></div>
       <button type="button" class="bubble" id="addDebtBtn" style="margin-top:6px">+ Add a debt</button>
       <p class="srctotal" id="debtsTotalLine"></p>
       <button type="button" class="editlink" id="debtsDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Additional properties owned -->
+  <div class="row" id="rowOwned">
+    <button type="button" class="rowhead" data-row="rowOwned">
+      <span class="rowlabel">Additional Properties Owned</span>
+      <span class="rowright"><span class="rowvalue" id="ownedSummary">None</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <p class="k" style="margin:0 0 14px">Add each property you own besides the one you are buying or refinancing. The payment on each one counts as a monthly debt, unless it is already netted inside a complete Schedule E.</p>
+      <div id="ownedList"></div>
+      <div class="note warn" id="ownedWarn" hidden style="margin:12px 0"></div>
+      <button type="button" class="bubble" id="addOwnedBtn" style="margin-top:6px">+ Add a property</button>
+      <p class="srctotal" id="ownedTotalLine"></p>
+      <button type="button" class="editlink" id="ownedDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
 
@@ -441,7 +465,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   document.querySelectorAll(".rowhead").forEach(function(btn){
     btn.addEventListener("click",function(){toggleRow(btn.getAttribute("data-row"))});
   });
-  ["incomeDone","paymentDone","debtsDone","propDone"].forEach(function(id){
+  ["incomeDone","paymentDone","debtsDone","ownedDone","propDone"].forEach(function(id){
     $(id).addEventListener("click",function(e){
       e.stopPropagation();
       $(id).parentNode.parentNode.classList.remove("open");
@@ -542,7 +566,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       h+='</div>';
     });
     h+='</div>';
-    if(c.extra)h+='<div class="f" style="max-width:460px;margin-top:12px"><label for="'+base+'_pitia">'+esc(c.extra)+'</label><input id="'+base+'_pitia" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>';
+    if(c.extra)h+='<div class="f" style="max-width:460px;margin-top:12px"><label for="'+base+'_pitia">'+esc(c.extra)+'</label><input id="'+base+'_pitia" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>'
+      +'<div class="note" id="'+base+'_linked" hidden style="margin-top:10px"></div>';
     if(c.timing)h+='<div class="f" style="margin-top:14px"><label>When is this bonus typically paid?</label>'
       +'<div class="seg"><label><input type="radio" name="'+p+'bonusTiming" value="dec" checked>In December, for that same year</label>'
       +'<label><input type="radio" name="'+p+'bonusTiming" value="janmar">In Jan&ndash;Mar, for the prior year\'s work</label></div></div>'
@@ -567,7 +592,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   $("srcSelfemp").innerHTML=selfEmpHtml("");
   $("srcAdditional").innerHTML=additionalHtml("");
 
-  var subResults={}, rentalLoss=0, lastIncome=0, pmtParts=null;
+  var ownedLinks={}, subResults={}, rentalLoss=0, rentalLossItems=[], lastIncome=0, pmtParts=null;
   function numOrNull(id,neg){var raw=$(id).value,x=parseFloat(raw);if(raw===""||!isFinite(x))return null;return (!neg&&x<0)?0:x}
   function groupIncome(p,kind,list,isAdd){
     var res=[];subResults[p+kind]=res;
@@ -639,13 +664,18 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       }
       small.push("Total "+usd.format(tsum)+" ÷ "+(12*yrs.length)+" months = "+usd.format(v)+"/mo ("+span+")");
       if(c.extra){
-        var pit=n(base+"_pitia");
-        if(pit>0)small.push("Less "+usd.format(pit)+"/mo still owed on the rentals.");
+        var pit0=n(base+"_pitia"),lk=ownedLinks[base]||[],lsum=lk.reduce(function(a,x){return a+x.pay},0),pit=pit0+lsum;
+        var lkEl=$(base+"_linked");
+        if(lkEl){
+          if(lk.length){lkEl.hidden=false;lkEl.textContent="Linked from Additional Properties Owned: "+lk.map(function(x){return x.name+" "+usd.format(x.pay)+"/mo"}).join(", ")+". These payments are subtracted here automatically, so you don't need to type them in the box above."}
+          else lkEl.hidden=true;
+        }
+        if(pit>0)small.push("Less "+usd.format(pit)+"/mo still owed on the rentals"+(lsum>0?" ("+(pit0>0?usd.format(pit0)+" entered, plus ":"")+lk.map(function(x){return x.name+" "+usd.format(x.pay)}).join(", ")+")":"")+".");
         v-=pit;
         if(v<0){
-          rentalLoss+=-v;contribute=0;
-          small.push("Net rental loss of "+usd.format(-v)+"/mo is counted as a monthly debt, not as negative income.");
-          text="Net rental loss of "+usd.format(-v)+"/mo ("+span+", after the rental payment), counted as a monthly debt";
+          rentalLoss+=-v;rentalLossItems.push({label:label,amt:-v});contribute=0;
+          small.push("Net rental loss of "+usd.format(-v)+"/mo moves to Other monthly debts as a rental loss, not as negative income.");
+          text="Net rental loss of "+usd.format(-v)+"/mo ("+span+", after the rental payment). It is listed under Other monthly debts.";
           res.push({label:label,text:"$0/mo",amt:0,small:small});
         }else{
           contribute=v;
@@ -677,7 +707,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   // ---- income source bubbles ----
   var sources={employment:true,selfemp:false,retirement:false,additional:false};
   var srcElId={employment:"srcEmployment",selfemp:"srcSelfemp",retirement:"srcRetirement",additional:"srcAdditional"};
-  var borrowers=[{prefix:"",state:sources}]; // borrower 1 is always present
+  var borrowers=[{prefix:"",state:sources,extras:[]}]; // borrower 1 is always present
 
   document.querySelectorAll('.bubble[data-src]').forEach(function(btn){
     btn.addEventListener("click",function(){
@@ -690,21 +720,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   });
 
   // ---- dynamically add any number of additional borrowers ----
-  function borrowerTemplate(num){
-    var p="b"+num;
+  function employmentHtml(p){
     return ''
-      +'<div class="source" id="'+p+'Wrap" style="border:1px solid var(--line); border-radius:8px; padding:16px; margin-top:14px">'
-      +'<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">'
-      +'<h3 style="font-size:1.05rem; margin:0">Borrower '+num+' income</h3>'
-      +'<button type="button" class="editlink" data-removeborrower="'+p+'Wrap">Remove</button>'
-      +'</div>'
-      +'<div class="bubbles">'
-      +'<button type="button" class="bubble" data-srcn="employment" data-prefix="'+p+'" aria-pressed="false">+ Employment income</button>'
-      +'<button type="button" class="bubble" data-srcn="selfemp" data-prefix="'+p+'" aria-pressed="false">+ Self-employed income</button>'
-      +'<button type="button" class="bubble" data-srcn="retirement" data-prefix="'+p+'" aria-pressed="false">+ Retirement / Social Security / Pension</button>'
-      +'<button type="button" class="bubble" data-srcn="additional" data-prefix="'+p+'" aria-pressed="false">+ Additional income</button>'
-      +'</div>'
-      +'<div class="source" id="'+p+'srcEmployment" hidden>'
       +'<div class="grid">'
       +'<div class="f"><label for="'+p+'wageAmt">Gross employment income ($)</label><input id="'+p+'wageAmt" type="number" inputmode="decimal" min="0" step="50" value="5000"></div>'
       +'<div class="f"><label for="'+p+'wageFreq">Paid</label><select id="'+p+'wageFreq">'
@@ -714,9 +731,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'</div>'
       +'<div class="f" id="'+p+'hoursField" hidden style="margin-top:14px"><label for="'+p+'hoursWk">Hours per week</label><input id="'+p+'hoursWk" type="number" inputmode="decimal" min="1" max="120" step="1" value="40"></div>'
       +'<p class="srctotal" id="'+p+'employmentTotal"></p>'
-      +'</div>'
-      +'<div class="source" id="'+p+'srcSelfemp" hidden>'+selfEmpHtml(p)+'</div>'
-      +'<div class="source" id="'+p+'srcRetirement" hidden>'
+      +'';
+  }
+  function retirementHtml(p){
+    return ''
       +'<div class="grid">'
       +'<div class="f"><label for="'+p+'retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="'+p+'retAmt" type="number" inputmode="decimal" min="0" step="50" value="2500"></div>'
       +'<div class="f"><label for="'+p+'retFreq">Paid</label><select id="'+p+'retFreq">'
@@ -734,7 +752,25 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="f"><label for="'+p+'grossUp">Gross-up rate (%)</label><input id="'+p+'grossUp" type="number" inputmode="decimal" min="0" max="50" step="1" value="25"></div>'
       +'</div></div>'
       +'<p class="srctotal" id="'+p+'retirementTotal"></p>'
+      +'';
+  }
+  function borrowerTemplate(num){
+    var p="b"+num;
+    return ''
+      +'<div class="source" id="'+p+'Wrap" style="border:1px solid var(--line); border-radius:8px; padding:16px; margin-top:14px">'
+      +'<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">'
+      +'<h3 style="font-size:1.05rem; margin:0">Borrower '+num+' income</h3>'
+      +'<button type="button" class="editlink" data-removeborrower="'+p+'Wrap">Remove</button>'
       +'</div>'
+      +'<div class="bubbles">'
+      +'<button type="button" class="bubble" data-srcn="employment" data-prefix="'+p+'" aria-pressed="false">+ Employment income</button>'
+      +'<button type="button" class="bubble" data-srcn="selfemp" data-prefix="'+p+'" aria-pressed="false">+ Self-employed income</button>'
+      +'<button type="button" class="bubble" data-srcn="retirement" data-prefix="'+p+'" aria-pressed="false">+ Retirement / Social Security / Pension</button>'
+      +'<button type="button" class="bubble" data-srcn="additional" data-prefix="'+p+'" aria-pressed="false">+ Additional income</button>'
+      +'</div>'
+      +'<div class="source" id="'+p+'srcEmployment" hidden>'+employmentHtml(p)+'</div>'
+      +'<div class="source" id="'+p+'srcSelfemp" hidden>'+selfEmpHtml(p)+'</div>'
+      +'<div class="source" id="'+p+'srcRetirement" hidden>'+retirementHtml(p)+'</div>'
       +'<div class="source" id="'+p+'srcAdditional" hidden>'+additionalHtml(p)+'</div>'
       +'<p class="k" style="margin:16px 0 0"><strong>Borrower '+num+' total:</strong> <span id="'+p+'IncomeSubtotal">$0/mo</span></p>'
       +'</div>';
@@ -748,7 +784,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("borrowersContainer").appendChild(div.firstChild);
 
     var state={employment:false,selfemp:false,retirement:false,additional:false};
-    borrowers.push({prefix:p,state:state});
+    borrowers.push({prefix:p,state:state,extras:[]});wireExtras(borrowers[borrowers.length-1]);
 
     document.querySelectorAll('.bubble[data-prefix="'+p+'"]').forEach(function(btn){
       btn.addEventListener("click",function(){
@@ -800,6 +836,73 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function borrowerIncome(p,state){
     return employmentIncome(p,state)+selfEmpIncome(p,state)+retirementIncome(p,state)+additionalIncome(p,state);
   }
+
+
+  // ---- "+ Add another" for every income type, per borrower ----
+  var XT={
+    employment:{src:"srcEmployment",add:"+ Add another employment income",title:"Employment income",html:function(p){return employmentHtml(p)}},
+    selfemp:{src:"srcSelfemp",add:"+ Add another self-employed income",title:"Self-employed income",html:function(p){return selfEmpHtml(p)}},
+    retirement:{src:"srcRetirement",add:"+ Add another retirement / Social Security / pension",title:"Retirement / Social Security / Pension",html:function(p){return retirementHtml(p)}},
+    additional:{src:"srcAdditional",add:"+ Add more additional income",title:"Additional income",html:function(p){return additionalHtml(p)}}
+  };
+  var XMAX=5, xSeq=0;
+  function xOf(b,type){return b.extras.filter(function(e){return e.type===type})}
+  function renumber(b){
+    Object.keys(XT).forEach(function(type){
+      var list=xOf(b,type);
+      list.forEach(function(e,i){var t=$(e.prefix+"Title");if(t)t.textContent=XT[type].title+" "+(i+2)});
+      var host=$(b.prefix+XT[type].src),btn=host&&host.querySelector('[data-xadd="'+type+'"]');
+      if(btn)btn.hidden=list.length>=XMAX-1;
+    });
+  }
+  function addExtra(b,type,list){
+    xSeq++;
+    var xp=b.prefix+"x"+xSeq+"_";
+    var card=document.createElement("div");
+    card.className="source xcard";card.id=xp+"Wrap";
+    card.style.cssText="border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:14px";
+    card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      +'<h4 class="subtitle" style="margin:0" id="'+xp+'Title"></h4>'
+      +'<button type="button" class="editlink" data-xremove="1">Remove</button></div>'
+      +'<div class="f" style="margin-bottom:14px"><label for="'+xp+'name">Name (optional, e.g. employer or business)</label><input id="'+xp+'name" type="text" maxlength="60"></div>'
+      +XT[type].html(xp);
+    card.querySelectorAll('input[type="number"]').forEach(function(inp){
+      if(!/(_own|hoursWk|grossUp|nontaxPct|nontaxAmt)$/.test(inp.id))inp.value="";
+    });
+    list.appendChild(card);
+    var e={prefix:xp,type:type};
+    b.extras.push(e);
+    card.querySelector("[data-xremove]").addEventListener("click",function(){
+      b.extras=b.extras.filter(function(x){return x!==e});
+      card.remove();renumber(b);recompute();
+    });
+    renumber(b);recompute();
+  }
+  function wireExtras(b){
+    Object.keys(XT).forEach(function(type){
+      var host=$(b.prefix+XT[type].src);
+      if(!host||host.querySelector('[data-xadd="'+type+'"]'))return;
+      var list=document.createElement("div");
+      var btn=document.createElement("button");
+      btn.type="button";btn.className="bubble";btn.setAttribute("data-xadd",type);btn.setAttribute("aria-pressed","false");
+      btn.style.marginTop="16px";btn.textContent=XT[type].add;
+      host.appendChild(list);host.appendChild(btn);
+      btn.addEventListener("click",function(){addExtra(b,type,list)});
+    });
+  }
+  function extraState(type){var st={employment:false,selfemp:false,retirement:false,additional:false};st[type]=true;return st}
+  function borrowerTotal(b){
+    var v=borrowerIncome(b.prefix,b.state);
+    b.extras.forEach(function(e){
+      var hf=$(e.prefix+"hoursField");
+      if(hf)hf.hidden=$(e.prefix+"wageFreq").value!=="hourly";
+      v+=b.state[e.type]?borrowerIncome(e.prefix,extraState(e.type)):0;
+    });
+    return v;
+  }
+  wireExtras(borrowers[0]);
+  $("rowIncome").addEventListener("input",function(){recompute()});
+  $("rowIncome").addEventListener("change",function(){recompute()});
 
   // ---- itemized other monthly debts ----
   var debtLines=[], debtSeq=0;
@@ -861,6 +964,118 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
   $("addDebtBtn").addEventListener("click",function(){addDebt()});
 
+
+  // ---- additional properties owned ----
+  var ownedLines=[], ownedSeq=0, ownedInfo={debt:0,items:[]};
+  var OCC={primary:"Primary residence",secondary:"Second home",investment:"Investment property"};
+  function ownedTemplate(id){
+    var t="own"+id;
+    return ''
+      +'<div class="source" id="'+t+'Wrap" style="border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:14px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      +'<h4 class="subtitle" style="margin:0" id="'+t+'Title">Property</h4>'
+      +'<button type="button" class="editlink" data-removeowned="'+id+'">Remove</button></div>'
+      +'<div class="f" style="margin-bottom:14px"><label for="'+t+'Addr">Address</label><input id="'+t+'Addr" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP"></div>'
+      +'<div class="grid">'
+      +'<div class="f"><label for="'+t+'Occ">Occupancy</label><select id="'+t+'Occ"><option value="primary">Primary residence</option><option value="secondary">Second home</option><option value="investment">Investment property</option></select></div>'
+      +'<div class="f"><label for="'+t+'Pay">Monthly payment ($)</label><input id="'+t+'Pay" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>'
+      +'</div>'
+      +'<p class="k" style="margin:6px 0 14px">Include principal, interest, taxes, insurance and any HOA dues (PITIA).</p>'
+      +'<div class="f"><label>Is this property listed on your Schedule E?</label>'
+      +'<div class="seg"><label><input type="radio" name="'+t+'Sche" value="no" checked>No</label><label><input type="radio" name="'+t+'Sche" value="yes">Yes</label></div></div>'
+      +'<div id="'+t+'SchBox" hidden style="margin-top:14px"><div class="f"><label>How is the payment handled?</label>'
+      +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="complete" checked><span>Complete Schedule E: the payment is netted in my rental income, so exclude it from my debts</span></label>'
+      +'<div class="f" id="'+t+'TgtWrap" style="margin:10px 0 0 28px"><label for="'+t+'Tgt">Which Rents or royalties entry is it on?</label><select id="'+t+'Tgt"></select></div>'
+      +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="incomplete"><span>The payment is not reflected on Schedule E, so count it as a debt</span></label></div>'
+      +'<p class="k" style="margin:10px 0 0">Enter this property\'s rents and expenses under Self-employed income, Rents or royalties. Its payment and address are linked there automatically and subtracted from the rental income.</p></div>'
+      +'</div>';
+  }
+  function addOwned(){
+    ownedSeq++;var id=ownedSeq;
+    var div=document.createElement("div");div.innerHTML=ownedTemplate(id);
+    $("ownedList").appendChild(div.firstChild);
+    ownedLines.push(id);
+    $("own"+id+"Wrap").querySelector("[data-removeowned]").addEventListener("click",function(){
+      ownedLines=ownedLines.filter(function(x){return x!==id});
+      $("own"+id+"Wrap").remove();recompute();
+    });
+    recompute();
+  }
+  function rentalOn(){
+    return borrowers.some(function(b){
+      if(!b.state.selfemp)return false;
+      var on=function(pp){var e=$(pp+"bz_rent_on");return e&&e.checked};
+      return on(b.prefix)||b.extras.some(function(x){return x.type==="selfemp"&&on(x.prefix)});
+    });
+  }
+  function rentTargets(){
+    var out=[];
+    borrowers.forEach(function(b,i){
+      if(!b.state.selfemp)return;
+      var who=borrowers.length>1?"Borrower "+(i+1)+": ":"";
+      var on=function(pp){var e=$(pp+"bz_rent_on");return e&&e.checked};
+      if(on(b.prefix))out.push({base:b.prefix+"bz_rent",label:who+"Rents or royalties"});
+      var k=0;
+      b.extras.forEach(function(x){
+        if(x.type!=="selfemp")return;
+        k++;
+        if(on(x.prefix)){var nm=$(x.prefix+"name").value.trim();out.push({base:x.prefix+"bz_rent",label:who+"Rents or royalties, self-employed entry "+(k+1)+(nm?" ("+nm+")":"")})}
+      });
+    });
+    return out;
+  }
+  function ownedCalc(){
+    var debt=0,items=[],excl=0,targets=rentTargets(),links={},unlinked=0;
+    var tkey=targets.map(function(x){return x.base+"|"+x.label}).join("~");
+    ownedLines.forEach(function(id,i){
+      var t="own"+id,pay=n(t+"Pay"),sche=sel(t+"Sche")==="yes";
+      $(t+"SchBox").hidden=!sche;
+      var declared=sche&&sel(t+"Sch")==="complete";
+      var tg=null;
+      if(declared){
+        var tsel=$(t+"Tgt");
+        if(tsel.getAttribute("data-k")!==tkey){
+          var keep=tsel.value;
+          tsel.innerHTML=targets.map(function(x){return '<option value="'+esc(x.base)+'">'+esc(x.label)+'</option>'}).join("");
+          tsel.setAttribute("data-k",tkey);
+          if(keep&&targets.some(function(x){return x.base===keep}))tsel.value=keep;
+        }
+        tg=targets.filter(function(x){return x.base===tsel.value})[0]||targets[0]||null;
+        $(t+"TgtWrap").hidden=!targets.length;
+      }else $(t+"TgtWrap").hidden=true;
+      var netted=!!(declared&&tg);
+      var addr=$(t+"Addr").value.trim(),name=addr||("Property "+(i+1));
+      $(t+"Title").textContent="Property "+(i+1);
+      var occ=$(t+"Occ").value;
+      if(netted){
+        excl+=pay;
+        (links[tg.base]=links[tg.base]||[]).push({name:name,pay:pay});
+      }else{
+        debt+=pay;
+        if(declared)unlinked++;
+      }
+      items.push({name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,target:tg?tg.label:""});
+    });
+    ownedLinks=links;
+    ownedInfo={debt:debt,items:items,excl:excl};
+    $("ownedSummary").textContent=items.length?(items.length+(items.length===1?" property":" properties")+(debt>0?", "+usd.format(debt)+"/mo":"")):"None";
+    var w=$("ownedWarn");
+    if(unlinked>0){
+      w.hidden=false;
+      w.textContent="You marked a property as a complete Schedule E, but Rents or royalties (Sch. E) is not turned on under Self-employed income. Turn it on and the payment will link there. Until then the payment is counted as a monthly debt.";
+    }else w.hidden=true;
+    $("ownedTotalLine").textContent=items.length?("Payments counted as monthly debts: "+usd.format(debt)+"/mo"+(excl>0?" (leaving out "+usd.format(excl)+"/mo netted in Schedule E)":"")):"";
+    var row=$("ownedDebtRow");row.hidden=!(debt>0);
+    if(debt>0){
+      $("ownedDebtAmt").textContent=usd.format(debt)+"/mo";
+      $("ownedDebtNote").textContent="From Additional Properties Owned: "+items.filter(function(x){return !x.complete&&x.pay>0}).map(function(x){return x.name+" "+usd.format(x.pay)}).join(", ")+". Edit these above.";
+    }
+    return ownedInfo;
+  }
+  $("addOwnedBtn").addEventListener("click",addOwned);
+  $("ownedList").addEventListener("input",function(){recompute()});
+  $("ownedList").addEventListener("change",function(){recompute()});
+
   // ---- payment (pulled from the main calculator via localStorage) ----
   var pmtExtras=0, pmtYears=30, usingSaved=false;
   function loadSavedPayment(){
@@ -920,10 +1135,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   // ---- master recompute ----
   function recompute(){
     var income=0;
-    rentalLoss=0;
+    rentalLoss=0;rentalLossItems=[];
+    ownedCalc();
     borrowers.forEach(function(b){
       if($(b.prefix+"hoursField"))$(b.prefix+"hoursField").hidden = $(b.prefix+"wageFreq").value!=="hourly";
-      var v=borrowerIncome(b.prefix,b.state);
+      var v=borrowerTotal(b);
       if(b.prefix!=="")$(b.prefix+"IncomeSubtotal").textContent=usd.format(v)+"/mo";
       income+=v;
     });
@@ -934,9 +1150,16 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("paymentSummary").textContent=usd.format(p.total)+"/mo";
     $("pmtDetail").textContent="Principal & interest: "+usd.format(p.pi)+"/mo, plus "+usd.format(pmtExtras)+"/mo taxes, insurance & fees carried over.";
 
-    var dt=debtTotals(), debts=dt.counted+rentalLoss;
+    var oc=ownedInfo, dt=debtTotals(), debts=dt.counted+rentalLoss+oc.debt;
     $("debtsSummary").textContent=usd.format(debts)+"/mo";
-    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"")+(rentalLoss>0?" (includes "+usd.format(rentalLoss)+"/mo net rental loss from Schedule E)":"");
+    var rlr=$("rentalLossRow");rlr.hidden=!(rentalLoss>0);
+    if(rentalLoss>0){
+      $("rentalLossAmt").textContent=usd.format(rentalLoss)+"/mo";
+      $("rentalLossNote").textContent=(rentalLossItems.length>1
+        ?"Added from "+rentalLossItems.length+" rental entries that lose money: "+rentalLossItems.map(function(x){return usd.format(x.amt)}).join(" + ")+". "
+        :"")+"This comes from your Schedule E rental income, after the rental payment. A rental that earns a profit stays in your income. To change this, edit the rental figures under Self-employed income.";
+    }
+    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"")+(rentalLoss>0?" (includes "+usd.format(rentalLoss)+"/mo rental loss from Schedule E)":"")+(oc.debt>0?" (includes "+usd.format(oc.debt)+"/mo payments on other properties)":"");
     var shortPct = income>0 ? dt.shortTotal/income*100 : 0;
     var sw=$("debtsShortWarn");
     if(dt.shortTotal>0&&shortPct>SHORT_DEBT_WARN_PCT){
@@ -1081,27 +1304,41 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     else t=A+" per hour, times "+(hrs||40)+" hours a week, times 52, divided by 12";
     return freq==="monthly"?t:t+" = "+usd.format(v)+"/mo";
   }
-  function incomeLinesFor(b){
-    var p=b.prefix,st=b.state,out=[];
-    if(st.employment){
-      var ev=employmentIncome(p,st);
-      out.push({label:"Employment income",amt:ev,small:[freqSmall(n(p+"wageAmt"),$(p+"wageFreq").value,n(p+"hoursWk"),ev)]});
-    }
-    if(st.selfemp)(subResults[p+"bz"]||[]).forEach(function(r){out.push(r)});
-    if(st.retirement){
-      var rv=retirementIncome(p,st),rs=[freqSmall(n(p+"retAmt"),$(p+"retFreq").value,0,freqToMonthly(n(p+"retAmt"),$(p+"retFreq").value))];
-      var tt=$(p+"retirementTotal").textContent;
+  function typeLines(type,pp,stt,sfx){
+    var o=[];
+    if(type==="employment"){
+      var ev=employmentIncome(pp,stt);
+      o.push({label:"Employment income"+sfx,amt:ev,small:[freqSmall(n(pp+"wageAmt"),$(pp+"wageFreq").value,n(pp+"hoursWk"),ev)]});
+    }else if(type==="selfemp"){
+      (subResults[pp+"bz"]||[]).forEach(function(r){o.push({label:r.label+sfx,amt:r.amt,small:r.small})});
+    }else if(type==="retirement"){
+      var rv=retirementIncome(pp,stt),rs=[freqSmall(n(pp+"retAmt"),$(pp+"retFreq").value,0,freqToMonthly(n(pp+"retAmt"),$(pp+"retFreq").value))];
+      var tt=$(pp+"retirementTotal").textContent;
       if(tt.charAt(0)!=="=")rs.push(tt);
-      out.push({label:"Retirement / Social Security / Pension",amt:rv,small:rs});
+      o.push({label:"Retirement / Social Security / Pension"+sfx,amt:rv,small:rs});
+    }else{
+      (subResults[pp+"ad"]||[]).forEach(function(r){o.push({label:r.label+sfx,amt:r.amt,small:r.small})});
     }
-    if(st.additional)(subResults[p+"ad"]||[]).forEach(function(r){out.push(r)});
+    return o;
+  }
+  function incomeLinesFor(b){
+    var out=[];
+    ["employment","selfemp","retirement","additional"].forEach(function(type){
+      if(!b.state[type])return;
+      var xs=xOf(b,type),total=xs.length+1;
+      out=out.concat(typeLines(type,b.prefix,b.state,total>1?" 1":""));
+      xs.forEach(function(e,i){
+        var nm=$(e.prefix+"name").value.trim();
+        out=out.concat(typeLines(type,e.prefix,extraState(type)," "+(i+2)+(nm?" ("+nm+")":"")));
+      });
+    });
     return out;
   }
   function buildReport(mode){
     recompute();
     var det=mode==="detailed",S=[];
     var pay=paymentTotal(),income=$("incomeSummary").textContent;
-    var dt=debtTotals(),debtTotal=dt.counted+rentalLoss;
+    var oc2=ownedCalc(),dt=debtTotals(),debtTotal=dt.counted+rentalLoss+oc2.debt;
     var inc0=lastIncome,p2=function(x){return (isFinite(x)?x:0).toFixed(2)+"%"};
     var frontV=p2(inc0>0?pay.total/inc0*100:0),backV=p2(inc0>0?(pay.total+debtTotal)/inc0*100:0);
     var loanN=n("pLoan"),valN=n("propValue"),liensN=n("propLiens");
@@ -1157,7 +1394,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         var left=$("debt"+id+"Left").value;
         if(info.installment&&left!=="")db.push(Sm(left+" payment"+(parseFloat(left)===1?"":"s")+" left"));
       });
-      if(rentalLoss>0){db.push(R("Net rental loss (Schedule E)",usd.format(rentalLoss)+"/mo"));db.push(Sm("A rental that costs more than it earns is counted as a monthly debt."))}
+      if(rentalLoss>0){db.push(R("Rental loss (Schedule E)",usd.format(rentalLoss)+"/mo"));db.push(Sm((rentalLossItems.length>1?"Total of "+rentalLossItems.length+" rental entries that lose money ("+rentalLossItems.map(function(x){return usd.format(x.amt)}).join(" + ")+"). ":"")+"A rental that costs more than it earns is counted as a monthly debt. Rentals that earn a profit stay in income."))}
+      if(oc2.debt>0){
+        db.push(R("Payments on other properties",usd.format(oc2.debt)+"/mo"));
+        oc2.items.forEach(function(it){if(!it.complete&&it.pay>0)db.push(Sm(it.name+": "+usd.format(it.pay)+"/mo"))});
+      }
       if(!db.length)db.push({k:"text",t:"No other monthly debts entered."});
       if(debtLines.some(function(id){return debtInfo(id).excluded})){
         db.push(Sm("Debts marked as left out assume your lender excludes installment loans with 10 or fewer payments remaining. Confirm this with your lender."));
@@ -1169,6 +1410,14 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       var rt=[RR("Housing ratio",frontV,"frontWord"),Sm("Monthly payment "+usd.format(pay.total)+" ÷ gross monthly income "+usd.format(lastIncome)),
         RR("Debt-to-income ratio (DTI)",backV,"backWord"),Sm("(Monthly payment "+usd.format(pay.total)+" + other debts "+usd.format(debtTotal)+") ÷ gross monthly income "+usd.format(lastIncome))];
       S.push({head:"Ratios",items:rt});
+      if(oc2.items.length){
+        var ow=[];
+        oc2.items.forEach(function(it){
+          ow.push(R(it.name,usd.format(it.pay)+"/mo"));
+          ow.push(Sm(it.occ+(it.addr?"":" (no address entered)")+". "+(it.sche?(it.complete?"Listed on Schedule E. The payment is subtracted in the rental income calculation ("+it.target+") and left out of debts.":(it.declared?"Listed on Schedule E, but no Rents or royalties entry is turned on, so the payment is counted as a debt.":"Listed on Schedule E. The payment is not reflected there, so it is counted as a debt.")):"Not on Schedule E. The payment is counted as a monthly debt.")));
+        });
+        S.push({head:"Additional properties owned",items:ow});
+      }
       if(propOn){
         var pr=[],addr=$("propAddr").value.trim();
         if(addr){pr.push({k:"text",t:"Property address: "+addr})}
