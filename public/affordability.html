@@ -367,6 +367,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <span class="statword" id="frontWord">&mdash;</span>
     </div>
     <div class="statpct" id="frontPct" style="color:var(--accent)">0%</div>
+    <div class="k" id="frontCalc" style="margin:2px 0 0;font-size:.85rem"></div>
     <button type="button" class="infobtn" data-info="frontInfo">What's included?</button>
     <div class="infobox" id="frontInfo" hidden>Your monthly payment (principal, interest, taxes, insurance, mortgage insurance and HOA if any) divided by your gross monthly income. Typically comfortable at 28% or under; many loan programs allow more.</div>
   </div>
@@ -376,6 +377,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <span class="statword" id="backWord">&mdash;</span>
     </div>
     <div class="statpct" id="backPct" style="color:var(--accent)">0%</div>
+    <div class="k" id="backCalc" style="margin:2px 0 0;font-size:.85rem"></div>
     <button type="button" class="infobtn" data-info="backInfo">What's included?</button>
     <div class="infobox" id="backInfo" hidden>Your monthly payment plus your other monthly debts, divided by your gross monthly income. Conventional guidelines often cap this around 36%, though many programs allow up to 43&ndash;50% with strong compensating factors.</div>
   </div>
@@ -566,8 +568,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       h+='</div>';
     });
     h+='</div>';
+    h+='<div id="'+base+'_yrs" style="margin:14px 0 0;max-width:460px;font-size:.95rem"></div>';
     if(c.extra)h+='<div class="f" style="max-width:460px;margin-top:12px"><label for="'+base+'_pitia">'+esc(c.extra)+'</label><input id="'+base+'_pitia" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>'
-      +'<div class="note" id="'+base+'_linked" hidden style="margin-top:10px"></div>';
+      +'<div class="note" id="'+base+'_linked" hidden style="margin-top:10px"></div>'
+      +'<div class="circles" style="margin:14px 0 4px" aria-label="Net rental result">'
+      +'<label class="circ" style="cursor:default"><input type="checkbox" id="'+base+'_cInc" disabled><span class="dot" aria-hidden="true"></span><span>Net rental income</span></label>'
+      +'<label class="circ" style="cursor:default"><input type="checkbox" id="'+base+'_cLoss" disabled><span class="dot" aria-hidden="true"></span><span>Net rental loss</span></label></div>'
+      +'<p class="srctotal" id="'+base+'_net" style="margin:0 0 6px"></p>';
     if(c.timing)h+='<div class="f" style="margin-top:14px"><label>When is this bonus typically paid?</label>'
       +'<div class="seg"><label><input type="radio" name="'+p+'bonusTiming" value="dec" checked>In December, for that same year</label>'
       +'<label><input type="radio" name="'+p+'bonusTiming" value="janmar">In Jan&ndash;Mar, for the prior year\'s work</label></div></div>'
@@ -663,15 +670,30 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         else small.push(YCAP[yy-1]+": "+(expr||"nothing entered")+" = "+usd.format(yrs[yy-1].sum));
       }
       small.push("Total "+usd.format(tsum)+" ÷ "+(12*yrs.length)+" months = "+usd.format(v)+"/mo ("+span+")");
+      var yh="",rowS="display:flex;justify-content:space-between;gap:12px;padding:3px 0";
+      yrs.forEach(function(y,i){yh+='<div style="'+rowS+'"><span>'+YCAP[i]+'</span><b>'+usd.format(y.sum)+'</b></div>'});
+      yh+='<div style="'+rowS+';margin-top:6px;padding-top:8px;border-top:1px solid var(--line)"><span><b>'+span+' used</b></span><b style="color:var(--accent)">'+usd.format(v)+'/mo</b></div>'
+        +'<div class="k" style="margin:0">'+usd.format(tsum)+' &divide; '+(12*yrs.length)+' months</div>';
+      $(base+"_yrs").innerHTML=yh;
       if(c.extra){
-        var pit0=n(base+"_pitia"),lk=ownedLinks[base]||[],lsum=lk.reduce(function(a,x){return a+x.pay},0),pit=pit0+lsum;
+        var pitEl=$(base+"_pitia"),lk=ownedLinks[base]||[],lsum=lk.reduce(function(a,x){return a+x.pay},0);
+        if(lk.length){
+          if(!pitEl.readOnly){pitEl.setAttribute("data-manual",pitEl.value);pitEl.readOnly=true}
+          pitEl.value=lsum>0?String(Math.round(lsum*100)/100):"";
+        }else if(pitEl.readOnly){
+          pitEl.readOnly=false;pitEl.value=pitEl.getAttribute("data-manual")||"";
+        }
+        var pit=n(base+"_pitia"),avgBefore=v;
         var lkEl=$(base+"_linked");
         if(lkEl){
-          if(lk.length){lkEl.hidden=false;lkEl.textContent="Linked from Additional Properties Owned: "+lk.map(function(x){return x.name+" "+usd.format(x.pay)+"/mo"}).join(", ")+". These payments are subtracted here automatically, so you don't need to type them in the box above."}
+          if(lk.length){lkEl.hidden=false;lkEl.textContent="Filled in from Additional Properties Owned: "+lk.map(function(x){return x.name+" "+usd.format(x.pay)+"/mo"}).join(", ")+". To change it, edit the payment under that property."}
           else lkEl.hidden=true;
         }
-        if(pit>0)small.push("Less "+usd.format(pit)+"/mo still owed on the rentals"+(lsum>0?" ("+(pit0>0?usd.format(pit0)+" entered, plus ":"")+lk.map(function(x){return x.name+" "+usd.format(x.pay)}).join(", ")+")":"")+".");
+        if(pit>0)small.push("Less "+usd.format(pit)+"/mo still owed on the rentals"+(lk.length?" ("+lk.map(function(x){return x.name+" "+usd.format(x.pay)}).join(", ")+")":"")+".");
         v-=pit;
+        var hasAny=(avgBefore!==0||pit>0);
+        $(base+"_cInc").checked=hasAny&&v>=0;$(base+"_cLoss").checked=hasAny&&v<0;
+        $(base+"_net").textContent=!hasAny?"":(v>=0?"Net rental income: "+usd.format(v)+"/mo, added to your income":"Net rental loss: "+usd.format(-v)+"/mo, moved to Other monthly debts");
         if(v<0){
           rentalLoss+=-v;rentalLossItems.push({label:label,amt:-v});contribute=0;
           small.push("Net rental loss of "+usd.format(-v)+"/mo moves to Other monthly debts as a rental loss, not as negative income.");
@@ -1058,7 +1080,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     });
     ownedLinks=links;
     ownedInfo={debt:debt,items:items,excl:excl};
-    $("ownedSummary").textContent=items.length?(items.length+(items.length===1?" property":" properties")+(debt>0?", "+usd.format(debt)+"/mo":"")):"None";
+    $("ownedSummary").textContent=items.length?(items.length+(items.length===1?" property":" properties")):"None";
     var w=$("ownedWarn");
     if(unlinked>0){
       w.hidden=false;
@@ -1173,6 +1195,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var back = income>0 ? ((p.total+debts)/income*100) : 0;
     $("frontPct").textContent=front.toFixed(1)+"%";
     $("backPct").textContent=back.toFixed(1)+"%";
+    $("frontCalc").textContent=income>0?usd.format(p.total)+" / "+usd.format(income):"Add income to see this";
+    $("backCalc").textContent=income>0?"("+usd.format(p.total)+" + "+usd.format(debts)+") / "+usd.format(income):"Add income to see this";
 
     function word(el,val,goodMax,warnMax){
       if(val<=goodMax){el.textContent="Comfortable";el.className="statword good"}
