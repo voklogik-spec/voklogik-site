@@ -196,7 +196,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <!-- Employment -->
       <div class="source" id="srcEmployment">
         <div class="grid">
-          <div class="f"><label for="wageAmt">Gross employment income ($)</label><input id="wageAmt" type="number" inputmode="decimal" min="0" step="50" value="5000"></div>
+          <div class="f"><label for="wageAmt">Gross employment income ($)</label><input id="wageAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 5000"></div>
           <div class="f"><label for="wageFreq">Paid</label>
             <select id="wageFreq">
               <option value="annual">Annually</option>
@@ -218,7 +218,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <!-- Retirement / SS / Pension -->
       <div class="source" id="srcRetirement" hidden>
         <div class="grid">
-          <div class="f"><label for="retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="retAmt" type="number" inputmode="decimal" min="0" step="50" value="2500"></div>
+          <div class="f"><label for="retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="retAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 2500"></div>
           <div class="f"><label for="retFreq">Paid</label>
             <select id="retFreq">
               <option value="annual">Annually</option>
@@ -267,6 +267,57 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     </div>
   </div>
 
+  <!-- Transaction -->
+  <div class="row" id="rowTxn">
+    <button type="button" class="rowhead" data-row="rowTxn">
+      <span class="rowlabel">Transaction</span>
+      <span class="rowright"><span class="rowvalue" id="txnSummary">Purchase</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <p class="k" id="txnSource" style="margin:0 0 14px"></p>
+      <div class="f" style="margin-bottom:14px"><label>Transaction type</label>
+        <div class="seg">
+          <label><input type="radio" name="subjTxn" value="purchase" checked>Purchase</label>
+          <label><input type="radio" name="subjTxn" value="refi">Refinance</label>
+        </div></div>
+      <div class="f"><label for="subjOcc">Occupancy</label>
+        <select id="subjOcc"><option value="primary">Primary residence</option><option value="secondary">Second home</option><option value="pied">Pied-&agrave;-terre</option><option value="investment">Investment property</option></select></div>
+      <button type="button" class="editlink" id="txnDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Subject property -->
+  <div class="row" id="rowSubject">
+    <button type="button" class="rowhead" data-row="rowSubject">
+      <span class="rowlabel">Subject Property</span>
+      <span class="rowright"><span class="rowvalue" id="subjSummary">Not set</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <div id="primaryArea" hidden style="margin-bottom:18px">
+        <h4 class="subtitle" style="margin:0 0 6px">Primary residence</h4>
+        <p class="k" style="margin:0 0 4px">Because the property you are buying or refinancing is not your primary residence, tell us about the home you live in. Its payment counts as a monthly debt, and it is listed under Additional Properties Owned.</p>
+        <div id="primaryHost"></div>
+        <button type="button" class="bubble" id="addPrimaryBtn" style="margin-top:10px">+ Add your primary residence</button>
+      </div>
+      <h4 class="subtitle" style="margin:0 0 8px" id="subjTitle">Subject property</h4>
+      <div class="f" id="subjFoundWrap" style="margin-bottom:14px">
+        <label>Have you found the property?</label>
+        <div class="seg">
+          <label><input type="radio" name="subjFound" value="yes" checked>Yes</label>
+          <label><input type="radio" name="subjFound" value="no">No, still looking</label>
+        </div>
+      </div>
+      <div class="f" id="subjAddrWrap">
+        <label for="subjAddr">Subject property address</label>
+        <input id="subjAddr" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP">
+        <span class="k">Stays in your browser. Used for your PDF. The new payment is under Monthly Payment, so it is not counted as a debt here.</span>
+      </div>
+      <p class="k" id="subjLooking" hidden style="margin:0">No problem. Use Monthly Payment to try loan amounts and rates while you search.</p>
+      <div class="note" id="subjNote" hidden style="margin-top:12px"></div>
+      <button type="button" class="editlink" id="subjDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
   <!-- Monthly Payment -->
   <div class="row" id="rowPayment">
     <button type="button" class="rowhead" data-row="rowPayment">
@@ -276,8 +327,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <div class="rowbody">
       <p class="k" id="paymentSource" style="margin:0 0 14px"></p>
       <div class="grid">
-        <div class="f"><label for="pLoan">Loan amount ($)</label><input id="pLoan" type="number" inputmode="decimal" min="0" step="1000" value="300000"></div>
-        <div class="f"><label for="pRate">Interest rate (%)</label><input id="pRate" type="number" inputmode="decimal" min="0" step="0.05" value="6.5"></div>
+        <div class="f"><label for="pLoan">Loan amount ($)</label><input id="pLoan" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 300000"></div>
+        <div class="f"><label for="pRate">Interest rate (%)</label><input id="pRate" type="number" inputmode="decimal" min="0" step="0.05" placeholder="e.g. 6.5"></div>
       </div>
       <p class="pmtdetail" id="pmtDetail"></p>
       <button type="button" class="editlink" id="paymentDone">Done &#8594;</button>
@@ -291,7 +342,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <span class="rowright"><span class="rowvalue" id="debtsSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
+      <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. A credit report lists your accounts and payments; it doesn't show a score (see the note below your ratios). If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
       <div id="debtsList"></div>
       <div class="debtwrap" id="ownedDebtRow" hidden style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Payments on other properties</strong><strong id="ownedDebtAmt">$0/mo</strong></div>
@@ -316,6 +367,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     </button>
     <div class="rowbody">
       <p class="k" style="margin:0 0 14px">Add each property you own besides the one you are buying or refinancing. The payment on each one counts as a monthly debt, unless it is already netted inside a complete Schedule E.</p>
+      <div class="debtwrap" id="ownedPrimaryLine" hidden style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong id="opName">Primary residence</strong><strong id="opAmt">$0/mo</strong></div>
+        <p class="k" style="margin:6px 0 0">Primary residence. The payment counts as a monthly debt. Edit it under Subject Property.</p>
+      </div>
       <div id="ownedList"></div>
       <div class="note warn" id="ownedWarn" hidden style="margin:12px 0"></div>
       <button type="button" class="bubble" id="addOwnedBtn" style="margin-top:6px">+ Add a property</button>
@@ -324,36 +379,38 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     </div>
   </div>
 
-  <!-- Property in mind (optional) -->
-  <div class="row" id="rowProperty">
-    <button type="button" class="rowhead" data-row="rowProperty">
-      <span class="rowlabel">Property in Mind (optional)</span>
-      <span class="rowright"><span class="rowvalue" id="propSummary">Not set</span><span class="chev">&#9662;</span></span>
+
+  <!-- Assets -->
+  <div class="row" id="rowAssets">
+    <button type="button" class="rowhead" data-row="rowAssets">
+      <span class="rowlabel">Total Assets</span>
+      <span class="rowright"><span class="rowvalue" id="assetsSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <div class="f" style="margin-bottom:14px">
-        <label>Do you have a property in mind?</label>
-        <div class="seg">
-          <label><input type="radio" name="hasProp" value="no" checked>No</label>
-          <label><input type="radio" name="hasProp" value="yes">Yes</label>
-        </div>
+      <div class="note" style="margin:0 0 14px"><strong>Good to know:</strong> Checking and savings are available right away. Retirement accounts, mutual funds and stocks may need to be sold or withdrawn (liquidated) if you need them for cash to close or your down payment. Taxes, penalties or market changes can apply, and lenders may count only part of some accounts. Your lender will ask for statements to verify balances.</div>
+      <div id="assetsList"></div>
+      <button type="button" class="bubble" id="addAssetBtn" style="margin-top:6px">+ Add an account</button>
+      <p class="srctotal" id="assetsTotalLine"></p>
+      <button type="button" class="editlink" id="assetsDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Reserves -->
+  <div class="row" id="rowReserves">
+    <button type="button" class="rowhead" data-row="rowReserves">
+      <span class="rowlabel">Reserves</span>
+      <span class="rowright"><span class="rowvalue" id="reservesSummary">Not set</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <p class="k" style="margin:0 0 14px">Reserves are the months of housing payments you would still have in the bank after closing. Choose what to base them on and how many months.</p>
+      <div class="grid">
+        <div class="f"><label for="resBasis">Based on</label>
+          <select id="resBasis"><option value="subject">PITIA of the subject property</option><option value="all">PITIA of the subject property plus other properties owned</option></select></div>
+        <div class="f"><label for="resMonths">Number of months</label><input id="resMonths" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 6"></div>
       </div>
-      <div id="propFields" hidden>
-        <div class="f" style="margin-bottom:14px">
-          <label for="propAddr">Property address (optional)</label>
-          <input id="propAddr" type="text" autocomplete="off" placeholder="Street, city, state, ZIP">
-          <span class="k">Stays in your browser. It's only used to help you look up an estimate and to print on your PDF.</span>
-        </div>
-        <div class="grid">
-          <div class="f"><label for="propValue">Estimated value or purchase price ($)</label><input id="propValue" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 400000"></div>
-          <div class="f"><label for="propLiens">Other loans on the property ($, optional)</label><input id="propLiens" type="number" inputmode="decimal" min="0" step="1000" placeholder="0"></div>
-        </div>
-        <p class="k" id="propPrefill" style="margin:10px 0 0"></p>
-        <p class="k" style="margin:6px 0 0">Your loan amount comes from the Monthly Payment section above. "Other loans" means a second mortgage or home equity line that would sit behind it. For a purchase, lenders generally use the lower of the purchase price and the appraised value.</p>
-        <div class="note" style="margin:14px 0 0">Need an estimate? These free sites let you search an address (each opens in a new tab): <a href="https://www.zillow.com" target="_blank" rel="noopener noreferrer">Zillow</a>, <a href="https://www.redfin.com" target="_blank" rel="noopener noreferrer">Redfin</a> and <a href="https://www.realtor.com" target="_blank" rel="noopener noreferrer">Realtor.com</a>. Their numbers can differ from each other and from an appraisal, which is what a lender relies on. A county assessor's site shows an assessed value, which usually isn't market value.</div>
-        <p class="srctotal" id="propLine"></p>
-      </div>
-      <button type="button" class="editlink" id="propDone" style="margin-top:14px">Done &#8594;</button>
+      <div id="resOut" style="margin-top:14px"></div>
+      <p class="k" style="margin:10px 0 0">We use your non-liquid assets (retirement, mutual funds, stocks) first, so your checking and savings stay available for the down payment and closing costs. That may mean liquidating them, so check the taxes and penalties first.</p>
+      <button type="button" class="editlink" id="reservesDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
 
@@ -381,24 +438,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <button type="button" class="infobtn" data-info="backInfo">What's included?</button>
     <div class="infobox" id="backInfo" hidden>Your monthly payment plus your other monthly debts, divided by your gross monthly income. Conventional guidelines often cap this around 36%, though many programs allow up to 43&ndash;50% with strong compensating factors.</div>
   </div>
-  <div class="stat" id="ltvStat" hidden>
-    <div class="stathead">
-      <span class="rowlabel">Loan-to-Value (LTV)</span>
-      <span class="statword" id="ltvWord">&mdash;</span>
-    </div>
-    <div class="statpct" id="ltvPct" style="color:var(--accent)">0%</div>
-    <button type="button" class="infobtn" data-info="ltvInfo">What's included?</button>
-    <div class="infobox" id="ltvInfo" hidden>Your loan amount divided by the property's value. On a conventional loan, mortgage insurance usually applies when this is above 80%.</div>
-  </div>
-  <div class="stat" id="cltvStat" hidden>
-    <div class="stathead">
-      <span class="rowlabel">Combined Loan-to-Value (CLTV)</span>
-      <span class="statword" id="cltvWord">&mdash;</span>
-    </div>
-    <div class="statpct" id="cltvPct" style="color:var(--accent)">0%</div>
-    <button type="button" class="infobtn" data-info="cltvInfo">What's included?</button>
-    <div class="infobox" id="cltvInfo" hidden>Your loan plus any other loans secured by the property (a second mortgage or home equity line), divided by the property's value. Lenders set their own CLTV limits by program.</div>
-  </div>
   <p class="k" style="margin:16px 20px 4px">If either ratio looks high, open Monthly Payment above and try a smaller loan amount or a lower rate.</p>
   <div class="acts" style="align-items:flex-end">
     <div class="f" style="min-width:240px">
@@ -413,6 +452,21 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   </div>
   <p class="k" style="margin:4px 20px 14px">Simple shows the main numbers. Detailed adds each income source by borrower, what is in the monthly payment and other debts, and the property address.</p>
 </div>
+
+<section id="creditInfo">
+  <h2>Credit report or credit score?</h2>
+  <div class="two">
+    <div>
+      <h3 style="font-size:1.1rem;margin:0 0 6px">Credit report</h3>
+      <p>A list of your accounts, balances and monthly payments. Use it to fill in Other Monthly Debts above. Get yours free at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">AnnualCreditReport.com</a>.</p>
+    </div>
+    <div>
+      <h3 style="font-size:1.1rem;margin:0 0 6px">Credit score</h3>
+      <p>One number that summarizes your report. <a href="https://vantagescore.com/free" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">See where to get a free VantageScore</a> from providers VantageScore lists. A lender may use a different scoring model, so the number it uses can differ from the one you see.</p>
+    </div>
+  </div>
+  <p class="k" style="margin:12px 0 0">Both links open in a new tab on another website. Voklogik doesn't receive anything you enter there.</p>
+</section>
 
 <section id="lenderSection" hidden>
   <h2>Would you like to reach out to a lender?</h2>
@@ -467,7 +521,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   document.querySelectorAll(".rowhead").forEach(function(btn){
     btn.addEventListener("click",function(){toggleRow(btn.getAttribute("data-row"))});
   });
-  ["incomeDone","paymentDone","debtsDone","ownedDone","propDone"].forEach(function(id){
+  ["incomeDone","txnDone","subjDone","paymentDone","debtsDone","ownedDone","assetsDone","reservesDone"].forEach(function(id){
     $(id).addEventListener("click",function(e){
       e.stopPropagation();
       $(id).parentNode.parentNode.classList.remove("open");
@@ -745,7 +799,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function employmentHtml(p){
     return ''
       +'<div class="grid">'
-      +'<div class="f"><label for="'+p+'wageAmt">Gross employment income ($)</label><input id="'+p+'wageAmt" type="number" inputmode="decimal" min="0" step="50" value="5000"></div>'
+      +'<div class="f"><label for="'+p+'wageAmt">Gross employment income ($)</label><input id="'+p+'wageAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 5000"></div>'
       +'<div class="f"><label for="'+p+'wageFreq">Paid</label><select id="'+p+'wageFreq">'
       +'<option value="annual">Annually</option><option value="monthly" selected>Monthly</option>'
       +'<option value="semimonthly">Semi-monthly (twice a month)</option><option value="biweekly">Bi-weekly (every 2 weeks)</option>'
@@ -758,7 +812,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function retirementHtml(p){
     return ''
       +'<div class="grid">'
-      +'<div class="f"><label for="'+p+'retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="'+p+'retAmt" type="number" inputmode="decimal" min="0" step="50" value="2500"></div>'
+      +'<div class="f"><label for="'+p+'retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="'+p+'retAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 2500"></div>'
       +'<div class="f"><label for="'+p+'retFreq">Paid</label><select id="'+p+'retFreq">'
       +'<option value="annual">Annually</option><option value="monthly" selected>Monthly</option>'
       +'<option value="semimonthly">Semi-monthly</option><option value="biweekly">Bi-weekly</option><option value="weekly">Weekly</option></select></div>'
@@ -928,6 +982,43 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   // ---- itemized other monthly debts ----
   var debtLines=[], debtSeq=0;
+  // Adds amounts typed like "25+40+75" (no eval). Returns the total, or 0 when empty or invalid.
+  function sumParts(str){
+    var raw=String(str||"").replace(/[,$\s]/g,"").replace(/=+$/,"");
+    if(!raw||!/^[0-9.]+(\+[0-9.]+)*$/.test(raw))return null;
+    var parts=raw.split("+").map(parseFloat);
+    if(parts.some(function(x){return !isFinite(x)}))return null;
+    return parts;
+  }
+  function sumExpr(str){
+    var parts=sumParts(str);
+    if(!parts){var v=parseFloat(String(str||"").replace(/[,$\s]/g,""));return isFinite(v)&&v>0?v:0}
+    var t=parts.reduce(function(a,b){return a+b},0);return t>0?t:0;
+  }
+  function usdPlain(x){return String(Math.round(x*100)/100)}
+  function wireSum(input,hint){
+    function collapse(){
+      var parts=sumParts(input.value);
+      if(parts&&parts.length>1){
+        var tot=parts.reduce(function(a,b){return a+b},0);
+        hint.textContent=parts.map(usdPlain).join(" + ")+" = "+usd.format(tot);hint.hidden=false;
+        input.value=usdPlain(tot);
+      }
+    }
+    input.addEventListener("keydown",function(e){
+      if(e.key==="="||e.key==="Enter"){
+        if(e.key==="="||sumParts(input.value)&&sumParts(input.value).length>1){e.preventDefault();collapse();recompute()}
+      }
+    });
+    input.addEventListener("input",function(){
+      var v=input.value;
+      if(v.indexOf("=")>-1){input.value=v.replace(/=/g,"");collapse();recompute();return}
+      var parts=sumParts(v);
+      if(parts&&parts.length>1){hint.textContent="Press = or Tab to add: "+usd.format(parts.reduce(function(a,b){return a+b},0));hint.hidden=false}
+      else hint.hidden=true;
+    });
+    input.addEventListener("blur",function(){collapse();recompute()});
+  }
   function debtTemplate(id){
     var t="debt"+id;
     return ''
@@ -937,7 +1028,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<option value="card">Credit card</option><option value="auto">Auto loan</option>'
       +'<option value="student">Student loan</option><option value="personal">Personal loan</option>'
       +'<option value="support">Child support / alimony</option><option value="other">Other</option></select></div>'
-      +'<div class="f"><label for="'+t+'Amt">Monthly payment ($)</label><input id="'+t+'Amt" type="number" inputmode="decimal" min="0" step="10" placeholder="0"></div>'
+      +'<div class="f"><label for="'+t+'Amt">Monthly payment ($)</label><input id="'+t+'Amt" type="text" inputmode="decimal" autocomplete="off" placeholder="0 or 25+40+75"><span class="k" id="'+t+'Sum" hidden></span></div>'
       +'<button type="button" class="editlink" data-removedebt="'+id+'" aria-label="Remove this debt">Remove</button>'
       +'</div>'
       +'<div class="f" id="'+t+'LeftField" hidden style="margin-bottom:12px"><label for="'+t+'Left">Payments left (optional)</label><input id="'+t+'Left" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 8"></div>'
@@ -953,6 +1044,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("debtsList").appendChild(div.firstChild);
     debtLines.push(id);
     var wrap=$("debt"+id+"Wrap");
+    wireSum($("debt"+id+"Amt"),$("debt"+id+"Sum"));
     wrap.querySelectorAll("input,select").forEach(function(e){
       e.addEventListener("input",recompute);
       e.addEventListener("change",recompute);
@@ -969,7 +1061,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var installment=(type==="auto"||type==="student"||type==="personal");
     var raw=$("debt"+id+"Left").value, left=parseFloat(raw);
     var short=installment&&raw!==""&&isFinite(left)&&left<=10;
-    return {amt:n("debt"+id+"Amt"),installment:installment,short:short,excluded:short&&$("debt"+id+"Excl").checked};
+    return {amt:sumExpr($("debt"+id+"Amt").value),installment:installment,short:short,excluded:short&&$("debt"+id+"Excl").checked};
   }
   var SHORT_DEBT_WARN_PCT=5; // rule of thumb: combined short-term payments above this % of gross monthly income are often still counted
   function debtTotals(){
@@ -989,7 +1081,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   // ---- additional properties owned ----
   var ownedLines=[], ownedSeq=0, ownedInfo={debt:0,items:[]};
-  var OCC={primary:"Primary residence",secondary:"Second home",investment:"Investment property"};
+  var OCC={primary:"Primary residence",secondary:"Second home",pied:"Pied-\u00e0-terre",investment:"Investment property"};
   function ownedTemplate(id){
     var t="own"+id;
     return ''
@@ -999,24 +1091,25 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<button type="button" class="editlink" data-removeowned="'+id+'">Remove</button></div>'
       +'<div class="f" style="margin-bottom:14px"><label for="'+t+'Addr">Address</label><input id="'+t+'Addr" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP"></div>'
       +'<div class="grid">'
-      +'<div class="f"><label for="'+t+'Occ">Occupancy</label><select id="'+t+'Occ"><option value="primary">Primary residence</option><option value="secondary">Second home</option><option value="investment">Investment property</option></select></div>'
+      +'<div class="f"><label for="'+t+'Occ">Occupancy</label><select id="'+t+'Occ"><option value="secondary">Second home</option><option value="pied">Pied-\u00e0-terre</option><option value="investment">Investment property</option><option value="primary">Primary residence</option></select></div>'
       +'<div class="f"><label for="'+t+'Pay">Monthly payment ($)</label><input id="'+t+'Pay" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>'
       +'</div>'
       +'<p class="k" style="margin:6px 0 14px">Include principal, interest, taxes, insurance and any HOA dues (PITIA).</p>'
-      +'<div class="f"><label>Is this property listed on your Schedule E?</label>'
+      +'<div id="'+t+'SchQ"><div class="f"><label>Is this property listed on your Schedule E?</label>'
       +'<div class="seg"><label><input type="radio" name="'+t+'Sche" value="no" checked>No</label><label><input type="radio" name="'+t+'Sche" value="yes">Yes</label></div></div>'
       +'<div id="'+t+'SchBox" hidden style="margin-top:14px"><div class="f"><label>How is the payment handled?</label>'
       +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="complete" checked><span>Complete Schedule E: the payment is netted in my rental income, so exclude it from my debts</span></label>'
       +'<div class="f" id="'+t+'TgtWrap" style="margin:10px 0 0 28px"><label for="'+t+'Tgt">Which Rents or royalties entry is it on?</label><select id="'+t+'Tgt"></select></div>'
       +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="incomplete"><span>The payment is not reflected on Schedule E, so count it as a debt</span></label></div>'
-      +'<p class="k" style="margin:10px 0 0">Enter this property\'s rents and expenses under Self-employed income, Rents or royalties. Its payment and address are linked there automatically and subtracted from the rental income.</p></div>'
+      +'<p class="k" style="margin:10px 0 0">Enter this property\'s rents and expenses under Self-employed income, Rents or royalties. Its payment and address are linked there automatically and subtracted from the rental income.</p></div></div>'
       +'</div>';
   }
-  function addOwned(){
+  function addOwned(primary){
     ownedSeq++;var id=ownedSeq;
     var div=document.createElement("div");div.innerHTML=ownedTemplate(id);
-    $("ownedList").appendChild(div.firstChild);
+    $(primary===true?"primaryHost":"ownedList").appendChild(div.firstChild);
     ownedLines.push(id);
+    if(primary===true)$("own"+id+"Occ").value="primary";
     $("own"+id+"Wrap").querySelector("[data-removeowned]").addEventListener("click",function(){
       ownedLines=ownedLines.filter(function(x){return x!==id});
       $("own"+id+"Wrap").remove();recompute();
@@ -1049,8 +1142,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function ownedCalc(){
     var debt=0,items=[],excl=0,targets=rentTargets(),links={},unlinked=0;
     var tkey=targets.map(function(x){return x.base+"|"+x.label}).join("~");
-    ownedLines.forEach(function(id,i){
-      var t="own"+id,pay=n(t+"Pay"),sche=sel(t+"Sche")==="yes";
+    var li=0;
+    ownedLines.forEach(function(id){
+      var t="own"+id,pay=n(t+"Pay"),isPrim=$(t+"Occ").value==="primary";
+      var inHost=$(t+"Wrap").parentNode===$("primaryHost");
+      if(!inHost)li++;
+      $(t+"SchQ").hidden=isPrim;
+      var sche=!isPrim&&sel(t+"Sche")==="yes";
       $(t+"SchBox").hidden=!sche;
       var declared=sche&&sel(t+"Sch")==="complete";
       var tg=null;
@@ -1066,8 +1164,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         $(t+"TgtWrap").hidden=!targets.length;
       }else $(t+"TgtWrap").hidden=true;
       var netted=!!(declared&&tg);
-      var addr=$(t+"Addr").value.trim(),name=addr||("Property "+(i+1));
-      $(t+"Title").textContent="Property "+(i+1);
+      var addr=$(t+"Addr").value.trim(),name=addr||(inHost?"Primary residence":"Property "+li);
+      $(t+"Title").textContent=inHost?"Primary residence":"Property "+li;
       var occ=$(t+"Occ").value;
       if(netted){
         excl+=pay;
@@ -1076,11 +1174,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         debt+=pay;
         if(declared)unlinked++;
       }
-      items.push({name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,target:tg?tg.label:""});
+      items.push({host:inHost,name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,target:tg?tg.label:""});
     });
     ownedLinks=links;
     ownedInfo={debt:debt,items:items,excl:excl};
-    $("ownedSummary").textContent=items.length?(items.length+(items.length===1?" property":" properties")):"None";
+    var listN=items.length;
+    $("ownedSummary").textContent=listN?(listN+(listN===1?" property":" properties")):"None";
+    var hostCard=items.filter(function(x){return x.host})[0];
+    $("ownedPrimaryLine").hidden=!hostCard;
+    if(hostCard){$("opName").textContent=hostCard.addr||"Primary residence";$("opAmt").textContent=usd.format(hostCard.pay)+"/mo"}
     var w=$("ownedWarn");
     if(unlinked>0){
       w.hidden=false;
@@ -1094,12 +1196,149 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     }
     return ownedInfo;
   }
-  $("addOwnedBtn").addEventListener("click",addOwned);
+  $("addOwnedBtn").addEventListener("click",function(){addOwned()});
   $("ownedList").addEventListener("input",function(){recompute()});
-  $("ownedList").addEventListener("change",function(){recompute()});
+  $("ownedList").addEventListener("change",function(e){occMove(e);recompute()});
+  $("primaryHost").addEventListener("input",function(){recompute()});
+  $("primaryHost").addEventListener("change",function(e){occMove(e);recompute()});
+  $("addPrimaryBtn").addEventListener("click",function(){
+    if($("primaryHost").children.length)return;
+    addOwned(true);
+  });
+
+  // ---- subject property ----
+  function subjTxn(){return sel("subjTxn")}
+  function subjNote(t){var e=$("subjNote");e.hidden=!t;e.textContent=t||""}
+  function cardId(el){var m=/^own(\d+)Occ$/.exec(el.id||"");return m?+m[1]:0}
+  function removeCard(id){ownedLines=ownedLines.filter(function(x){return x!==id});var w=$("own"+id+"Wrap");if(w)w.remove()}
+  // A card whose occupancy was just changed may need to move between the list, the primary slot and the subject.
+  function occMove(e){
+    var id=cardId(e.target);if(!id)return;
+    var occ=e.target.value,so=$("subjOcc").value,w=$("own"+id+"Wrap");
+    var inHost=w.parentNode===$("primaryHost");
+    if(occ==="primary"&&so==="primary"&&subjTxn()==="refi"){
+      var a=$("own"+id+"Addr").value.trim();
+      if(a)$("subjAddr").value=a;
+      removeCard(id);
+      subjNote((a?a:"That property")+" is now your subject property (refinancing your primary residence), so it moved out of Additional Properties Owned.");
+      return;
+    }
+    if(occ==="primary"&&so!=="primary"&&!inHost){
+      if($("primaryHost").children.length){
+        e.target.value="secondary";
+        subjNote("You can only have one primary residence. Change the existing one first.");
+        return;
+      }
+      $("primaryHost").appendChild(w);subjNote("");
+    }else if(occ!=="primary"&&inHost){
+      $("ownedList").appendChild(w);
+    }
+  }
+  function subjectSync(){
+    var so=$("subjOcc").value,tx=subjTxn(),prim=so==="primary",refi=tx==="refi";
+    $("primaryArea").hidden=prim;
+    if(!prim){
+      if(!$("primaryHost").children.length){
+        var c=ownedLines.filter(function(id){return $("own"+id+"Occ").value==="primary"&&$("own"+id+"Wrap").parentNode===$("ownedList")})[0];
+        if(c)$("primaryHost").appendChild($("own"+c+"Wrap"));
+      }
+      $("addPrimaryBtn").hidden=!!$("primaryHost").children.length;
+    }else{
+      while($("primaryHost").firstChild)$("ownedList").appendChild($("primaryHost").firstChild);
+      if(refi){
+        ownedLines.slice().forEach(function(id){
+          if($("own"+id+"Occ").value!=="primary")return;
+          var a=$("own"+id+"Addr").value.trim();
+          if(a&&!$("subjAddr").value.trim())$("subjAddr").value=a;
+          removeCard(id);
+          subjNote((a?a:"A property marked primary")+" is your subject property in a refinance, so it moved out of Additional Properties Owned.");
+        });
+      }
+    }
+    var found=refi||sel("subjFound")==="yes";
+    $("subjFoundWrap").hidden=refi;
+    $("subjAddrWrap").hidden=!found;
+    $("subjLooking").hidden=found;
+    var lbl=OCC[so].toLowerCase();
+    $("subjTitle").textContent=prim?(refi?"Subject property: primary residence (refinance)":"Property you are buying: primary residence")
+      :("Subject property: "+lbl+(refi?" (refinance)":" (purchase)"));
+    $("txnSummary").textContent=(refi?"Refinance":"Purchase")+" \u00b7 "+OCC[so];
+    var a2=$("subjAddr").value.trim();
+    $("subjSummary").textContent=!found?"Still looking":(a2?(a2.length>28?a2.slice(0,26)+"\u2026":a2):"Add address");
+  }
+  ["rowTxn","rowSubject"].forEach(function(id){
+    $(id).addEventListener("input",function(){recompute()});
+    $(id).addEventListener("change",function(){subjNote("");recompute()});
+  });
+
+
+  // ---- assets and reserves ----
+  var assetLines=[], assetSeq=0, assetsInfo={liquid:0,nonliquid:0,items:[]};
+  var ASSET={checking:["Checking",1],savings:["Savings",1],mmkt:["Money market / CD",1],retirement:["Retirement (401(k), IRA)",0],mutual:["Mutual funds",0],stocks:["Stocks / bonds",0],other:["Other",0]};
+  function assetTemplate(id){
+    var t="ast"+id;
+    return ''
+      +'<div class="debtwrap" id="'+t+'Wrap"><div class="debtline">'
+      +'<div class="f"><label for="'+t+'Type">Account type</label><select id="'+t+'Type">'
+      +Object.keys(ASSET).map(function(k){return '<option value="'+k+'">'+ASSET[k][0]+'</option>'}).join("")+'</select></div>'
+      +'<div class="f"><label for="'+t+'Amt">Balance ($)</label><input id="'+t+'Amt" type="number" inputmode="decimal" min="0" step="500" placeholder="0"></div>'
+      +'<button type="button" class="editlink" data-removeasset="'+id+'" aria-label="Remove this account">Remove</button></div>'
+      +'<p class="k" id="'+t+'Note" style="margin:0"></p></div>';
+  }
+  function addAsset(skip){
+    assetSeq++;var id=assetSeq;
+    var div=document.createElement("div");div.innerHTML=assetTemplate(id);
+    $("assetsList").appendChild(div.firstChild);
+    assetLines.push(id);
+    $("ast"+id+"Wrap").querySelector("[data-removeasset]").addEventListener("click",function(){
+      assetLines=assetLines.filter(function(x){return x!==id});$("ast"+id+"Wrap").remove();recompute();
+    });
+    if(!skip)recompute();
+  }
+  $("addAssetBtn").addEventListener("click",function(){addAsset()});
+  $("assetsList").addEventListener("input",function(){recompute()});
+  $("assetsList").addEventListener("change",function(){recompute()});
+  $("rowReserves").addEventListener("input",function(){recompute()});
+  $("rowReserves").addEventListener("change",function(){recompute()});
+  var resInfo={months:0};
+  function assetsCalc(){
+    var liq=0,non=0,items=[];
+    assetLines.forEach(function(id){
+      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),isL=ASSET[k][1]===1;
+      $(t+"Note").textContent=isL?"Liquid: available right away.":"Non-liquid: may need to be liquidated to use for cash to close or a down payment.";
+      if(isL)liq+=a;else non+=a;
+      items.push({type:ASSET[k][0],liquid:isL,amt:a});
+    });
+    assetsInfo={liquid:liq,nonliquid:non,items:items};
+    var tot=liq+non;
+    $("assetsSummary").textContent=usd.format(tot);
+    $("assetsTotalLine").textContent=tot>0?("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot)):"";
+    // reserves
+    var months=Math.max(0,Math.floor(n("resMonths"))),subj=paymentTotal().total,other=0;
+    ownedInfo.items.forEach(function(x){other+=x.pay});
+    var all=$("resBasis").value==="all",base=subj+(all?other:0);
+    var req=months*base,usedN=Math.min(req,non),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
+    resInfo={months:months,base:base,subj:subj,other:all?other:0,all:all,req:req,usedN:usedN,usedL:usedL,short:short,left:left,haveMonths:base>0?(tot/base):0};
+    var out=$("resOut");
+    if(!(months>0)||!(base>0)){
+      out.innerHTML='<p class="k" style="margin:0">Enter the number of months to see your reserves.</p>';
+      $("reservesSummary").textContent="Not set";
+    }else{
+      var row=function(a,b,bold){return '<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0'+(bold?';border-top:1px solid var(--line);margin-top:4px;font-weight:700':'')+'"><span>'+a+'</span><span>'+b+'</span></div>'};
+      out.innerHTML=row("Monthly PITIA used"+(all?" (subject "+usd.format(subj)+" + other properties "+usd.format(other)+")":""),usd.format(base)+"/mo")
+        +row("Reserves needed ("+months+" months)",usd.format(req))
+        +row("Covered by non-liquid assets",usd.format(usedN))
+        +row("Covered by liquid assets",usd.format(usedL))
+        +row(short>0?"Short by":"Reserves covered",short>0?usd.format(short):"Yes",1)
+        +row("Liquid left for down payment and closing costs",usd.format(left))
+        +'<p class="k" style="margin:8px 0 0">All of your assets together equal about '+(Math.round(resInfo.haveMonths*10)/10)+' months of PITIA.</p>';
+      $("reservesSummary").textContent=months+" mo \u00b7 "+(short>0?"short "+usd.format(short):"covered");
+    }
+    return resInfo;
+  }
 
   // ---- payment (pulled from the main calculator via localStorage) ----
-  var pmtExtras=0, pmtYears=30, usingSaved=false;
+  var pmtExtras=0, pmtYears=30, usingSaved=false, savedTxn=false;
   function loadSavedPayment(){
     try{
       var raw=localStorage.getItem("voklogik:payment");
@@ -1108,13 +1347,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       if(!(d.loan>0))return false;
       $("pLoan").value=Math.round(d.loan);
       $("pRate").value=d.ratePct;
-      if(d.price>0){
-        $("propValue").value=Math.round(d.price);
-        $("propPrefill").textContent=d.refi?"Prefilled with the home value from your payment calculator.":"Prefilled with the purchase price from your payment calculator.";
-      }
       pmtYears=d.years||30;
       pmtExtras=d.extras||0;
       pmtParts=(d.parts&&isFinite(d.parts.tax)&&isFinite(d.parts.ins))?{tax:+d.parts.tax||0,ins:+d.parts.ins||0,mi:+d.parts.mi||0,hoa:+d.parts.hoa||0,hoaLabel:String(d.parts.hoaLabel||"HOA / association dues").slice(0,40)}:null;
+      if(d.refi===true||d.refi===false)document.querySelector('input[name="subjTxn"][value="'+(d.refi?"refi":"purchase")+'"]').checked=true;
+      if(d.occ==="second")$("subjOcc").value="secondary";
+      else if(d.occ==="pied")$("subjOcc").value="pied";
+      else if(d.occ==="inv")$("subjOcc").value="investment";
+      else if(d.occ==="primary")$("subjOcc").value="primary";
+      if(d.occ)savedTxn=true;
       usingSaved=true;
       return true;
     }catch(e){return false}
@@ -1125,40 +1366,19 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     return {pi:pi, total:pi+pmtExtras};
   }
   function updatePaymentSource(){
+    $("txnSource").textContent=savedTxn?"Carried over from your payment calculator. You can change them here.":"Choose these here, or complete the payment calculator and they will carry over.";
     $("paymentSource").textContent = usingSaved
       ? "Carried over from your payment calculator ("+pmtYears+"-year term). Adjust the loan amount or rate below to see how it changes your ratios."
       : "No payment found from the calculator yet \u2014 enter a loan amount and rate directly, or go use the payment calculator first.";
-  }
-
-  // ---- property in mind: LTV and CLTV ----
-  var propOn=false;
-  function propertyStats(){
-    var yes=sel("hasProp")==="yes";
-    $("propFields").hidden=!yes;
-    var value=n("propValue"), liens=n("propLiens"), loan=n("pLoan");
-    propOn=yes&&value>0&&loan>0;
-    $("ltvStat").hidden=!propOn;
-    $("cltvStat").hidden=!propOn;
-    if(!yes){$("propSummary").textContent="Not set";$("propLine").textContent="";return}
-    if(!propOn){$("propSummary").textContent="Add a value";$("propLine").textContent="";return}
-    var ltv=loan/value*100, cltv=(loan+liens)/value*100;
-    $("propSummary").textContent="LTV "+ltv.toFixed(1)+"%";
-    $("propLine").textContent="LTV "+ltv.toFixed(1)+"% ("+usd.format(loan)+" loan on "+usd.format(value)+")"+(liens>0?"; CLTV "+cltv.toFixed(1)+"% with "+usd.format(liens)+" in other loans":"");
-    $("ltvPct").textContent=ltv.toFixed(1)+"%";
-    $("cltvPct").textContent=cltv.toFixed(1)+"%";
-    var lw=$("ltvWord");
-    if(ltv<=80){lw.textContent="80% or under";lw.className="statword good"}
-    else{lw.textContent="Over 80%";lw.className="statword warn"}
-    var cw=$("cltvWord");
-    cw.textContent=liens>0?"Includes other loans":"Same as LTV";
-    cw.className="statword good";
   }
 
   // ---- master recompute ----
   function recompute(){
     var income=0;
     rentalLoss=0;rentalLossItems=[];
+    subjectSync();
     ownedCalc();
+    assetsCalc();
     borrowers.forEach(function(b){
       if($(b.prefix+"hoursField"))$(b.prefix+"hoursField").hidden = $(b.prefix+"wageFreq").value!=="hourly";
       var v=borrowerTotal(b);
@@ -1205,10 +1425,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     }
     word($("frontWord"),front,28,36);
     word($("backWord"),back,36,43);
-    propertyStats();
   }
 
-  document.querySelectorAll('input[name="hasProp"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
   document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute);if(e.type==="checkbox"||e.type==="radio")e.addEventListener("change",recompute)});
 
@@ -1365,8 +1583,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var oc2=ownedCalc(),dt=debtTotals(),debtTotal=dt.counted+rentalLoss+oc2.debt;
     var inc0=lastIncome,p2=function(x){return (isFinite(x)?x:0).toFixed(2)+"%"};
     var frontV=p2(inc0>0?pay.total/inc0*100:0),backV=p2(inc0>0?(pay.total+debtTotal)/inc0*100:0);
-    var loanN=n("pLoan"),valN=n("propValue"),liensN=n("propLiens");
-    var ltvV=p2(valN>0?loanN/valN*100:0),cltvV=p2(valN>0?(loanN+liensN)/valN*100:0);
     var wcls=function(id){return $(id).className.indexOf("warn")>-1?"warn":"good"};
     var RR=function(a,v,id){return {k:"row",a:a,b:v,w:$(id).textContent,wc:wcls(id)}};
     var R=function(a,b,big){return {k:"row",a:a,b:b,big:big}};
@@ -1377,7 +1593,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         R("Loan amount",loanTxt),R("Interest rate",rate),R("Loan term",pmtYears+" years"),
         R("Other monthly debts",usd.format(debtTotal)+"/mo"),
         RR("Housing ratio",frontV,"frontWord"),RR("Debt-to-income ratio (DTI)",backV,"backWord")];
-      if(propOn){s.push(RR("Loan-to-value (LTV)",ltvV,"ltvWord"));s.push(RR("Combined loan-to-value (CLTV)",cltvV,"cltvWord"))}
       S.push({head:"Summary",items:[].concat(s)});
     }else{
       // income, by borrower
@@ -1434,6 +1649,12 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       var rt=[RR("Housing ratio",frontV,"frontWord"),Sm("Monthly payment "+usd.format(pay.total)+" ÷ gross monthly income "+usd.format(lastIncome)),
         RR("Debt-to-income ratio (DTI)",backV,"backWord"),Sm("(Monthly payment "+usd.format(pay.total)+" + other debts "+usd.format(debtTotal)+") ÷ gross monthly income "+usd.format(lastIncome))];
       S.push({head:"Ratios",items:rt});
+      var sA=$("subjAddr").value.trim(),sO=$("subjOcc").value;
+      S.push({head:"Subject property",items:[
+        R("Transaction",subjTxn()==="refi"?"Refinance":"Purchase"),
+        R("Occupancy",OCC[sO]),
+        (subjTxn()!=="refi"&&sel("subjFound")==="no")?Sm("Still looking for a property."):(sA?{k:"text",t:"Address: "+sA}:Sm("No address entered.")),
+        Sm("The payment on the subject property is in Monthly Payment, not in other monthly debts.")]});
       if(oc2.items.length){
         var ow=[];
         oc2.items.forEach(function(it){
@@ -1442,16 +1663,21 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         });
         S.push({head:"Additional properties owned",items:ow});
       }
-      if(propOn){
-        var pr=[],addr=$("propAddr").value.trim();
-        if(addr){pr.push({k:"text",t:"Property address: "+addr})}
-        pr.push(R("Estimated value or purchase price",usd.format(n("propValue"))));
-        pr.push(R("Loan amount",loanTxt));
-        if(n("propLiens")>0)pr.push(R("Other loans on the property",usd.format(n("propLiens"))));
-        pr.push(RR("Loan-to-value (LTV)",ltvV,"ltvWord"));
-        pr.push(RR("Combined loan-to-value (CLTV)",cltvV,"cltvWord"));
-        pr.push(Sm("The value is an estimate you entered. Lenders rely on an appraisal and, for a purchase, generally use the lower of the price and the appraised value."));
-        S.push({head:"Property in mind",items:pr});
+      var ac=assetsCalc(),rs=resInfo;
+      if(ac.items.some(function(x){return x.amt>0})){
+        var as=[];
+        ac.items.forEach(function(x){if(x.amt>0)as.push(R(x.type+(x.liquid?"":" (non-liquid)"),usd.format(x.amt)))});
+        as.push(R("Liquid",usd.format(ac.liquid)));as.push(R("Non-liquid",usd.format(ac.nonliquid)));as.push(R("Total assets (liquid + non-liquid)",usd.format(ac.liquid+ac.nonliquid),1));
+        as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
+        S.push({head:"Total assets",items:as});
+      }
+      if(rs.months>0&&rs.base>0){
+        var rv=[R("Monthly PITIA used",usd.format(rs.base)+"/mo"),R("Reserves needed ("+rs.months+" months)",usd.format(rs.req)),
+          R("Covered by non-liquid assets",usd.format(rs.usedN)),R("Covered by liquid assets",usd.format(rs.usedL)),
+          R(rs.short>0?"Short by":"Reserves covered",rs.short>0?usd.format(rs.short):"Yes",1),
+          R("Liquid left for down payment and closing costs",usd.format(rs.left)),
+          Sm("Non-liquid assets are applied to reserves first so checking and savings stay available for the down payment and closing costs.")];
+        S.push({head:"Reserves",items:rv});
       }
     }
     return {
@@ -1529,9 +1755,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   addDebt(true);
   initLenders();
+  addAsset(true);
   var hadSaved=loadSavedPayment();
   updatePaymentSource();
   if(!hadSaved)toggleRow("rowPayment",true);
+  if(!savedTxn)toggleRow("rowTxn",true);
   recompute();
 })();
 </script>

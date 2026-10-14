@@ -610,7 +610,7 @@ table.sched th{color:var(--muted);font-weight:500}
       try{
         localStorage.setItem("voklogik:payment",JSON.stringify({
           total:tot, loan:loan, ratePct:n("rate"), years:parseInt($("term").value,10),
-          extras:Math.max(tot-pi,0), parts:{tax:tx, ins:ins, mi:mi, hoa:hoa, hoaLabel:(pt==="coop"?"Co-op maintenance fees":"HOA / association dues")}, price:price, refi:refi, savedAt:Date.now()
+          extras:Math.max(tot-pi,0), parts:{tax:tx, ins:ins, mi:mi, hoa:hoa, hoaLabel:(pt==="coop"?"Co-op maintenance fees":"HOA / association dues")}, price:price, refi:refi, occ:(document.querySelector('input[name="occ"]:checked').value==="inv"?"inv":document.querySelector('input[name="own"]:checked').value), savedAt:Date.now()
         }));
       }catch(e){}
     }
