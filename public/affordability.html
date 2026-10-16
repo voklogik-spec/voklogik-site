@@ -517,6 +517,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <button type="button" class="btn" id="pvBtn" hidden>Preview</button>
     <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
   </div>
+  <div class="acts" id="keyActs" style="margin-top:0;padding-top:0"><button type="button" class="btn" id="keyPdfBtn" hidden>Key-in sheet (PDF)</button><button type="button" class="btn" id="keyCsvBtn">Key-in sheet (CSV)</button></div>
+  <p class="k" id="keyNote" style="margin:4px 20px 0">For loan officers: your entries in loan application order, ready to key into your loan system. Borrower-entered and unverified. Counts as one report.</p>
   <p class="k" id="freeNote" style="margin:4px 20px 0"></p>
   <p class="k" style="margin:6px 20px 0"><button type="button" class="editlink" id="clearEntries">Clear all entries and start over</button></p>
   <p class="k" id="manageSub" hidden style="margin:4px 20px 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
@@ -1896,7 +1898,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function gate(){
     var left=Math.max(LIMIT-used(),0),ok=left>0||paid();
     $("freeNote").textContent=left>0?left+" of "+LIMIT+" free reports left. Reports from the payment calculator count too.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":""));
-    $("acts").hidden=!ok;$("paywall").hidden=ok;
+    $("acts").hidden=!ok;$("keyActs").hidden=!ok;$("keyNote").hidden=!ok;$("paywall").hidden=ok;
     $("manageSub").hidden=!(ent&&ent.sub);
     $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
     var cid="client_reference_id="+encodeURIComponent(getVid());
@@ -1971,6 +1973,85 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       });
     });
   }
+
+  // ---- loan officer key-in sheet: the same entries, in loan application (1003) order, as a PDF or a CSV ----
+  function keyinData(){
+    var rep=buildReport("detailed"),by={};
+    rep.sections.forEach(function(s){by[s.head]=s.items});
+    var refi=subjTxn()==="refi",occ=$("subjOcc").selectedOptions[0].text;
+    var R=function(a,b){return {k:"row",a:a,b:b}},Sm=function(t){return {k:"small",t:t}};
+    var price=n("propValue"),appr=refi?0:n("propAppr"),loan=n("pLoan"),sec=(pS2&&pS2.on)?n("pLoan2"):n("propLiens");
+    var addr=$("subjAddr").value.trim();
+    var loanItems=[R("Loan purpose",refi?"Refinance":"Purchase"),R("Occupancy",occ),R("Property address",addr||"Not entered"),
+      R(refi?"Current value":"Purchase price",price>0?usd.format(price):"Not entered")];
+    if(!refi)loanItems.push(R("Appraised value",appr>0?usd.format(appr):"Not entered"));
+    loanItems.push(R("Loan amount",loan>0?usd.format(loan):"Not entered"));
+    if(sec>0)loanItems.push(R(pS2&&pS2.on?(pS2.type==="heloc"?"2nd mortgage (HELOC) credit limit":"2nd mortgage (HELOAN) amount"):"Other loans on the property",usd.format(sec)));
+    loanItems.push(R("Interest rate",(n("pRate")||0)+"%"));
+    loanItems.push(Sm("This is the rate used for the ratios (the qualifying rate if one was entered). It is not a rate quote or the note rate."));
+    loanItems.push(R("Loan term",pmtYears+" years"));
+    (by["Monthly payment"]||[]).forEach(function(it){loanItems.push(it)});
+    if(by["Property value, LTV and CLTV"])loanItems.push({k:"sub",a:"LTV and CLTV",b:""}),by["Property value, LTV and CLTV"].filter(function(it){return it.k==="row"&&/loan-to-value/i.test(it.a)}).forEach(function(it){loanItems.push(it)});
+    var out=[];
+    out.push({head:"Borrower information",urla:"URLA Section 1a",items:[Sm("Names, Social Security numbers, dates of birth, contact details, citizenship and marital status are not collected here. Enter them from the application.")]});
+    if(by["Gross monthly income"])out.push({head:"Income",urla:"URLA Sections 1b to 1e",items:by["Gross monthly income"].filter(function(it){return !(it.k==="row"&&it.a==="Gross monthly income")})});
+    out.push({head:"Loan and property",urla:"URLA Section 4",items:loanItems});
+    if(by["Other monthly debts"])out.push({head:"Liabilities and other properties",urla:"URLA Section 2c and Section 3",items:by["Other monthly debts"].concat(by["Additional properties owned"]?[{k:"sub",a:"Additional properties owned",b:""}].concat(by["Additional properties owned"]):[])});
+    if(by["Total assets"])out.push({head:"Assets",urla:"URLA Section 2a",items:by["Total assets"]});
+    var ref=[];
+    (by["Ratios"]||[]).forEach(function(it){ref.push(it)});
+    if(by["Reserves"])by["Reserves"].forEach(function(it){ref.push(it)});
+    if(ref.length)out.push({head:"For reference only",urla:"Calculated by Voklogik. Do not key these.",items:ref,ref:true});
+    return {sub:"Loan officer key-in sheet",date:rep.date,sections:out};
+  }
+  function keyinCsv(){
+    var d=keyinData(),rows=[["Section","Where it goes","Field","Value","Note"]],last=null;
+    var q=function(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+    d.sections.forEach(function(s){
+      s.items.forEach(function(it){
+        if(it.k==="row"){last=[s.head,s.urla,it.a,it.b,it.w||""];rows.push(last)}
+        else if(it.k==="sub"){last=[s.head,s.urla,it.a,it.b||"",""];rows.push(last)}
+        else if(it.k==="small"||it.k==="text"){if(last)last[4]=(last[4]?last[4]+" ":"")+it.t;else rows.push([s.head,s.urla,"","",it.t])}
+      });
+    });
+    rows.push([]);rows.push(["Note","","Borrower-entered estimate. Not verified. Planning only. Not a loan application, loan offer or approval.","",""]);
+    return "﻿"+rows.map(function(r){return r.map(q).join(",")}).join("\r\n");
+  }
+  function buildKeyinPdf(){
+    var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
+    var data=keyinData();
+    var d=new J({unit:"pt",format:"letter"}),PW=612,L=48,W=PW-2*L,y=60;
+    var OR=[196,88,28],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170],CREAM=[242,230,211],CLAY=[140,74,42];
+    function T(c){d.setTextColor(c[0],c[1],c[2])}function D(c){d.setDrawColor(c[0],c[1],c[2])}
+    function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
+    function chk(need){if(y+(need||16)>748){foot();d.addPage();y=60}}
+    function foot(){T(MU);font("italic",7.5);d.text("Borrower-entered estimate, not verified. Planning only; not a loan application, offer or approval. Voklogik, the voice of logic.",L,770)}
+    d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(0,0,PW,92,"F");
+    T(OR);font("bold",22);d.text("Voklogik",L,46);T(MU);font("italic",11);d.text(data.sub,L,66);d.text(data.date,L+W,66,{align:"right"});
+    D(OR);d.setLineWidth(2);d.line(L,92,L+W,92);y=116;
+    d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.roundedRect(L,y-14,W,44,6,6,"F");
+    T(INK);font("bold",9.5);d.text("Use this to key the scenario into your loan system.",L+10,y);
+    font("normal",8.5);T(MU);d.splitTextToSize("Everything below was entered by the borrower and is not verified. Collect documents, run credit and confirm each item as your process requires. Tick each box as you key it.",W-20).forEach(function(t,i){d.text(t,L+10,y+12+i*10)});
+    y+=52;
+    data.sections.forEach(function(s){
+      chk(46);T(CLAY);font("bold",13);d.text(s.head,L,y);T(MU);font("italic",8.5);d.text(s.urla,L+W,y,{align:"right"});y+=7;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=16;
+      s.items.forEach(function(it){
+        if(it.k==="row"){chk(16);D(MU);d.setLineWidth(0.7);if(!s.ref)d.rect(L,y-8,8,8);T(INK);font("normal",10);d.text(String(it.a),L+16,y);font("bold",10);d.text(String(it.b),L+W,y,{align:"right"});y+=15}
+        else if(it.k==="sub"){chk(26);y+=3;d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(L,y-11,W,16,"F");T(INK);font("bold",9.5);d.text(String(it.a),L+6,y);if(it.b)d.text(String(it.b),L+W-6,y,{align:"right"});y+=17}
+        else{T(MU);font("normal",8);d.splitTextToSize(String(it.t),W-30).forEach(function(x){chk(11);d.text(x,L+16,y);y+=10});y+=3}
+      });
+      y+=8;
+    });
+    foot();
+    return d;
+  }
+  var KFN="voklogik-key-in-sheet";
+  function saveKeyinPdf(){allow(function(free){var doc=buildKeyinPdf();if(!doc)return;try{doc.save(KFN+".pdf");if(free)bump()}catch(e){}})}
+  function saveKeyinCsv(){allow(function(free){
+    try{var b=new Blob([keyinCsv()],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=KFN+".csv";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},500);if(free)bump()}catch(e){}
+  })}
+  $("keyCsvBtn").addEventListener("click",function(){track("click_keyin_csv");saveKeyinCsv()});
+  if(window.jspdf){$("keyPdfBtn").hidden=false;$("keyPdfBtn").addEventListener("click",function(){track("click_keyin_pdf");saveKeyinPdf()})}
 
   var pvUrl=null;
   function pvClose(){$("pvModal").hidden=true;$("pvFrame").removeAttribute("src");if(pvUrl){try{URL.revokeObjectURL(pvUrl)}catch(e){}pvUrl=null}}
