@@ -1933,13 +1933,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     function T(c){d.setTextColor(c[0],c[1],c[2])}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
     function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
-    function chk(need){if(y+ (need||18) >740){d.addPage();y=64}}
+    function chk(need){if(y+ (need||18) >758){d.addPage();y=64}}
     var CLAY=[140,74,42],CREAM=[242,230,211];
     function head(t){chk(40);T(CLAY);font("bold",14);d.text(t,L,y);y+=8;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=20}
-    function row(a,b,big){chk();T(INK);font(big?"bold":"normal",big?18:11);d.text(a,L,y);if(big)T(OR);font("bold",big?18:11);d.text(b,L+W,y,{align:"right"});y+=big?26:18}
+    function row(a,b,big){if(big)y+=10;chk();T(INK);font(big?"bold":"normal",big?18:11);d.text(a,L,y);if(big)T(OR);font("bold",big?18:11);d.text(b,L+W,y,{align:"right"});y+=big?26:18}
     function ratioRow(a,val,word,cls){chk();T(INK);font("normal",11);d.text(a,L,y);var wc=cls==="warn"?[156,59,46]:(cls==="info"?[47,95,140]:[75,122,61]);font("bold",11);var ww=d.getTextWidth(word);T(wc);d.text(word,L+W,y,{align:"right"});font("bold",13);T(OR);d.text(val,L+W-ww-10,y,{align:"right"});y+=20}
     function para(t){T(MU);font("normal",9);d.splitTextToSize(t,W).forEach(function(x){chk();d.text(x,L,y);y+=12})}
-    function small(t){T(MU);font("normal",8);d.splitTextToSize(t,W-16).forEach(function(x){chk(12);d.text(x,L+16,y);y+=10});y+=3}
+    function small(t){T(MU);font("normal",8);d.splitTextToSize(t,W-16).forEach(function(x){chk(12);d.text(x,L+16,y);y+=11});y+=6}
 
     d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(0,0,PW,104,"F");
     T(OR);font("bold",22);d.text("Voklogik",L,y);y+=6;

@@ -576,14 +576,14 @@ table.sched th{color:var(--muted);font-weight:500}
     if(MM.s2.on)A.push(["Second mortgage",(MM.s2.type==="heloc"?"HELOC":"HELOAN")+(MM.s2.cur?" (current)":(MM.heq?"":" (new)"))]);
     if(refi)A.push(["Refinance type",$("rsub").selectedOptions[0].text]);
     A.push(["Property type",$("ptype").selectedOptions[0].text]);
-    A.push(["Occupancy",inv?"Investment":"Owner occupied, "+document.querySelector('input[name="own"]:checked').parentNode.textContent.trim()]);
+    A.push(["Occupancy",inv?"Investment property":document.querySelector('input[name="own"]:checked').parentNode.textContent.trim()]);
     A.push(["Rate type",sel("rtype")]);
     var B=[];
     document.querySelectorAll("#inputsArea .grid .f").forEach(function(el){
       if(el.id==="rtF"||el.id==="downAmtF"||el.id==="armCapsGroup"||el.hidden||el.offsetParent===null)return;
       var lab=el.querySelector("label"),c=el.querySelector("input,select");if(!lab||!c)return;
       var lt=lab.textContent.trim(),m=lt.match(/^(.*?)\s*\((.*)\)\s*$/),nm=m?m[1]:lt,u=m?m[2]:"",v;
-      if(c.id==="appr"&&!c.value)v="Not entered (home price used)";
+      if(c.id==="appr"&&!c.value)v="Not entered";
       else if(c.tagName==="SELECT")v=c.selectedOptions[0].text;
       else if(u.indexOf("$")===0)v=usd.format(parseFloat(c.value)||0)+u.slice(1);
       else if(u.indexOf("%")===0)v=(c.value||0)+"%"+u.slice(1);
@@ -615,7 +615,7 @@ table.sched th{color:var(--muted);font-weight:500}
       if(y+need0>712){foot();d.addPage();y=60}
       col(L,"Your selections",A);col(L+cw2+gap,"Property and costs",SH);
       y+=need0+6;
-      var SLOT=[/^(Loan amount|Credit limit)/,/^(Starting interest rate|Start rate)$/,/^(Loan term|Draw period)/,/^Drawn at closing/,/^Qualifying rate/,/^(Fixed period term|Start rate lasts)/,/^Rate after/,/^Repayment period/];
+      var SLOT=[/^(Loan amount|Credit limit)/,/^(Starting interest rate|Interest rate|Current interest rate|Start rate)$/,/^(Loan term|Draw period)/,/^Drawn at closing/,/^Qualifying rate/,/^(Fixed period term|Start rate lasts)/,/^Rate after/,/^Repayment period/];
       var sl=function(r){for(var i=0;i<SLOT.length;i++)if(SLOT[i].test(r[3]))return i;return SLOT.length};
       var s1={},s2={},used=[];
       P1.forEach(function(r){s1[sl(r)]=r});P2.forEach(function(r){s2[sl(r)]=r});
