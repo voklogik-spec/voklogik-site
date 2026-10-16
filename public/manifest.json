@@ -1,7 +1,7 @@
 {
-  "name": "Voklogik \u2014 Mortgage Calculator",
+  "name": "Voklogik Mortgage Analyzer",
   "short_name": "Voklogik",
-  "description": "A friendlier mortgage calculator for purchase, refinance, fixed and ARM loans.",
+  "description": "Voklogik, the voice of logic in mortgage. Payment calculator and Affordability Check, built by an underwriter.",
   "start_url": "/?source=pwa",
   "id": "/",
   "scope": "/",
@@ -10,8 +10,23 @@
   "theme_color": "#C4581C",
   "orientation": "portrait-primary",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
