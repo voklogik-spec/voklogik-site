@@ -1743,7 +1743,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     ltvStats();var lv=ltvInfo,ltvV=p2(lv.ltv),cltvV=p2(lv.cltv);
     if(!det){
       var s=[R("Gross monthly income",income,1),R("Total monthly payment",$("paymentSummary").textContent,1),
-        R("Loan amount",loanTxt),R("Interest rate",rate),R("Loan term",pmtYears+" years"),
         R("Other monthly debts",usd.format(debtTotal)+"/mo"),
         RR("Housing ratio",frontV,"frontWord"),RR("Debt-to-income ratio (DTI)",backV,"backWord")];
       if(lv.on){s.push(RR("Loan-to-value (LTV)",ltvV,"ltvWord"));s.push(RR("Combined loan-to-value (CLTV)",cltvV,"cltvWord"))}
@@ -1764,7 +1763,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       inc.push(R("Gross monthly income",income,1));
       S.push({head:"Gross monthly income",items:inc});
       // payment
-      var pm=[R("Loan amount",loanTxt),R("Interest rate",rate),R("Loan term",pmtYears+" years"),R("Principal & interest",usd.format(pay.pi)+"/mo")];
+      var pm=[R("Principal & interest",usd.format(pay.pi)+"/mo")];
       var parts=pmtParts;
       var psum=parts?(parts.tax+parts.ins+parts.mi+parts.hoa+(parts.second||0)):0;
       if(parts&&Math.abs(psum-pmtExtras)<1.5){
@@ -1777,7 +1776,6 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         pm.push(R("Taxes, insurance & fees carried over",usd.format(pmtExtras)+"/mo"));
       }
       pm.push(R("Total monthly payment",$("paymentSummary").textContent,1));
-      pm.push(Sm($("paymentSource").textContent));
       S.push({head:"Monthly payment",items:pm});
       // debts
       var db=[];
