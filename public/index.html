@@ -388,6 +388,7 @@ table.sched th{color:var(--muted);font-weight:500}
         <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
       </div>
       <p class="k" id="freeNote" style="margin:12px 0 0"></p>
+      <p class="k" style="margin:6px 0 0"><button type="button" id="clearEntries" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Clear all entries and start over</button></p>
       <p class="k" id="manageSub" hidden style="margin:4px 0 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
       <div class="paywall" id="paywall" hidden>
         <b id="payTitle">You have used your free reports.</b>
@@ -588,8 +589,9 @@ table.sched th{color:var(--muted);font-weight:500}
       else if(u.indexOf("%")===0)v=(c.value||0)+"%"+u.slice(1);
       else v=c.value;
       var us=el.querySelector('select[id$="U"]');if(us)v+=us.value==="m"?" per month":" per year";
-      if(MM.s2.on){var pre=el.closest("#rcol")?"2nd: ":(el.closest(".lcol")?"1st: ":"");nm=pre+nm}
-      B.push([nm,v]);
+      var grp=el.closest("#rcol")?"2":(el.closest(".lcol")?"1":""),raw=nm;
+      if(MM.s2.on){nm=(grp==="2"?"2nd: ":(grp==="1"?"1st: ":""))+nm}
+      B.push([nm,v,grp,raw]);
     });
     var gap=32,cw2=(W-gap)/2;
     function col(x0,title,rows){
@@ -607,9 +609,39 @@ table.sched th{color:var(--muted);font-weight:500}
     d.splitTextToSize("This is an estimate for planning only and is not a loan offer. Lender fees and other costs are not included, and your lender's quote may differ.",W-90).forEach(function(t,i){d.text(t,L,746+i*11)});
     T(OR);font("bold",11);d.text("Voklogik",L+W,746,{align:"right"});
     }
-    var need=30+Math.max(A.length,B.length)*18;
-    if(y+need>712){foot();d.addPage();y=60}
-    col(L,"Your selections",A);col(L+cw2+gap,"Your inputs",B);foot();
+    if(MM.s2.on){
+      var SH=B.filter(function(r){return r[2]===""}),P1=B.filter(function(r){return r[2]==="1"}),P2=B.filter(function(r){return r[2]==="2"});
+      var need0=30+Math.max(A.length,SH.length)*18;
+      if(y+need0>712){foot();d.addPage();y=60}
+      col(L,"Your selections",A);col(L+cw2+gap,"Property and costs",SH);
+      y+=need0+6;
+      var SLOT=[/^(Loan amount|Credit limit)/,/^(Starting interest rate|Start rate)$/,/^(Loan term|Draw period)/,/^Drawn at closing/,/^Qualifying rate/,/^(Fixed period term|Start rate lasts)/,/^Rate after/,/^Repayment period/];
+      var sl=function(r){for(var i=0;i<SLOT.length;i++)if(SLOT[i].test(r[3]))return i;return SLOT.length};
+      var s1={},s2={},used=[];
+      P1.forEach(function(r){s1[sl(r)]=r});P2.forEach(function(r){s2[sl(r)]=r});
+      for(var q=0;q<=SLOT.length;q++)if(s1[q]||s2[q])used.push(q);
+      P1=used.map(function(q){return s1[q]||null});P2=used.map(function(q){return s2[q]||null});
+      var pw=(W-14)/2,nr=Math.max(P1.length,P2.length),ph=36+nr*18+6;
+      if(y+ph>712){foot();d.addPage();y=60}
+      var panel=function(x0,title,rows){
+        D(LN);d.setLineWidth(1);d.roundedRect(x0,y,pw,ph,10,10,"S");d.setLineWidth(0.5);
+        T(INK);font("bold",12);d.text(title,x0+12,y+21);
+        rows.forEach(function(r,i){
+          if(!r)return;
+          var yy=y+44+i*18;
+          T(MU);font("normal",9.5);d.text(r[3],x0+12,yy);
+          T(INK);font("bold",9.5);d.text(r[1],x0+pw-12,yy,{align:"right"});
+          D(LN);d.line(x0+12,yy+6,x0+pw-12,yy+6);
+        });
+      };
+      panel(L,"1st mortgage",P1);
+      panel(L+pw+14,"2nd mortgage ("+(MM.s2.type==="heloc"?"HELOC":"HELOAN")+")",P2);
+      y+=ph;foot();
+    }else{
+      var need=30+Math.max(A.length,B.length)*18;
+      if(y+need>712){foot();d.addPage();y=60}
+      col(L,"Your selections",A);col(L+cw2+gap,"Your inputs",B);foot();
+    }
 
     if(schedOpen){
       var rows=buildSchedule();
@@ -874,7 +906,7 @@ table.sched th{color:var(--muted);font-weight:500}
       try{
         localStorage.setItem("voklogik:payment",JSON.stringify({
           total:qtot, loan:loan, ratePct:(arm&&n("qr")>0?n("qr"):n("rate")), years:parseInt($("term").value,10),
-          extras:Math.max(qtot-qpi,0), parts:{tax:tx, ins:ins, mi:mi, hoa:hoa, second:s2on?s2.qpay:0, hoaLabel:(pt==="coop"?"Co-op maintenance fees":"HOA / association dues")}, price:price, appr:(purch?n("appr"):0), liens:(s2on?s2amt:0), refi:!purch, heq:heq, occ:(document.querySelector('input[name="occ"]:checked').value==="inv"?"inv":document.querySelector('input[name="own"]:checked').value), savedAt:Date.now()
+          extras:Math.max(qtot-qpi,0), parts:{tax:tx, ins:ins, mi:mi, hoa:hoa, second:s2on?s2.qpay:0, hoaLabel:(pt==="coop"?"Co-op maintenance fees":"HOA / association dues")}, price:price, appr:(purch?n("appr"):0), liens:(s2on?s2amt:0), s2:(s2on?{type:s2.type,cur:!!s2.cur,amt:s2amt,drawn:s2.drawn,q:(heloc?s2.q:n("s2Rate")),years:(heloc?0:parseInt($("s2Term").value,10))}:null), qual:(arm&&n("qr")>0), refi:!purch, heq:heq, occ:(document.querySelector('input[name="occ"]:checked').value==="inv"?"inv":document.querySelector('input[name="own"]:checked').value), savedAt:Date.now()
         }));
       }catch(e){}
     }
@@ -983,6 +1015,100 @@ table.sched th{color:var(--muted);font-weight:500}
   function bump(){mem+=1;try{localStorage.setItem(UK,String(Math.max(used(),mem)))}catch(e){}gate()}
   try{var sv=JSON.parse(localStorage.getItem(CK)||"{}");IDS.forEach(function(id){if(sv[id])$(id).value=sv[id]})}catch(e){}
   IDS.forEach(function(id){$(id).addEventListener("input",function(){try{var o={};IDS.forEach(function(k){o[k]=$(k).value});localStorage.setItem(CK,JSON.stringify(o))}catch(e){}})});
+  // Keep entries when the visitor moves to the Affordability Check and back (stored in this browser only, 12 hours).
+  // ---- thousands separators in number fields (400000.32 shows as 400,000.32; the rest of the page still reads plain numbers) ----
+  (function(){
+    var desc=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value");
+    function clean(s){s=String(s==null?"":s).replace(/[^0-9.\-]/g,"");var neg=s.charAt(0)==="-";s=s.replace(/-/g,"");var i=s.indexOf(".");if(i>=0)s=s.slice(0,i+1)+s.slice(i+1).replace(/\./g,"");return (neg?"-":"")+s}
+    function fmt(s){s=clean(s);var neg=s.charAt(0)==="-";if(neg)s=s.slice(1);var p=s.split("."),ip=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");return (neg?"-":"")+ip+(p.length>1?"."+p[1]:"")}
+    function enhance(el){
+      if(el.__fmt||el.type!=="number")return;
+      var v0=el.value;
+      el.__fmt=1;el.type="text";el.setAttribute("inputmode","decimal");el.setAttribute("autocomplete","off");
+      Object.defineProperty(el,"value",{configurable:true,get:function(){return clean(desc.get.call(el))},set:function(v){desc.set.call(el,fmt(v))}});
+      el.value=v0;
+      el.addEventListener("input",function(){
+        var raw=desc.get.call(el),pos=el.selectionStart==null?raw.length:el.selectionStart;
+        var keep=clean(raw.slice(0,pos)).length,out=fmt(raw);
+        if(out===raw)return;
+        desc.set.call(el,out);
+        var c=0,np=out.length;
+        for(var i=0;i<out.length;i++){if(c===keep){np=i;break}if(/[0-9.\-]/.test(out.charAt(i)))c++}
+        if(c<keep)np=out.length;
+        try{el.setSelectionRange(np,np)}catch(e){}
+      });
+    }
+    function scan(root){(root.querySelectorAll?root.querySelectorAll('input[type="number"]'):[]).forEach(enhance)}
+    scan(document);
+    new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('input[type="number"]'))enhance(n);scan(n)}})})}).observe(document.body,{childList:true,subtree:true});
+  })();
+  var SSK="voklogik:calcState",noSave=false;
+  function saveState(){
+    if(noSave)return;
+    try{
+      var o={t:Date.now(),v:{},r:{},c:{}};
+      document.querySelectorAll("input[id],select[id]").forEach(function(e){
+        if(IDS.indexOf(e.id)>=0)return;
+        if(e.type==="radio")return;
+        if(e.type==="checkbox"){o.c[e.id]=e.checked;return}
+        o.v[e.id]=e.value;
+      });
+      document.querySelectorAll('input[type="radio"]:checked').forEach(function(e){o.r[e.name]=e.value});
+      localStorage.setItem(SSK,JSON.stringify(o));
+    }catch(e){}
+  }
+  function restoreState(){
+    try{
+      var raw=localStorage.getItem(SSK);if(!raw)return false;
+      var o=JSON.parse(raw);
+      if(!o||Date.now()-o.t>12*60*60*1000){localStorage.removeItem(SSK);return false}
+      Object.keys(o.v||{}).forEach(function(id){var e=document.getElementById(id);if(e&&e.type!=="radio"&&e.type!=="checkbox")e.value=o.v[id]});
+      Object.keys(o.c||{}).forEach(function(id){var e=document.getElementById(id);if(e&&e.type==="checkbox")e.checked=!!o.c[id]});
+      var radios=document.querySelectorAll('input[type="radio"]');
+      Object.keys(o.r||{}).forEach(function(name){radios.forEach(function(e){if(e.name===name)e.checked=(e.value===o.r[name])})});
+      return true;
+    }catch(e){return false}
+  }
+  var _sv=null;
+  function saveSoon(){clearTimeout(_sv);_sv=setTimeout(saveState,300)}
+  document.addEventListener("input",saveSoon);document.addEventListener("change",saveSoon);
+  window.addEventListener("pagehide",saveState);
+  document.addEventListener("visibilitychange",function(){if(document.hidden)saveState()});
+  restoreState();
+  // Changes made to the loan amounts or qualifying rates on the Affordability Check flow back here.
+  function applyAffEdit(){
+    try{
+      var raw=localStorage.getItem("voklogik:affEdit");if(!raw)return;
+      localStorage.removeItem("voklogik:affEdit");
+      var e=JSON.parse(raw);if(!e||Date.now()-e.t>12*60*60*1000)return;
+      var M=model();
+      if(M.s2.on&&e.s2amt>0){
+        $("s2Amt").value=Math.round(e.s2amt);
+        if(e.s2rate>0){if(M.s2.type==="heloc")$("s2Q").value=e.s2rate;else $("s2Rate").value=e.s2rate}
+      }
+      M=model();
+      if(e.loan>0&&Math.abs(e.loan-M.loan)>0.5){
+        if(M.purch){
+          var pr=n("price");
+          if(pr>0){var da=Math.max(pr-M.s2.drawn-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}
+        }else if(M.heq)$("bal").value=Math.round(e.loan);
+        else if(M.sub==="cash")$("bal").value=Math.max(Math.round(e.loan-n("cash")),0);
+        else if(M.sub==="delay")$("delAmt").value=Math.round(e.loan);
+        else $("bal").value=Math.round(e.loan);
+      }
+      if(e.rate>0){
+        var useQ=M.arm0&&n("qr")>0;
+        if(Math.abs(e.rate-(useQ?n("qr"):n("rate")))>0.0001)$(useQ?"qr":"rate").value=e.rate;
+      }
+    }catch(x){}
+  }
+  applyAffEdit();
+  var clr=$("clearEntries");
+  if(clr)clr.addEventListener("click",function(){
+    noSave=true;
+    try{localStorage.removeItem(SSK);localStorage.removeItem("voklogik:payment");localStorage.removeItem("voklogik:affState");localStorage.removeItem("voklogik:affEdit")}catch(e){}
+    location.reload();
+  });
   var restored=false;
   var sessionMatch=location.search.match(/[?&]session_id=(cs_(?:live|test)_[A-Za-z0-9]+)/);
   var sessionId=sessionMatch?sessionMatch[1]:null;

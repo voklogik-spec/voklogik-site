@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Voklogik Affordability Check | Mortgage DTI, Reserves &amp; LTV</title>
+<title>Voklogik Affordability Check: see your file before the underwriter does</title>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMN78R5ESY"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -126,8 +126,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .lender p{margin:2px 0;font-size:.95rem}
 .lender .links{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px}
 .lender .links a{color:var(--accent);font-weight:700;text-decoration:underline}
+.astline{grid-template-columns:1fr 1fr 1fr auto!important}
+.ro{border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;display:flex;align-items:center;font-weight:700;background:rgba(0,0,0,.03)}
 .debtline{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px}
-@media (max-width:640px){.grid,.two{grid-template-columns:1fr}.debtline{grid-template-columns:1fr 1fr}.debtline .editlink{grid-column:1/-1;justify-self:start}}
+@media (max-width:640px){.grid,.two{grid-template-columns:1fr}.debtline,.astline{grid-template-columns:1fr 1fr!important}.debtline .editlink{grid-column:1/-1;justify-self:start}}
 /* income type circles and years side by side */
 .circles{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
 .circ{position:relative;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--bg);cursor:pointer;font:600 .95rem "Bricolage Grotesque",sans-serif;color:var(--ink)}
@@ -162,8 +164,16 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .plan .cta{margin-top:auto}
 @media (max-width:420px){.plans{grid-template-columns:1fr}}
 #printReport{display:none}
+#pvModal{position:fixed;inset:0;z-index:60;background:rgba(30,18,10,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#pvModal[hidden]{display:none}
+.pvBox{width:min(920px,100%);height:min(92vh,1100px);background:var(--panel,#fff);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.pvBar,.pvAct{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 16px}
+.pvBar{border-bottom:1px solid var(--line)}.pvBar .k{flex:1;margin:0}
+.pvAct{border-top:1px solid var(--line);justify-content:flex-end}
+#pvFrame{flex:1;width:100%;border:0;background:#fff}
 @page{margin:16mm}
 @media print{
+  #pvModal{display:none!important}
   html,body{background:#fff!important}
   .wrap{display:none!important}
   #printReport{display:block;color:#3B2416;font:11pt/1.4 "Helvetica Neue",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -190,7 +200,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 <body>
 <div class="wrap">
 <header>
-  <div class="bw"><a class="brand" href="/" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#C4581C"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
+  <div class="bw"><a class="brand" href="/">Voklogik</a><span class="tag">Mortgage math, the way an underwriter sees it</span></div>
   <nav><a href="/">Payment calculator</a><a href="#lenderSection" id="findLenderLink" hidden>Find a lender</a><a href="/#contact">Contact</a></nav>
 </header>
 
@@ -350,14 +360,19 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <div class="rowbody">
       <p class="k" id="paymentSource" style="margin:0 0 14px"></p>
       <div class="grid">
-        <div class="f"><label for="pLoan">Loan amount ($)</label><input id="pLoan" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 300000"></div>
-        <div class="f"><label for="pRate">Interest rate (%)</label><input id="pRate" type="number" inputmode="decimal" min="0" step="0.05" placeholder="e.g. 6.5"></div>
+        <div class="f"><label for="pLoan" id="pLoanL">Loan amount ($)</label><input id="pLoan" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 300000"></div>
+        <div class="f"><label for="pRate" id="pRateL">Interest rate (%)</label><input id="pRate" type="number" inputmode="decimal" min="0" step="0.05" placeholder="e.g. 6.5"></div>
       </div>
+      <div class="grid" id="s2Fields" style="margin-top:14px" hidden>
+        <div class="f"><label for="pLoan2" id="pLoan2L">2nd mortgage amount ($)</label><input id="pLoan2" type="number" inputmode="decimal" min="0" step="1000" placeholder="0"></div>
+        <div class="f"><label for="pRate2" id="pRate2L">2nd mortgage rate (%)</label><input id="pRate2" type="number" inputmode="decimal" min="0" step="0.05" placeholder="e.g. 8"></div>
+      </div>
+      <p class="k" id="s2Hint" style="margin:8px 0 0" hidden>Changes to the amounts and rates here carry back to the payment calculator.</p>
       <div class="grid" style="margin-top:14px">
         <div class="f"><label for="propValue" id="propValueLbl">Purchase price ($)</label><input id="propValue" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 400000"></div>
         <div class="f" id="apprField"><label for="propAppr">Appraised value ($, optional)</label><input id="propAppr" type="number" inputmode="decimal" min="0" step="1000" placeholder="Leave blank if not appraised yet"></div>
       </div>
-      <div class="f" style="margin-top:14px;max-width:360px"><label for="propLiens">Other loans on the property ($, optional)</label><input id="propLiens" type="number" inputmode="decimal" min="0" step="1000" placeholder="0"><span class="k">A second mortgage or home equity line behind this loan.</span></div>
+      <div class="f" id="liensF" style="margin-top:14px;max-width:360px"><label for="propLiens">Other loans on the property ($, optional)</label><input id="propLiens" type="number" inputmode="decimal" min="0" step="1000" placeholder="0"><span class="k">A second mortgage or home equity line behind this loan.</span></div>
       <p class="k" id="valSource" style="margin:10px 0 0"></p>
       <p class="k" id="ltvNote" style="margin:6px 0 0"></p>
       <p class="pmtdetail" id="pmtDetail"></p>
@@ -499,9 +514,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       </div>
     </div>
     <button type="button" class="btn" id="printBtn">Print</button>
+    <button type="button" class="btn" id="pvBtn" hidden>Preview</button>
     <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
   </div>
   <p class="k" id="freeNote" style="margin:4px 20px 0"></p>
+  <p class="k" style="margin:6px 20px 0"><button type="button" class="editlink" id="clearEntries">Clear all entries and start over</button></p>
   <p class="k" id="manageSub" hidden style="margin:4px 20px 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
   <div class="paywall" id="paywall" hidden>
     <b id="payTitle">You have used your free reports.</b>
@@ -555,7 +572,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
 </main>
 
-<footer>&copy; Voklogik, the voice of logic. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a> &middot; <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a></footer>
+<div id="pvModal" hidden role="dialog" aria-modal="true" aria-label="Report preview"><div class="pvBox"><div class="pvBar"><b>Preview</b><span class="k">This is how your saved PDF will look.</span><button type="button" class="btn" id="pvClose">Close</button></div><iframe id="pvFrame" title="PDF preview"></iframe><div class="pvAct"><button type="button" class="btn" id="pvPrint">Print</button><button type="button" class="btn" id="pvSave">Save as PDF</button></div></div></div>
+<footer>&copy; Voklogik. Estimates are for planning only and are not a loan offer or a guarantee of approval. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a> &middot; <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a></footer>
 </div>
 <div id="printReport" aria-hidden="true"></div>
 <script>
@@ -1341,10 +1359,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function assetTemplate(id){
     var t="ast"+id;
     return ''
-      +'<div class="debtwrap" id="'+t+'Wrap"><div class="debtline">'
+      +'<div class="debtwrap" id="'+t+'Wrap"><div class="debtline astline">'
       +'<div class="f"><label for="'+t+'Type">Account type</label><select id="'+t+'Type">'
       +Object.keys(ASSET).map(function(k){return '<option value="'+k+'">'+ASSET[k][0]+'</option>'}).join("")+'</select></div>'
       +'<div class="f"><label for="'+t+'Amt">Balance ($)</label><input id="'+t+'Amt" type="number" inputmode="decimal" min="0" step="500" placeholder="0"></div>'
+      +'<div class="f"><label>Balance after reserves ($)</label><div class="ro" id="'+t+'After">\u2014</div></div>'
       +'<button type="button" class="editlink" data-removeasset="'+id+'" aria-label="Remove this account">Remove</button></div>'
       +'<p class="k" id="'+t+'Note" style="margin:0"></p></div>';
   }
@@ -1368,7 +1387,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var liq=0,non=0,items=[];
     assetLines.forEach(function(id){
       var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),isL=ASSET[k][1]===1;
-      $(t+"Note").textContent="";
+      $(t+"Note").textContent="";$(t+"After").textContent=usd.format(a);
       if(isL)liq+=a;else non+=a;
       items.push({id:id,type:ASSET[k][0],liquid:isL,amt:a,used:0});
     });
@@ -1387,8 +1406,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       var t="ast"+x.id,note=x.liquid?"Liquid: available right away.":"Non-liquid: may need to be liquidated to use for cash to close or a down payment.";
       if(x.used>0)note+=" "+usd.format(x.used)+" set aside for reserves, "+usd.format(x.amt-x.used)+" remaining.";
       $(t+"Note").textContent=note;
+      $(t+"After").textContent=usd.format(x.amt-x.used);
     });
     assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered};
+    $("assetsSummary").textContent=usd.format(tot-covered);
+    $("assetsTotalLine").textContent=tot>0?(covered>0?("Total assets after reserves: "+usd.format(tot-covered)+" (total assets "+usd.format(tot)+" minus "+usd.format(covered)+" set aside for reserves)"):("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot))):"";
     var usedList=items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)});
     $("assetsUseLine").textContent=covered>0?("Set aside for reserves: "+usedList.join(", ")+". Available after reserves: "+usd.format(tot-covered)+"."):"";
     resInfo={months:months,base:base,subj:subj,other:all?other:0,all:all,req:req,usedN:usedN,usedL:usedL,short:short,left:left,haveMonths:base>0?(tot/base):0};
@@ -1412,7 +1434,22 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
 
   // ---- payment (pulled from the main calculator via localStorage) ----
-  var pmtExtras=0, pmtYears=30, usingSaved=false, savedTxn=false;
+  var pmtExtras=0, pmtYears=30, usingSaved=false, savedTxn=false, pS2=null, extrasBase=0;
+  function secondPay(){
+    if(!pS2||!pS2.on)return 0;
+    var amt=n("pLoan2"),r=n("pRate2");
+    if(pS2.type==="heloc"){var base=pS2.cur?Math.min(pS2.drawn,amt):amt;return base*r/1200}
+    return pmt(amt,r/1200,Math.max(pS2.years,1)*12);
+  }
+  function s2Sync(){
+    var on=!!(pS2&&pS2.on);
+    $("s2Fields").hidden=!on;$("s2Hint").hidden=!(on||usingSaved);$("liensF").hidden=on;
+    if(!on)return;
+    $("propLiens").value=n("pLoan2")>0?Math.round(n("pLoan2")):"";
+    var sec=secondPay();
+    pmtExtras=extrasBase+sec;
+    if(pmtParts)pmtParts.second=sec;
+  }
   function loadSavedPayment(){
     try{
       var raw=localStorage.getItem("voklogik:payment");
@@ -1426,6 +1463,18 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       if(d.appr>0&&!d.refi&&$("propAppr"))$("propAppr").value=Math.round(d.appr);
       pmtYears=d.years||30;
       pmtExtras=d.extras||0;
+      extrasBase=pmtExtras;
+      pS2=null;
+      if(d.s2&&d.s2.amt>0){
+        pS2={on:true,type:d.s2.type==="heloc"?"heloc":"heloan",cur:!!d.s2.cur,drawn:+d.s2.drawn||0,years:+d.s2.years||0};
+        $("pLoan2").value=Math.round(d.s2.amt);$("pRate2").value=d.s2.q;
+        extrasBase=Math.max(pmtExtras-((d.parts&&+d.parts.second)||0),0);
+        var hl=pS2.type==="heloc";
+        $("pLoan2L").textContent=hl?"HELOC credit limit ($)":"HELOAN amount ($)";
+        $("pRate2L").textContent=hl?"HELOC qualifying rate (%)":"HELOAN interest rate (%)";
+        $("pLoanL").textContent="1st mortgage loan amount ($)";
+      }
+      $("pRateL").textContent=pS2?(d.qual?"1st mortgage qualifying rate (%)":"1st mortgage interest rate (%)"):(d.qual?"Qualifying rate (%)":"Interest rate (%)");
       pmtParts=(d.parts&&isFinite(d.parts.tax)&&isFinite(d.parts.ins))?{second:+d.parts.second||0,tax:+d.parts.tax||0,ins:+d.parts.ins||0,mi:+d.parts.mi||0,hoa:+d.parts.hoa||0,hoaLabel:String(d.parts.hoaLabel||"HOA / association dues").slice(0,40)}:null;
       if(d.refi===true||d.refi===false)document.querySelector('input[name="subjTxn"][value="'+(d.refi?"refi":"purchase")+'"]').checked=true;
       if(d.occ==="second")$("subjOcc").value="secondary";
@@ -1475,6 +1524,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   // ---- master recompute ----
   function recompute(){
+    s2Sync();
     var income=0;
     rentalLoss=0;rentalLossItems=[];
     subjectSync();
@@ -1782,6 +1832,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         var as=[];
         ac.items.forEach(function(x){if(x.amt>0)as.push(R(x.type+(x.liquid?"":" (non-liquid)"),usd.format(x.amt)))});
         as.push(R("Liquid",usd.format(ac.liquid)));as.push(R("Non-liquid",usd.format(ac.nonliquid)));as.push(R("Total assets (liquid + non-liquid)",usd.format(ac.liquid+ac.nonliquid),1));
+        if(ac.reserved>0)as.push(R("Total assets after reserves",usd.format(ac.avail),1));
         if(ac.reserved>0)as.push(Sm("Set aside for reserves: "+ac.items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)}).join(", ")+". Available after reserves: "+usd.format(ac.avail)+"."));
         as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
         S.push({head:"Total assets",items:as});
@@ -1913,7 +1964,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     return d;
   }
   if(window.jspdf){
-    $("pdfBtn").hidden=false;
+    $("pdfBtn").hidden=false;$("pvBtn").hidden=false;
     $("pdfBtn").addEventListener("click",function(){
       track("click_save_pdf");
       allow(function(free){
@@ -1923,6 +1974,46 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     });
   }
 
+  var pvUrl=null;
+  function pvClose(){$("pvModal").hidden=true;$("pvFrame").removeAttribute("src");if(pvUrl){try{URL.revokeObjectURL(pvUrl)}catch(e){}pvUrl=null}}
+  $("pvBtn").addEventListener("click",function(){
+    track("click_preview");
+    var doc=buildPdf();if(!doc)return;
+    try{pvUrl=doc.output("bloburl")}catch(e){return}
+    $("pvFrame").src=pvUrl+"#toolbar=0&navpanes=0";$("pvModal").hidden=false;
+  });
+  $("pvClose").addEventListener("click",pvClose);
+  $("pvSave").addEventListener("click",function(){pvClose();$("pdfBtn").click()});
+  $("pvPrint").addEventListener("click",function(){pvClose();$("printBtn").click()});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("pvModal").hidden)pvClose()});
+
+  // ---- thousands separators in number fields (400000.32 shows as 400,000.32; the rest of the page still reads plain numbers) ----
+  (function(){
+    var desc=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value");
+    function clean(s){s=String(s==null?"":s).replace(/[^0-9.\-]/g,"");var neg=s.charAt(0)==="-";s=s.replace(/-/g,"");var i=s.indexOf(".");if(i>=0)s=s.slice(0,i+1)+s.slice(i+1).replace(/\./g,"");return (neg?"-":"")+s}
+    function fmt(s){s=clean(s);var neg=s.charAt(0)==="-";if(neg)s=s.slice(1);var p=s.split("."),ip=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");return (neg?"-":"")+ip+(p.length>1?"."+p[1]:"")}
+    function enhance(el){
+      if(el.__fmt||el.type!=="number")return;
+      var v0=el.value;
+      el.__fmt=1;el.type="text";el.setAttribute("inputmode","decimal");el.setAttribute("autocomplete","off");
+      Object.defineProperty(el,"value",{configurable:true,get:function(){return clean(desc.get.call(el))},set:function(v){desc.set.call(el,fmt(v))}});
+      el.value=v0;
+      el.addEventListener("input",function(){
+        var raw=desc.get.call(el),pos=el.selectionStart==null?raw.length:el.selectionStart;
+        var keep=clean(raw.slice(0,pos)).length,out=fmt(raw);
+        if(out===raw)return;
+        desc.set.call(el,out);
+        var c=0,np=out.length;
+        for(var i=0;i<out.length;i++){if(c===keep){np=i;break}if(/[0-9.\-]/.test(out.charAt(i)))c++}
+        if(c<keep)np=out.length;
+        try{el.setSelectionRange(np,np)}catch(e){}
+      });
+    }
+    function scan(root){(root.querySelectorAll?root.querySelectorAll('input[type="number"]'):[]).forEach(enhance)}
+    scan(document);
+    new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('input[type="number"]'))enhance(n);scan(n)}})})}).observe(document.body,{childList:true,subtree:true});
+  })();
+
   addDebt(true);
   initLenders();
   addAsset(true);
@@ -1930,6 +2021,104 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   updatePaymentSource();
   if(!hadSaved)toggleRow("rowPayment",true);
   if(!savedTxn)toggleRow("rowTxn",true);
+
+  // ---- keep entries when moving between the Affordability Check and the payment calculator (this browser only, 12 hours) ----
+  var ASK="voklogik:affState",noSaveA=false;
+  function writeEdit(){
+    try{localStorage.setItem("voklogik:affEdit",JSON.stringify({t:Date.now(),loan:n("pLoan"),rate:n("pRate"),s2amt:(pS2&&pS2.on)?n("pLoan2"):null,s2rate:(pS2&&pS2.on)?n("pRate2"):null}))}catch(e){}
+  }
+  ["pLoan","pRate","pLoan2","pRate2"].forEach(function(id){$(id).addEventListener("input",writeEdit)});
+
+  var PAYF=["pLoan","pRate","pLoan2","pRate2","propValue","propAppr","propLiens","subjOcc"];
+  function affSave(){
+    if(noSaveA)return;
+    try{
+      var o={t:Date.now(),v:{},c:{},r:{},bor:[],debts:debtLines.slice(),assets:assetLines.slice(),
+        owned:ownedLines.map(function(id){var w=$("own"+id+"Wrap");return {id:id,prim:!!(w&&w.parentNode===$("primaryHost"))}}),
+        seq:{x:xSeq,d:debtSeq,o:ownedSeq,a:assetSeq}};
+      borrowers.forEach(function(b){
+        var pressed={};
+        Object.keys(b.state).forEach(function(k){pressed[k]=!!b.state[k]});
+        o.bor.push({p:b.prefix,src:pressed,x:b.extras.map(function(e){return {p:e.prefix,t:e.type}})});
+      });
+      document.querySelectorAll("input[id],select[id]").forEach(function(e){
+        if(e.type==="radio")return;
+        if(e.type==="checkbox"){o.c[e.id]=e.checked;return}
+        o.v[e.id]=e.value;
+      });
+      document.querySelectorAll('input[type="radio"]:checked').forEach(function(e){o.r[e.name]=e.value});
+      localStorage.setItem(ASK,JSON.stringify(o));
+    }catch(e){}
+  }
+  var _sa=null;
+  function affSaveSoon(){clearTimeout(_sa);_sa=setTimeout(affSave,300)}
+  function affRestore(){
+    var o;
+    try{
+      var raw=localStorage.getItem(ASK);if(!raw)return false;
+      o=JSON.parse(raw);
+      if(!o||Date.now()-o.t>12*60*60*1000){localStorage.removeItem(ASK);return false}
+    }catch(e){return false}
+    try{
+      // is the payment from the calculator newer than this snapshot?
+      var skip={};
+      try{var pd=JSON.parse(localStorage.getItem("voklogik:payment")||"null");if(pd&&pd.savedAt>o.t&&pd.loan>0){PAYF.forEach(function(k){skip[k]=1})}}catch(e){}
+      // borrowers
+      var nb=(o.bor||[]).length;
+      while(borrowers.length<nb)addBorrower();
+      (o.bor||[]).forEach(function(sb,i){
+        var b=borrowers[i];if(!b)return;
+        var btns=i===0?document.querySelectorAll('.bubble[data-src]'):document.querySelectorAll('.bubble[data-prefix="'+b.prefix+'"][data-srcn]');
+        btns.forEach(function(btn){
+          var key=btn.getAttribute(i===0?"data-src":"data-srcn");
+          if(!!sb.src[key]!==!!b.state[key])btn.click();
+        });
+        (sb.x||[]).forEach(function(sx){
+          var host=$(b.prefix+XT[sx.t].src),btn=host&&host.querySelector('[data-xadd="'+sx.t+'"]');
+          if(!btn)return;
+          var m=/x(\d+)_$/.exec(sx.p);if(m)xSeq=parseInt(m[1],10)-1;
+          addExtra(b,sx.t,btn.previousElementSibling);
+        });
+      });
+      xSeq=Math.max(xSeq,(o.seq&&o.seq.x)||0);
+      // debts and assets
+      debtLines.slice().forEach(function(id){if((o.debts||[]).indexOf(id)<0){var w=$("debt"+id+"Wrap");if(w)w.remove();debtLines=debtLines.filter(function(x){return x!==id})}});
+      (o.debts||[]).forEach(function(id){if(debtLines.indexOf(id)<0){debtSeq=id-1;addDebt(true)}});
+      debtSeq=Math.max(debtSeq,(o.seq&&o.seq.d)||0);
+      assetLines.slice().forEach(function(id){if((o.assets||[]).indexOf(id)<0){var w=$("ast"+id+"Wrap");if(w)w.remove();assetLines=assetLines.filter(function(x){return x!==id})}});
+      (o.assets||[]).forEach(function(id){if(assetLines.indexOf(id)<0){assetSeq=id-1;addAsset(true)}});
+      assetSeq=Math.max(assetSeq,(o.seq&&o.seq.a)||0);
+      ownedLines.slice().forEach(function(id){removeCard(id)});
+      (o.owned||[]).forEach(function(so){ownedSeq=so.id-1;addOwned(!!so.prim)});
+      ownedSeq=Math.max(ownedSeq,(o.seq&&o.seq.o)||0);
+      var put=function(){
+        Object.keys(o.v||{}).forEach(function(id){
+          if(skip[id])return;
+          var e=document.getElementById(id);
+          if(e&&e.type!=="radio"&&e.type!=="checkbox"&&e.value!==o.v[id])e.value=o.v[id];
+        });
+        Object.keys(o.c||{}).forEach(function(id){var e=document.getElementById(id);if(e&&e.type==="checkbox")e.checked=!!o.c[id]});
+        var radios=document.querySelectorAll('input[type="radio"]');
+        Object.keys(o.r||{}).forEach(function(name){
+          if(skip.subjOcc&&name==="subjTxn")return;
+          radios.forEach(function(e){if(e.name===name)e.checked=(e.value===o.r[name])});
+        });
+      };
+      put();recompute();put();recompute();
+      return true;
+    }catch(e){return false}
+  }
+  document.addEventListener("input",affSaveSoon);document.addEventListener("change",affSaveSoon);document.addEventListener("click",affSaveSoon);
+  window.addEventListener("pagehide",affSave);
+  document.addEventListener("visibilitychange",function(){if(document.hidden)affSave()});
+  var clrA=$("clearEntries");
+  if(clrA)clrA.addEventListener("click",function(){
+    noSaveA=true;
+    try{localStorage.removeItem(ASK);localStorage.removeItem("voklogik:calcState");localStorage.removeItem("voklogik:payment");localStorage.removeItem("voklogik:affEdit")}catch(e){}
+    location.reload();
+  });
+  var hadState=affRestore();
+  if(hadState)updatePaymentSource();
   recompute();
 })();
 </script>
