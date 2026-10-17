@@ -27,6 +27,7 @@
 <meta property="og:image" content="https://voklogik.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
 <script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <style>
@@ -527,7 +528,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan. Your entries on this page stay put while you check out in a new tab.</p>
     <div class="plans">
       <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
-          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans, coming soon</span><p>$29.99 per month for 200 reports with your logo, contact info, MLS# and headshot. $79 per month unlimited, with a co-branded Voklogik widget for your website and a dashboard. Founding offer: the first 20 businesses get unlimited for $49.99 per month.</p><a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20business%20waitlist" onclick="track('click_business_waitlist')">Join the waitlist</a></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month, coming soon: unlimited, plus a co-branded widget for your website and a dashboard. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
     </div>
     <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
     <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -1870,7 +1871,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     return h;
   }
   function fillPrint(){
-    try{$("printReport").innerHTML=renderPrint(buildReport(rptMode()))}catch(e){}
+    try{$("printReport").innerHTML=(window.VKTZ&&VKTZ.printing?VKTZ.printHtml():"")+renderPrint(buildReport(rptMode()))}catch(e){}
   }
   window.addEventListener("beforeprint",fillPrint);
   // ---- report limit: the same free reports and paid plans as the payment calculator ----
@@ -1896,8 +1897,9 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       .catch(function(){gate();return ent});
   }
   function gate(){
-    var left=Math.max(LIMIT-used(),0),ok=left>0||paid();
-    $("freeNote").textContent=left>0?left+" of "+LIMIT+" free reports left. Reports from the payment calculator count too.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":""));
+    var tzOn=!!(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0);
+    var left=Math.max(LIMIT-used(),0),ok=left>0||paid()||tzOn;
+    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?left+" of "+LIMIT+" free reports left. Reports from the payment calculator count too.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":"")));
     $("acts").hidden=!ok;$("keyActs").hidden=!ok;$("keyNote").hidden=!ok;$("paywall").hidden=ok;
     $("manageSub").hidden=!(ent&&ent.sub);
     $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
@@ -1910,6 +1912,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("payMsg").hidden=!!PAY_PACK;
   }
   function allow(go){
+    if(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0){
+      VKTZ.use().then(function(j){
+        if(j.ok){VKTZ.now=true;try{go(false)}finally{VKTZ.now=false}gate()}
+        else{gate();alert(j.error||"Could not use a Topaz report.")}
+      }).catch(function(){});
+      return;
+    }
     if(Math.max(LIMIT-used(),0)>0){go(true);return}
     if(ent&&ent.sub){go(false);return}
     if(ent&&ent.credits>0){
@@ -1921,6 +1930,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     }
     gate();
   }
+  if(window.VKTZ)VKTZ.onchange=function(){gate()};
   function bump(){mem+=1;try{localStorage.setItem(UK,String(Math.max(used(),mem)))}catch(e){}gate()}
   function refreshIfWaiting(){if(!document.hidden&&!$("paywall").hidden)refresh()}
   document.addEventListener("visibilitychange",refreshIfWaiting);
@@ -1928,7 +1938,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   gate();refresh();
   $("printBtn").addEventListener("click",function(){
     track("click_print");
-    allow(function(free){fillPrint();try{window.print();if(free)bump()}catch(e){}});
+    allow(function(free){var tz=window.VKTZ&&VKTZ.branded();if(tz)VKTZ.printing=true;fillPrint();try{window.print();if(free)bump()}catch(e){}if(tz){VKTZ.printing=false;fillPrint()}});
   });
 
   function buildPdf(){
@@ -1948,9 +1958,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     function small(t){T(MU);font("normal",8);d.splitTextToSize(t,W-16).forEach(function(x){chk(12);d.text(x,L+16,y);y+=11});y+=6}
 
     d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(0,0,PW,104,"F");
-    T(OR);font("bold",22);d.text("Voklogik",L,y);y+=6;
-    T(MU);font("italic",11);d.text(rep.sub,L,y+16);
-    d.text(rep.date,L+W,y+16,{align:"right"});
+    var TZ=window.VKTZ&&VKTZ.branded();
+    if(TZ){VKTZ.drawBrand(d,{PW:PW,L:L,y:8,boxW:170,boxH:46,fg:OR,fontName:"helvetica",nameSize:22,nameBase:40});
+      VKTZ.drawLines(d,L,66,MU,PW-2*L-70,"helvetica")}
+    else{T(OR);font("bold",22);d.text("Voklogik",L,y)}
+    y+=6;
+    var sy=TZ?26:16;T(MU);font("italic",11);d.text(rep.sub,L,y+sy);
+    d.text(rep.date,L+W,y+sy,{align:"right"});
     y+=34;D(OR);d.setLineWidth(2);d.line(L,y,L+W,y);y+=26;
 
     rep.sections.forEach(function(sec){

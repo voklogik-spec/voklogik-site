@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Topaz Level by Voklogik</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--bg:#ECEBE8;--panel:#fff;--ink:#23272D;--muted:#5E6670;--line:#CFCDC8;--slate:#2F353D;--slate2:#454C56;--accent:#E8681A;--accent2:#C9540F;--soft:#FBEBDD;--ok:#2E7D4F;--bad:#B3261E}
+@media (prefers-color-scheme:dark){:root{--bg:#1C1F24;--panel:#262A31;--ink:#ECECEA;--muted:#A5ABB3;--line:#3A4049;--slate:#14171B;--slate2:#2F353D;--soft:#3A2A1E}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif}
+a{color:var(--accent2)}
+header.top{background:var(--slate);color:#fff;border-bottom:4px solid var(--accent)}
+.bar{max-width:980px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mark{width:34px;height:34px;flex:none}
+.brand{font-weight:700;letter-spacing:.2px;font-size:19px}
+.brand small{display:block;font-weight:500;font-size:12px;color:#C9CDD2;letter-spacing:.8px;text-transform:uppercase}
+.tier{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;color:#E4E6E9}
+.chip{background:var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.linkbtn{background:none;border:1px solid #6B737D;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;font:inherit;font-size:14px}
+main{max-width:980px;margin:0 auto;padding:22px 18px 60px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px}
+h1{font-size:30px;line-height:1.2;margin:0 0 8px}h2{font-size:19px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:760px){.two{grid-template-columns:1fr}}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+input[type=text],input[type=email],input[type=password],input[type=tel]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--accent2)}.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.msg{margin:12px 0 0;font-size:14px;min-height:20px}.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
+.perks{margin:14px 0 0;padding:0;list-style:none}.perks li{padding:5px 0 5px 24px;position:relative}.perks li:before{content:"";position:absolute;left:2px;top:12px;width:10px;height:10px;background:var(--accent);border-radius:2px}
+.meter{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:7px;overflow:hidden;margin:8px 0}.meter i{display:block;height:100%;background:var(--accent)}
+.banner{background:var(--soft);border:1px solid var(--accent);border-radius:8px;padding:14px 16px;margin-bottom:18px}
+.up{border-left:5px solid #7A7F86}.pill{font-size:12px;font-weight:700;background:var(--slate2);color:#fff;border-radius:4px;padding:2px 8px;vertical-align:middle}
+.drop{display:flex;align-items:center;gap:14px;border:1px dashed var(--line);border-radius:8px;padding:12px;background:var(--bg)}
+.drop img{max-width:96px;max-height:64px;border-radius:4px;background:#fff}.drop .ph{width:96px;height:64px;display:grid;place-items:center;color:var(--muted);font-size:12px;border:1px solid var(--line);border-radius:4px}
+.drop.head img{max-width:64px;max-height:64px;border-radius:50%}
+.small{font-size:13px;color:var(--muted)}.fine{font-size:12.5px;color:var(--muted);margin-top:26px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--bg);border-radius:8px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}.tabs button[aria-selected=true]{background:var(--slate);color:#fff;border-color:var(--slate)}
+[hidden]{display:none!important}
+</style></head><body>
+<header class="top"><div class="bar">
+ <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#E8681A"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#B7BCC3"/></svg>
+ <div class="brand" id="brandLine">Voklogik<small id="brandSub">Topaz</small></div>
+ <div class="tier" id="tierBox" hidden><span class="chip">Topaz</span><span id="who"></span><button class="linkbtn" id="out" type="button">Sign out</button></div>
+</div></header>
+<main>
+
+<section id="welcome" hidden>
+ <div class="two">
+  <div class="card">
+   <h1>Welcome to Topaz</h1>
+   <p class="sub">The workhorse plan for loan officers and realtors. Your name, logo and contact details on every report you hand to a client.</p>
+   <ul class="perks">
+    <li>Up to 200 branded reports a month</li>
+    <li>Your logo, headshot, phone, email, MLS# or NMLS ID on each report</li>
+    <li>Upload your branding once. No coding, no design work</li>
+    <li>Move up to Opal any time</li>
+   </ul>
+   <p class="small" style="margin-top:14px">$29.99 per month. Cancel any time. Your first 5 reports on the site stay free and carry Voklogik branding.</p>
+  </div>
+  <div class="card">
+   <div class="tabs" role="tablist"><button type="button" role="tab" id="tReg" aria-selected="true">Create account</button><button type="button" role="tab" id="tIn" aria-selected="false">Sign in</button></div>
+   <form id="fReg" autocomplete="on">
+    <label for="rName">Your name</label><input id="rName" type="text" autocomplete="name">
+    <label for="rEmail">Email</label><input id="rEmail" type="email" autocomplete="email" required>
+    <label for="rPw">Password <span class="small">(10+ characters)</span></label><input id="rPw" type="password" autocomplete="new-password" minlength="10" required>
+    <p style="margin:14px 0 0"><button class="btn" type="submit">Start registering</button></p>
+    <p class="msg" id="mReg" role="alert"></p>
+   </form>
+   <form id="fIn" hidden>
+    <label for="lEmail">Email</label><input id="lEmail" type="email" autocomplete="email" required>
+    <label for="lPw">Password</label><input id="lPw" type="password" autocomplete="current-password" required>
+    <p style="margin:14px 0 0"><button class="btn" type="submit">Sign in</button></p>
+    <p class="msg" id="mIn" role="alert"></p>
+   </form>
+  </div>
+ </div>
+</section>
+
+<section id="dash" hidden>
+ <div class="banner" id="subBanner" hidden>
+  <strong id="newHello">Welcome to Topaz.</strong> Your account is ready. Add your branding below, then activate Topaz to put it on your reports.
+  <p style="margin:10px 0 0"><a class="btn" id="subscribe" href="#">Activate Topaz &middot; $29.99/month</a> <span class="small" id="noPay" hidden>Checkout is not switched on yet. Check back soon.</span></p>
+ </div>
+ <div class="banner" id="endBanner" hidden></div>
+
+ <div class="two">
+  <div class="card">
+   <h2>Your reports</h2>
+   <p class="sub" id="useTxt"></p>
+   <div class="meter"><i id="useBar" style="width:0"></i></div>
+   <p class="small" id="period"></p>
+   <p style="margin:14px 0 0"><a class="btn" href="/">Open payment calculator</a> <a class="btn ghost" href="/affordability.html">Open affordability</a></p>
+   <p class="small" style="margin-top:10px">Signed in on this device, the reports you save or print carry your branding.</p>
+  </div>
+  <div class="card up">
+   <h2>Opal <span class="pill">Next level</span></h2>
+   <p class="sub">Unlimited reports, a co-branded Voklogik widget for your website, and a dashboard to save scenarios.</p>
+   <p class="small">Upgrade whenever you like. Opal starts the day you upgrade, the unused days of your Topaz month are credited, and the full Opal price begins when your current month ends.</p>
+   <p style="margin:12px 0 0"><button class="btn" id="upg" type="button" disabled>Opal opens soon</button></p>
+   <p class="msg" id="mUp"></p>
+  </div>
+ </div>
+
+ <div class="card">
+  <h2>Your branding</h2>
+  <p class="sub">Appears at the top of your reports. Everything is optional.</p>
+  <div class="two">
+   <div><label>Logo</label>
+    <div class="drop"><div class="ph" id="logoPh">No logo</div><img id="logoImg" alt="" hidden>
+     <div><input type="file" id="logoFile" accept="image/png,image/jpeg" hidden><button class="btn ghost" type="button" id="logoBtn">Upload logo</button> <button class="btn ghost" type="button" id="logoDel" hidden>Remove</button></div></div>
+   </div>
+   <div><label>Headshot</label>
+    <div class="drop head"><div class="ph" id="headPh">No photo</div><img id="headImg" alt="" hidden>
+     <div><input type="file" id="headFile" accept="image/png,image/jpeg" hidden><button class="btn ghost" type="button" id="headBtn">Upload photo</button> <button class="btn ghost" type="button" id="headDel" hidden>Remove</button></div></div>
+   </div>
+  </div>
+  <p class="small">PNG or JPG. We shrink images for you.</p>
+  <form id="fBrand">
+   <div class="two">
+    <div><label for="bName">Name</label><input id="bName" type="text"></div>
+    <div><label for="bCompany">Company</label><input id="bCompany" type="text"></div>
+    <div><label for="bTitle">Title</label><input id="bTitle" type="text" placeholder="Loan Officer, REALTOR&reg;"></div>
+    <div><label for="bPhone">Phone</label><input id="bPhone" type="tel"></div>
+    <div><label for="bEmail">Email</label><input id="bEmail" type="email"></div>
+    <div><label for="bWeb">Website</label><input id="bWeb" type="text"></div>
+    <div><label for="bMls">MLS#</label><input id="bMls" type="text"></div>
+    <div><label for="bNmls">NMLS ID <span class="small">(loan officers)</span></label><input id="bNmls" type="text"></div>
+   </div>
+   <p style="margin:16px 0 0"><button class="btn" type="submit">Save branding</button></p>
+   <p class="msg" id="mBrand" role="status"></p>
+  </form>
+ </div>
+
+ <div class="card" id="billCard" hidden>
+  <h2>Billing</h2><p class="sub">Update your card, see receipts or cancel.</p>
+  <button class="btn ghost" id="portal" type="button">Manage billing</button> <span class="msg err" id="mBill"></span>
+ </div>
+</section>
+
+<p class="fine">Voklogik reports are estimates for planning only. They are not a loan application, offer or approval. You are responsible for the content you upload and for using your NMLS ID, license and Equal Housing wording as the rules require. See the <a href="/terms.html#business-plans">business plan terms</a> and <a href="/privacy.html">privacy notice</a>.</p>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},A="/api/topaz/",acc=null;
+function api(a,body,get){return fetch(A+a,{method:get?"GET":"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:get?undefined:JSON.stringify(body||{})}).then(function(r){return r.json().then(function(j){j._s=r.status;return j})})}
+function show(w){$("welcome").hidden=w!=="w";$("dash").hidden=w!=="d";$("tierBox").hidden=w!=="d";
+  $("brandLine").firstChild.nodeValue=w==="d"?"Topaz Level ":"Voklogik";
+  $("brandSub").textContent=w==="d"?"by voklogik":"Topaz";document.title=w==="d"?"Topaz Level by Voklogik":"Welcome to Topaz"}
+function tab(reg){$("fReg").hidden=!reg;$("fIn").hidden=reg;$("tReg").setAttribute("aria-selected",reg);$("tIn").setAttribute("aria-selected",!reg)}
+$("tReg").onclick=function(){tab(true)};$("tIn").onclick=function(){tab(false)};
+function msg(id,t,cls){var e=$(id);e.textContent=t||"";e.className="msg"+(cls?" "+cls:"")}
+function render(a,fresh){
+  acc=a;show("d");$("who").textContent=a.brand&&a.brand.name?a.brand.name:a.email;
+  var on=a.plan==="topaz"||a.plan==="opal";
+  $("subBanner").hidden=on;$("newHello").textContent=fresh?"Welcome to Topaz.":"Topaz is not active yet.";
+  if(!on){if(a.payLink){$("subscribe").href=a.payLink;$("subscribe").hidden=false;$("noPay").hidden=true}else{$("subscribe").hidden=true;$("noPay").hidden=false}}
+  $("endBanner").hidden=!(on&&a.cancelAtPeriodEnd);
+  if(a.cancelAtPeriodEnd)$("endBanner").textContent="Your plan is set to end on "+new Date(a.periodEnd).toLocaleDateString()+". Branded reports work until then.";
+  if(on){var lim=a.limit;$("useTxt").textContent=lim==null?a.used+" branded reports this period. Unlimited.":a.used+" of "+lim+" branded reports used this month. "+a.left+" left.";
+    $("useBar").style.width=lim==null?"8%":Math.min(100,a.used/lim*100)+"%";
+    $("period").textContent=a.periodEnd?"Renews "+new Date(a.periodEnd).toLocaleDateString()+".":""}
+  else{$("useTxt").textContent="Activate Topaz to start your 200 branded reports a month.";$("useBar").style.width="0";$("period").textContent=""}
+  var up=$("upg");up.disabled=!(on&&a.plan==="topaz"&&a.canUpgrade);up.textContent=a.plan==="opal"?"You are on Opal":(a.canUpgrade?"Upgrade to Opal":"Opal opens soon");
+  $("billCard").hidden=!on;
+  var b=a.brand||{};$("bName").value=b.name||"";$("bCompany").value=b.company||"";$("bTitle").value=b.title||"";$("bPhone").value=b.phone||"";$("bEmail").value=b.email||"";$("bWeb").value=b.website||"";$("bMls").value=b.mls||"";$("bNmls").value=b.nmls||"";
+  pic("logo",b.logo);pic("head",b.headshot);
+  try{localStorage.setItem("voklogik:topaz","1")}catch(e){}
+}
+function pic(k,src){$(k+"Img").hidden=!src;$(k+"Ph").hidden=!!src;$(k+"Del").hidden=!src;if(src)$(k+"Img").src=src}
+function shrink(file,max,type){return new Promise(function(res,rej){
+  var fr=new FileReader();fr.onerror=function(){rej(new Error("Could not read that file."))};
+  fr.onload=function(){var im=new Image();im.onerror=function(){rej(new Error("That does not look like a PNG or JPG."))};
+   im.onload=function(){var s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");
+    c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));
+    var x=c.getContext("2d");if(type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height)}x.drawImage(im,0,0,c.width,c.height);
+    res(c.toDataURL(type,.85))};im.src=fr.result};fr.readAsDataURL(file)})}
+function wire(k,key,max){
+  $(k+"Btn").onclick=function(){$(k+"File").click()};
+  $(k+"File").onchange=function(){var f=this.files[0];this.value="";if(!f)return;
+    if(!/^image\/(png|jpeg)$/.test(f.type)){msg("mBrand","Please choose a PNG or JPG.","err");return}
+    shrink(f,max,k==="logo"?"image/png":"image/jpeg").then(function(d){var o={brand:cur()};o[key]=d;return api("brand",o)})
+     .then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved.","ok")}else msg("mBrand",j.error||"Could not save.","err")})
+     .catch(function(e){msg("mBrand",e.message,"err")})};
+  $(k+"Del").onclick=function(){var o={brand:cur()};o[key]=null;api("brand",o).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,canUpgrade:acc.canUpgrade}))}})};
+}
+function cur(){return{name:$("bName").value,company:$("bCompany").value,title:$("bTitle").value,phone:$("bPhone").value,email:$("bEmail").value,website:$("bWeb").value,mls:$("bMls").value,nmls:$("bNmls").value}}
+wire("logo","logo",400);wire("head","headshot",240);
+$("fBrand").onsubmit=function(e){e.preventDefault();msg("mBrand","Saving...");
+  api("brand",{brand:cur()}).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved. Your reports will use this.","ok")}else msg("mBrand",j.error||"Could not save.","err")})};
+$("fReg").onsubmit=function(e){e.preventDefault();msg("mReg","Creating your account...");
+  api("register",{name:$("rName").value,email:$("rEmail").value,password:$("rPw").value}).then(function(j){
+   if(j.ok)return api("me",null,true).then(function(m){render(m.account,true)});msg("mReg",j.error||"Could not register.","err")})};
+$("fIn").onsubmit=function(e){e.preventDefault();msg("mIn","Signing in...");
+  api("login",{email:$("lEmail").value,password:$("lPw").value}).then(function(j){
+   if(j.ok)return api("me",null,true).then(function(m){render(m.account,false)});msg("mIn",j.error||"Could not sign in.","err")})};
+$("out").onclick=function(){api("logout").then(function(){try{localStorage.removeItem("voklogik:topaz")}catch(e){}acc=null;show("w")})};
+$("portal").onclick=function(){api("portal").then(function(j){if(j.url)location.href=j.url;else msg("mBill",j.error||"Could not open billing.","err")})};
+$("upg").onclick=function(){if(!confirm("Upgrade to Opal now? The unused days of your Topaz month are credited and the difference for the rest of this month is charged. Full Opal pricing begins at your next renewal."))return;
+  msg("mUp","Upgrading...");api("upgrade").then(function(j){if(j.ok){location.reload()}else msg("mUp",j.error||"Could not upgrade.","err")})};
+api("me",null,true).then(function(m){if(m.ok)render(m.account,/[?&]new=1/.test(location.search)||(m.account.plan==="none"&&m.account.used===0&&false));else show("w")}).catch(function(){show("w")});
+if(/[?&]paid=1/.test(location.search)){var n=0,t=setInterval(function(){api("me",null,true).then(function(m){if(m.ok){render(m.account,false);if(m.account.plan!=="none"||++n>12)clearInterval(t)}})},2500)}
+})();
+</script></body></html>

@@ -229,7 +229,7 @@ table.sched th{color:var(--muted);font-weight:500}
 <div class="wrap">
 <header>
   <div class="bw"><a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#C4581C"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
-  <nav><a href="/affordability.html">Affordability</a><a href="#plans">Plans</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
+  <nav><a href="/affordability.html">Affordability</a><a href="#plans">Plans</a><a href="/topaz.html">Topaz</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
 </header>
 
 <main id="top">
@@ -268,13 +268,14 @@ table.sched th{color:var(--muted);font-weight:500}
             <li><span class="gem topaz" aria-hidden="true"></span>Topaz Tier <span class="pr">$29.99</span><button type="button" class="info" data-t="topaz" aria-expanded="false" aria-describedby="tierTip" aria-label="About Topaz Tier">i</button></li>
             <li><span class="gem opal" aria-hidden="true"></span>Opal Tier <span class="pr">$79</span><button type="button" class="info" data-t="opal" aria-expanded="false" aria-describedby="tierTip" aria-label="About Opal Tier">i</button></li>
           </ul>
-          <p class="k" style="margin-top:6px;font-size:.78rem">Per month. Coming soon.</p>
+          <p class="k" style="margin-top:6px;font-size:.78rem">Per month. Opal coming soon.</p>
         </div>
         <div class="tipbox" id="tierTip" role="tooltip" hidden></div>
-        <a class="btn" href="mailto:hello@voklogik.com?subject=Voklogik%20business%20waitlist" onclick="track('click_business_waitlist')">Join the waitlist</a>
+        <a class="btn" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
+        <p class="k" style="margin:8px 0 0;font-size:.8rem"><a href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Join the Opal waitlist</a> &middot; <a href="/topaz.html">Topaz sign in</a></p>
       </div>
     </div>
-    <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Founding offer: the first 20 businesses get Opal for $49.99 per month for their first year, then $79. Business plans are coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
+    <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Founding offer: the first 20 businesses get Opal for $49.99 per month for their first year, then $79. Opal is coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
   </div>
 
   <div class="calc" role="group" aria-label="Mortgage calculator">
@@ -458,7 +459,7 @@ table.sched th{color:var(--muted);font-weight:500}
         <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan.</p>
         <div class="plans">
           <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
-          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans, coming soon</span><p>Topaz Tier, $29.99 per month: 200 reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month: unlimited, plus a co-branded widget for your website and a dashboard. Founding offer: the first 20 businesses get Opal for $49.99 per month for their first year.</p><a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20business%20waitlist" onclick="track('click_business_waitlist')">Join the waitlist</a></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month, coming soon: unlimited, plus a co-branded widget for your website and a dashboard. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
         </div>
         <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
         <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -523,6 +524,7 @@ table.sched th{color:var(--muted);font-weight:500}
 <footer>© Voklogik, the voice of logic. Estimates are for planning only and are not a loan offer. <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer">Manage subscription</a></footer>
 </div>
 <div id="pvModal" hidden role="dialog" aria-modal="true" aria-label="Report preview"><div class="pvBox"><div class="pvBar"><b>Preview</b><span class="k">This is how your saved PDF will look.</span><button type="button" class="btn" id="pvClose">Close</button></div><iframe id="pvFrame" title="PDF preview"></iframe><div class="pvAct"><button type="button" class="btn" id="pvPrint">Print</button><button type="button" class="btn" id="pvSave">Save as PDF</button></div></div></div>
+<script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
 <script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <script>
@@ -542,7 +544,8 @@ table.sched th{color:var(--muted);font-weight:500}
     function num(t){return parseFloat(String(t).replace(/[^0-9.\-]/g,""))||0}
     function font(st,sz){d.setFont("times",st);d.setFontSize(sz)}
     /* watermark behind everything */
-    try{
+    var TZ=window.VKTZ&&VKTZ.branded();
+    if(!TZ)try{
       d.saveGraphicsState();d.setGState(new d.GState({opacity:0.07}));T(OR);font("bold",120);
       var ww=d.getTextWidth("Voklogik"),ar=32*Math.PI/180;
       d.text("Voklogik",PW/2-(ww/2)*Math.cos(ar),PH/2+50+(ww/2)*Math.sin(ar),{angle:32});
@@ -550,9 +553,13 @@ table.sched th{color:var(--muted);font-weight:500}
     }catch(e){}
     /* header band */
     F(OR);d.rect(0,0,PW,96,"F");F(OC);d.rect(0,96,PW,3,"F");
-    T(WH);font("bold",32);d.text("Voklogik",L,58);
-    font("italic",13);d.text("Mortgage estimate",PW-L,50,{align:"right"});
-    font("italic",10.5);d.text(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),PW-L,68,{align:"right"});
+    var RX=PW-L;
+    if(TZ){
+      RX=VKTZ.drawBrand(d,{PW:PW,L:L,y:10,boxW:170,boxH:50,fg:WH,fontName:"times",nameSize:28,nameBase:48});
+      VKTZ.drawLines(d,L,76,WH,PW-2*L,"times");
+    }else{T(WH);font("bold",32);d.text("Voklogik",L,58)}
+    T(WH);font("italic",13);d.text("Mortgage estimate",RX,TZ?36:50,{align:"right"});
+    font("italic",10.5);d.text(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),RX,TZ?54:68,{align:"right"});
     /* hero payment */
     var pf=contact(),y=140;
     if(pf.length){T(MU);font("italic",11);d.text("Prepared for  "+pf.join("   |   "),L,122);y=156}
@@ -1042,8 +1049,9 @@ table.sched th{color:var(--muted);font-weight:500}
       .catch(function(){gate();return ent});
   }
   function gate(){
-    var left=Math.max(LIMIT-used(),0),ok=left>0||paid();
-    $("freeNote").textContent=left>0?left+" of "+LIMIT+" free reports left.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":""));
+    var tzOn=!!(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0);
+    var left=Math.max(LIMIT-used(),0),ok=left>0||paid()||tzOn;
+    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?left+" of "+LIMIT+" free reports left.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":"")));
     $("acts").hidden=!ok;$("paywall").hidden=ok;
     $("manageSub").hidden=!(ent&&ent.sub);
     $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
@@ -1056,6 +1064,13 @@ table.sched th{color:var(--muted);font-weight:500}
     $("payMsg").hidden=!!PAY_PACK;
   }
   function allow(go){
+    if(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0){
+      VKTZ.use().then(function(j){
+        if(j.ok){VKTZ.now=true;try{go(false)}finally{VKTZ.now=false}gate()}
+        else{gate();alert(j.error||"Could not use a Topaz report.")}
+      }).catch(function(){});
+      return;
+    }
     if(Math.max(LIMIT-used(),0)>0){go(true);return}
     if(ent&&ent.sub){go(false);return}
     if(ent&&ent.credits>0){
@@ -1095,6 +1110,7 @@ table.sched th{color:var(--muted);font-weight:500}
       return true;
     }catch(e){return false}
   }
+  if(window.VKTZ)VKTZ.onchange=function(){gate()};
   function bump(){mem+=1;try{localStorage.setItem(UK,String(Math.max(used(),mem)))}catch(e){}gate()}
   try{var sv=JSON.parse(localStorage.getItem(CK)||"{}");IDS.forEach(function(id){if(sv[id])$(id).value=sv[id]})}catch(e){}
   IDS.forEach(function(id){$(id).addEventListener("input",function(){try{var o={};IDS.forEach(function(k){o[k]=$(k).value});localStorage.setItem(CK,JSON.stringify(o))}catch(e){}})});
@@ -1231,7 +1247,9 @@ table.sched th{color:var(--muted);font-weight:500}
     track("click_print");
     allow(function(free){
       var c=contact();$("prepPrint").textContent=c.length?"Prepared for  "+c.join("   |   "):"";
+      var tz=window.VKTZ&&VKTZ.branded();if(tz)VKTZ.mountPrint(true);
       try{window.print();if(free)bump()}catch(e){}
+      if(tz)VKTZ.mountPrint(false);
     });
   });
   var pdfBtn=$("pdfBtn"),FN="voklogik-mortgage-estimate.pdf";
