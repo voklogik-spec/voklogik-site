@@ -1,5 +1,5 @@
 import { verifyStripeSignature } from "../lib/stripe-sig.mjs";
-import { ID_RE, getEnt, setEnt, payments, json } from "../lib/common.mjs";
+import { ID_RE, getEnt, setEnt, payments, json, monthKey } from "../lib/common.mjs";
 
 const PACK_CREDITS = 25; // reports added by the one-time $4.99 pack
 
@@ -62,6 +62,7 @@ export default async (req) => {
       if (obj.subscription) await log.set("sub:" + obj.subscription, id);
     } else if (obj.mode === "payment") {
       ent.credits = (ent.credits || 0) + PACK_CREDITS;
+      ent.packMonth = monthKey();
     }
     ent.email = obj.customer_details?.email || ent.email;
     await setEnt(id, ent);

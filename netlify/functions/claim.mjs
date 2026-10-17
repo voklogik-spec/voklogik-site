@@ -1,4 +1,4 @@
-import { ID_RE, getEnt, setEnt, payments, json } from "../lib/common.mjs";
+import { ID_RE, getEnt, setEnt, payments, json, monthKey } from "../lib/common.mjs";
 
 // Stripe checkout session ids look like cs_live_a1B2c3... (the customer's return page carries one).
 const SESSION_RE = /^cs_(live|test)_[A-Za-z0-9]{10,200}$/;
@@ -76,6 +76,7 @@ export default async (req) => {
       await setEnt(oldId, old);
     }
     dest.credits = (dest.credits || 0) + moved;
+    dest.packMonth = (rec.at || "").slice(0, 7) || monthKey();
   }
   if (rec.email) dest.email = rec.email;
   await setEnt(id, dest);
