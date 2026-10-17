@@ -1,5 +1,25 @@
 import { verifyStripeSignature } from "../lib/stripe-sig.mjs";
 import { ID_RE, getEnt, setEnt, payments, json, monthKey } from "../lib/common.mjs";
+import { getAccount, saveAccount, stripeApi } from "../lib/topaz.mjs";
+
+// Topaz / Opal business accounts: client_reference_id starts with "tz_".
+async function syncTopaz(accountId, sub) {
+  const a = await getAccount(accountId);
+  if (!a) return;
+  const item = sub.items?.data?.[0];
+  const start = sub.current_period_start ?? item?.current_period_start;
+  const end = sub.current_period_end ?? item?.current_period_end;
+  const priceId = item?.price?.id;
+  a.subscription = sub.id;
+  a.customer = sub.customer || a.customer;
+  a.status = sub.status;
+  a.plan = process.env.OPAL_PRICE_ID && priceId === process.env.OPAL_PRICE_ID ? "opal" : "topaz";
+  if (sub.status === "canceled") a.plan = "none";
+  a.cancelAtPeriodEnd = !!sub.cancel_at_period_end;
+  if (start) a.periodStart = new Date(start * 1000).toISOString();
+  if (end) a.periodEnd = new Date(end * 1000).toISOString();
+  await saveAccount(a);
+}
 
 const PACK_CREDITS = 25; // reports added by the one-time $4.99 pack
 
@@ -41,6 +61,14 @@ export default async (req) => {
     };
 
     const id = obj.client_reference_id;
+    if ((id || "").startsWith("tz_") && obj.mode === "subscription" && obj.subscription) {
+      await log.set("sub:" + obj.subscription, id);
+      try { await syncTopaz(id, await stripeApi("/subscriptions/" + obj.subscription, {}, "GET")); }
+      catch (e) { return json({ error: "sync failed" }, 500); } // Stripe will retry
+      record.vid = id;
+      await log.setJSON(key, record);
+      return json({ received: true, topaz: true });
+    }
     if (!ID_RE.test(id || "")) {
       // Paid without going through the site's buttons: nobody to credit yet.
       // The customer's return page can claim it with the session id.
@@ -75,6 +103,7 @@ export default async (req) => {
   if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
     const id = await log.get("sub:" + obj.id);
     if (!id) return json({ received: true, ignored: "unknown subscription" });
+    if (id.startsWith("tz_")) { await syncTopaz(id, obj); return json({ received: true, topaz: true }); }
     const ent = await getEnt(id);
     ent.sub =
       event.type !== "customer.subscription.deleted" &&
