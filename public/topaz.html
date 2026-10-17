@@ -5,8 +5,8 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.ico">
 <style>
-:root{--bg:#ECEBE8;--panel:#fff;--ink:#23272D;--muted:#5E6670;--line:#CFCDC8;--slate:#2F353D;--slate2:#454C56;--accent:#E8681A;--accent2:#C9540F;--soft:#FBEBDD;--ok:#2E7D4F;--bad:#B3261E}
-@media (prefers-color-scheme:dark){:root{--bg:#1C1F24;--panel:#262A31;--ink:#ECECEA;--muted:#A5ABB3;--line:#3A4049;--slate:#14171B;--slate2:#2F353D;--soft:#3A2A1E}}
+:root{--bg:#ECEBE8;--panel:#fff;--ink:#23272D;--muted:#5E6670;--line:#CFCDC8;--slate:#0F5F68;--slate2:#1A8089;--accent:#E8681A;--accent2:#C9540F;--soft:#FBEBDD;--ok:#2E7D4F;--bad:#B3261E}
+@media (prefers-color-scheme:dark){:root{--bg:#1C1F24;--panel:#262A31;--ink:#ECECEA;--muted:#A5ABB3;--line:#3A4049;--slate:#0B4850;--slate2:#14707A;--soft:#3A2A1E}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif}
 a{color:var(--accent2)}
 header.top{background:var(--slate);color:#fff;border-bottom:4px solid var(--accent)}
@@ -15,7 +15,7 @@ header.top{background:var(--slate);color:#fff;border-bottom:4px solid var(--acce
 .brand{font-weight:700;letter-spacing:.2px;font-size:19px}
 .brand small{display:block;font-weight:500;font-size:12px;color:#C9CDD2;letter-spacing:.8px;text-transform:uppercase}
 .tier{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;color:#E4E6E9}
-.chip{background:var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.chip{background:var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:4px}.gem{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE3A6,#E2A03F 60%,#B87420);box-shadow:0 0 0 2px rgba(255,255,255,.35)}
 .linkbtn{background:none;border:1px solid #6B737D;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;font:inherit;font-size:14px}
 main{max-width:980px;margin:0 auto;padding:22px 18px 60px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px}
@@ -41,9 +41,9 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
 [hidden]{display:none!important}
 </style></head><body>
 <header class="top"><div class="bar">
- <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#E8681A"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#B7BCC3"/></svg>
+ <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#E8681A"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg>
  <div class="brand" id="brandLine">Voklogik<small id="brandSub">Topaz</small></div>
- <div class="tier" id="tierBox" hidden><span class="chip">Topaz</span><span id="who"></span><button class="linkbtn" id="out" type="button">Sign out</button></div>
+ <div class="tier" id="tierBox" hidden><span class="gem"></span><span id="who"></span><button class="linkbtn" id="out" type="button">Sign out</button></div>
 </div></header>
 <main>
 
@@ -74,6 +74,19 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
     <label for="lPw">Password</label><input id="lPw" type="password" autocomplete="current-password" required>
     <p style="margin:14px 0 0"><button class="btn" type="submit">Sign in</button></p>
     <p class="msg" id="mIn" role="alert"></p>
+    <p class="small" style="margin:6px 0 0"><a href="#" id="forgotLink">Forgot your password?</a></p>
+   </form>
+   <form id="fForgot" hidden>
+    <p class="small" style="margin:0 0 4px">Enter your email and we will send you a link to choose a new password.</p>
+    <label for="fEmail">Email</label><input id="fEmail" type="email" autocomplete="email" required>
+    <p style="margin:14px 0 0"><button class="btn" type="submit">Send reset link</button> <button class="btn ghost" type="button" id="forgotBack">Back</button></p>
+    <p class="msg" id="mForgot" role="status"></p>
+   </form>
+   <form id="fReset" hidden>
+    <p style="margin:0 0 4px"><strong>Choose a new password</strong></p>
+    <label for="nPw">New password <span class="small">(10+ characters)</span></label><input id="nPw" type="password" autocomplete="new-password" minlength="10" required>
+    <p style="margin:14px 0 0"><button class="btn" type="submit">Save new password</button></p>
+    <p class="msg" id="mReset" role="alert"></p>
    </form>
   </div>
  </div>
@@ -149,7 +162,8 @@ function api(a,body,get){return fetch(A+a,{method:get?"GET":"POST",credentials:"
 function show(w){$("welcome").hidden=w!=="w";$("dash").hidden=w!=="d";$("tierBox").hidden=w!=="d";
   $("brandLine").firstChild.nodeValue=w==="d"?"Topaz Level ":"Voklogik";
   $("brandSub").textContent=w==="d"?"by voklogik":"Topaz";document.title=w==="d"?"Topaz Level by Voklogik":"Welcome to Topaz"}
-function tab(reg){$("fReg").hidden=!reg;$("fIn").hidden=reg;$("tReg").setAttribute("aria-selected",reg);$("tIn").setAttribute("aria-selected",!reg)}
+function forms(w){["fReg","fIn","fForgot","fReset"].forEach(function(f){$(f).hidden=f!==w});$("tReg").setAttribute("aria-selected",w==="fReg");$("tIn").setAttribute("aria-selected",w==="fIn"||w==="fForgot"||w==="fReset")}
+function tab(reg){forms(reg?"fReg":"fIn")}
 $("tReg").onclick=function(){tab(true)};$("tIn").onclick=function(){tab(false)};
 function msg(id,t,cls){var e=$(id);e.textContent=t||"";e.className="msg"+(cls?" "+cls:"")}
 function render(a,fresh){
@@ -160,7 +174,7 @@ function render(a,fresh){
   $("endBanner").hidden=!(on&&a.cancelAtPeriodEnd);
   if(a.cancelAtPeriodEnd)$("endBanner").textContent="Your plan is set to end on "+new Date(a.periodEnd).toLocaleDateString()+". Branded reports work until then.";
   if(on){var lim=a.limit;$("useTxt").textContent=lim==null?a.used+" branded reports this period. Unlimited.":a.used+" of "+lim+" branded reports used this month. "+a.left+" left.";
-    $("useBar").style.width=lim==null?"8%":Math.min(100,a.used/lim*100)+"%";
+    $("useBar").style.width=lim==null?"100%":Math.max(0,Math.min(100,a.left/lim*100))+"%";
     $("period").textContent=a.periodEnd?"Renews "+new Date(a.periodEnd).toLocaleDateString()+".":""}
   else{$("useTxt").textContent="Activate Topaz to start your 200 branded reports a month.";$("useBar").style.width="0";$("period").textContent=""}
   var up=$("upg");up.disabled=!(on&&a.plan==="topaz"&&a.canUpgrade);up.textContent=a.plan==="opal"?"You are on Opal":(a.canUpgrade?"Upgrade to Opal":"Opal opens soon");
@@ -196,10 +210,19 @@ $("fReg").onsubmit=function(e){e.preventDefault();msg("mReg","Creating your acco
 $("fIn").onsubmit=function(e){e.preventDefault();msg("mIn","Signing in...");
   api("login",{email:$("lEmail").value,password:$("lPw").value}).then(function(j){
    if(j.ok)return api("me",null,true).then(function(m){render(m.account,false)});msg("mIn",j.error||"Could not sign in.","err")})};
+$("forgotLink").onclick=function(e){e.preventDefault();$("fEmail").value=$("lEmail").value;forms("fForgot")};
+$("forgotBack").onclick=function(){forms("fIn")};
+$("fForgot").onsubmit=function(e){e.preventDefault();msg("mForgot","Sending...");
+  api("forgot",{email:$("fEmail").value}).then(function(){msg("mForgot","If that email has an account, a reset link is on its way. It works for 60 minutes. Check your spam folder too.","ok")}).catch(function(){msg("mForgot","Could not send. Try again in a minute.","err")})};
+var rt=(location.search.match(/[?&]reset=([A-Za-z0-9_-]+)/)||[])[1];
+$("fReset").onsubmit=function(e){e.preventDefault();msg("mReset","Saving...");
+  api("reset",{token:rt,password:$("nPw").value}).then(function(j){
+    if(j.ok){history.replaceState(null,"","/topaz.html");forms("fIn");msg("mIn","Password changed. Sign in with your new password.","ok")}else msg("mReset",j.error||"Could not reset.","err")})};
 $("out").onclick=function(){api("logout").then(function(){try{localStorage.removeItem("voklogik:topaz")}catch(e){}acc=null;show("w")})};
 $("portal").onclick=function(){api("portal").then(function(j){if(j.url)location.href=j.url;else msg("mBill",j.error||"Could not open billing.","err")})};
 $("upg").onclick=function(){if(!confirm("Upgrade to Opal now? The unused days of your Topaz month are credited and the difference for the rest of this month is charged. Full Opal pricing begins at your next renewal."))return;
   msg("mUp","Upgrading...");api("upgrade").then(function(j){if(j.ok){location.reload()}else msg("mUp",j.error||"Could not upgrade.","err")})};
+if(rt){show("w");forms("fReset")}else
 api("me",null,true).then(function(m){if(m.ok)render(m.account,/[?&]new=1/.test(location.search)||(m.account.plan==="none"&&m.account.used===0&&false));else show("w")}).catch(function(){show("w")});
 if(/[?&]paid=1/.test(location.search)){var n=0,t=setInterval(function(){api("me",null,true).then(function(m){if(m.ok){render(m.account,false);if(m.account.plan!=="none"||++n>12)clearInterval(t)}})},2500)}
 })();
