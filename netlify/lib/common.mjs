@@ -13,6 +13,8 @@ export async function setEnt(id, ent) {
   await entitlements().setJSON(id, { ...ent, updatedAt: new Date().toISOString() });
 }
 
+export const monthKey = () => new Date().toISOString().slice(0, 7); // calendar month, UTC
+
 export const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), {
     status,
