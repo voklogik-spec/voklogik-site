@@ -526,8 +526,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <b id="payTitle">You have used your free reports.</b>
     <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan. Your entries on this page stay put while you check out in a new tab.</p>
     <div class="plans">
-      <div class="plan"><strong>$4.99</strong><span class="k">One-time</span><p>25 more reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span></div>
-      <div class="plan"><strong>$9.99</strong><span class="k">Per month</span><p>Unlimited reports. Cancel any time.</p><a class="cta" id="payMonth" href="#" target="_blank" rel="noopener" hidden onclick="track('click_subscribe')">Subscribe</a><span class="k" id="payMonthSoon">Coming soon</span></div>
+      <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans, coming soon</span><p>$29.99 per month for 200 reports with your logo, contact info, MLS# and headshot. $79 per month unlimited, with a co-branded Voklogik widget for your website and a dashboard. Founding offer: the first 20 businesses get unlimited for $49.99 per month.</p><a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20business%20waitlist" onclick="track('click_business_waitlist')">Join the waitlist</a></div>
     </div>
     <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
     <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -1875,7 +1875,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   window.addEventListener("beforeprint",fillPrint);
   // ---- report limit: the same free reports and paid plans as the payment calculator ----
   function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
-  var LIMIT=5,UK="voklogik:reports",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",PAY_MONTH="https://buy.stripe.com/5kQdR91Ga2wyfHm5PY9MY01",mem=0;
+  var LIMIT=5,UK="voklogik:reports",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",mem=0;
   var API="/.netlify/functions/",ent=null,VK="voklogik:vid",vid=null;
   function used(){var v=0;try{v=parseInt(localStorage.getItem(UK),10)||0}catch(e){}return Math.max(v,mem)}
   function getVid(){
@@ -1902,8 +1902,12 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("manageSub").hidden=!(ent&&ent.sub);
     $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
     var cid="client_reference_id="+encodeURIComponent(getVid());
-    [["payPack",PAY_PACK],["payMonth",PAY_MONTH]].forEach(function(q){if(q[1])$(q[0]).href=q[1]+(q[1].indexOf("?")<0?"?":"&")+cid;$(q[0]).hidden=!q[1];$(q[0]+"Soon").hidden=!!q[1]});
-    $("payMsg").hidden=!!(PAY_PACK||PAY_MONTH);
+    [["payPack",PAY_PACK]].forEach(function(q){if(q[1])$(q[0]).href=q[1]+(q[1].indexOf("?")<0?"?":"&")+cid;$(q[0]).hidden=!q[1];$(q[0]+"Soon").hidden=!!q[1]});
+    var capped=!!(ent&&ent.canBuyPack===false&&!(ent.credits>0));
+    $("packUsed").hidden=!capped;if(capped){$("payPack").hidden=true;$("payPackSoon").hidden=true}
+    $("payTitle").textContent=capped?"You have used this month's individual reports.":"You have used your "+LIMIT+" free reports.";
+    $("proPlan").style.borderColor=capped?"var(--accent)":"";
+    $("payMsg").hidden=!!PAY_PACK;
   }
   function allow(go){
     if(Math.max(LIMIT-used(),0)>0){go(true);return}
