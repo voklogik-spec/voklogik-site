@@ -2,7 +2,9 @@ import {
   store, normEmail, validEmail, hashPw, checkPw, newAccountId, startSession, cookieHeader,
   sessionAccountId, endSession, getAccount, saveAccount, getImages, saveImages, isActive, usage,
   publicAccount, cleanImage, cleanBrand, stripeApi, TOPAZ_REPORTS,
+  makeResetToken, readResetToken, dropResetToken, RESET_MINUTES,
 } from "../lib/topaz.mjs";
+import { sendMail } from "../lib/mail.mjs";
 import { json } from "../lib/common.mjs";
 
 export const config = { path: "/api/topaz/*" };
@@ -42,6 +44,43 @@ export default async (req) => {
     const { token } = await startSession(u.id);
     const a = await getAccount(u.id);
     return withCookie(json({ ok: true, account: publicAccount(a, await getImages(u.id)) }), cookieHeader(token, 30 * 86400));
+  }
+
+  // Forgot password: always the same answer, so nobody can use this to find out who has an account.
+  if (action === "forgot" && req.method === "POST") {
+    const email = normEmail((await body(req)).email);
+    const same = json({ ok: true });
+    if (!validEmail(email)) return same;
+    const u = await s.get(emailKey(email), { type: "json" });
+    if (!u) return same;
+    const lastKey = "resetsent:" + email, last = await s.get(lastKey);
+    if (last && Date.now() - Number(last) < 60000) return same; // at most one email a minute
+    await s.set(lastKey, String(Date.now()));
+    try {
+      const site = process.env.SITE_URL || "https://voklogik.com";
+      const link = `${site}/topaz.html?reset=${await makeResetToken(u.id, email)}`;
+      await sendMail({
+        to: email,
+        subject: "Reset your Voklogik Topaz password",
+        text: `Use this link to choose a new password. It works for ${RESET_MINUTES} minutes and only once.\n\n${link}\n\nIf you did not ask for this, ignore this email and your password stays the same.\n\nVoklogik`,
+        html: `<p>Use this link to choose a new password. It works for ${RESET_MINUTES} minutes and only once.</p><p><a href="${link}">Choose a new password</a></p><p style="color:#666">If you did not ask for this, ignore this email and your password stays the same.</p><p>Voklogik</p>`,
+      });
+    } catch (e) { console.error("reset email failed", e.message); }
+    return same;
+  }
+
+  if (action === "reset" && req.method === "POST") {
+    const b = await body(req), pw = String(b.password || "");
+    const r = await readResetToken(b.token);
+    if (!r) return json({ error: "This reset link is no longer valid. Ask for a new one." }, 400);
+    if (pw.length < 10) return json({ error: "Use a password of at least 10 characters." }, 400);
+    if (pw.length > 200) return json({ error: "Password is too long." }, 400);
+    const { salt, hash } = hashPw(pw);
+    await s.setJSON(emailKey(r.email), { id: r.id, salt, hash });
+    const a = await getAccount(r.id);
+    if (a) { a.pwChangedAt = new Date().toISOString(); await saveAccount(a); }
+    await dropResetToken(b.token);
+    return json({ ok: true });
   }
 
   if (action === "logout") {
