@@ -25,7 +25,7 @@ export const newAccountId = () => "tz_" + randomBytes(15).toString("base64url");
 export async function startSession(id) {
   const token = randomBytes(32).toString("base64url");
   const exp = Date.now() + SESSION_DAYS * 864e5;
-  await store().setJSON("sess:" + sha(token), { id, exp });
+  await store().setJSON("sess:" + sha(token), { id, exp, iat: Date.now() });
   return { token, exp };
 }
 export const cookieHeader = (token, maxAgeSec) =>
@@ -40,6 +40,9 @@ export async function sessionAccountId(req) {
   if (!t) return null;
   const s = await store().get("sess:" + sha(t), { type: "json" });
   if (!s || s.exp < Date.now()) return null;
+  // A password change or reset signs out every session that started before it.
+  const a = await getAccount(s.id);
+  if (a?.pwChangedAt && (s.iat || 0) < Date.parse(a.pwChangedAt)) return null;
   return s.id;
 }
 export async function endSession(req) {
@@ -111,3 +114,17 @@ export async function stripeApi(path, params, method = "POST") {
   if (!r.ok) throw new Error(j?.error?.message || "Stripe error");
   return j;
 }
+
+// ---- password reset
+export const RESET_MINUTES = 60;
+export async function makeResetToken(id, email) {
+  const token = randomBytes(32).toString("base64url");
+  await store().setJSON("reset:" + sha(token), { id, email, exp: Date.now() + RESET_MINUTES * 60000 });
+  return token;
+}
+export async function readResetToken(token) {
+  if (!/^[A-Za-z0-9_-]{20,80}$/.test(token || "")) return null;
+  const r = await store().get("reset:" + sha(token), { type: "json" });
+  return r && r.exp > Date.now() ? r : null;
+}
+export const dropResetToken = (token) => store().delete("reset:" + sha(token));
