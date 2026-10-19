@@ -15,7 +15,7 @@ header.top{background:var(--slate);color:#fff;border-bottom:4px solid var(--acce
 .brand{font-weight:700;letter-spacing:.2px;font-size:19px}
 .brand small{display:block;font-weight:500;font-size:12px;color:#C9CDD2;letter-spacing:.8px;text-transform:uppercase}
 .tier{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;color:#E4E6E9}
-.chip{background:var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:4px}.gem{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE3A6,#E2A03F 60%,#B87420);box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.chip{background:var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:4px}.gem{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE3A6,#E2A03F 60%,#B87420);box-shadow:0 0 0 2px rgba(255,255,255,.35)}.gem.opal{background:radial-gradient(circle at 35% 30%,#fff,#C9E4E8 40%,#E8C8E0 70%,#B7D7C9)}
 .linkbtn{background:none;border:1px solid #6B737D;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;font:inherit;font-size:14px}
 main{max-width:980px;margin:0 auto;padding:22px 18px 60px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px}
@@ -43,7 +43,7 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
 <header class="top"><div class="bar">
  <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#E8681A"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg>
  <div class="brand" id="brandLine">Voklogik<small id="brandSub">Topaz</small></div>
- <div class="tier" id="tierBox" hidden><span class="gem"></span><span id="who"></span><button class="linkbtn" id="out" type="button">Sign out</button></div>
+ <div class="tier" id="tierBox" hidden><span class="gem" id="gemEl"></span><span id="who"></span><button class="linkbtn" id="out" type="button">Sign out</button></div>
 </div></header>
 <main>
 
@@ -96,6 +96,7 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
  <div class="banner" id="subBanner" hidden>
   <strong id="newHello">Welcome to Topaz.</strong> Your account is ready. Add your branding below, then activate Topaz to put it on your reports.
   <p style="margin:10px 0 0"><a class="btn" id="subscribe" href="#">Activate Topaz &middot; $29.99/month</a> <span class="small" id="noPay" hidden>Checkout is not switched on yet. Check back soon.</span></p>
+  <p class="small" id="opalDirect" style="margin:10px 0 0" hidden>Want more? <a id="opalGo" href="#">Start with Opal instead &middot; $79/month</a>. Unlimited reports, plus everything in Topaz.</p>
  </div>
  <div class="banner" id="endBanner" hidden></div>
 
@@ -109,9 +110,9 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
    <p class="small" style="margin-top:10px">Signed in on this device, the reports you save or print carry your branding.</p>
   </div>
   <div class="card up">
-   <h2>Opal <span class="pill">Next level</span></h2>
-   <p class="sub">Unlimited reports, a co-branded Voklogik widget for your website, and a dashboard to save scenarios.</p>
-   <p class="small">Upgrade whenever you like. Opal starts the day you upgrade, the unused days of your Topaz month are credited, and the full Opal price begins when your current month ends.</p>
+   <h2>Opal <span class="pill" id="opalPill">Next level</span></h2>
+   <p class="sub" id="opalSub">Unlimited reports, a co-branded Voklogik widget for your website, and a dashboard to save scenarios.</p>
+   <p class="small" id="opalFine">Upgrade whenever you like. Opal starts the day you upgrade, the unused days of your Topaz month are credited, and the full Opal price begins when your current month ends.</p>
    <p style="margin:12px 0 0"><button class="btn" id="upg" type="button" disabled>Opal opens soon</button></p>
    <p class="msg" id="mUp"></p>
   </div>
@@ -171,6 +172,7 @@ function render(a,fresh){
   var on=a.plan==="topaz"||a.plan==="opal";
   $("subBanner").hidden=on;$("newHello").textContent=fresh?"Welcome to Topaz.":"Topaz is not active yet.";
   if(!on){if(a.payLink){$("subscribe").href=a.payLink;$("subscribe").hidden=false;$("noPay").hidden=true}else{$("subscribe").hidden=true;$("noPay").hidden=false}}
+  $("opalDirect").hidden=!(!on&&a.opalLink);if(a.opalLink)$("opalGo").href=a.opalLink;
   $("endBanner").hidden=!(on&&a.cancelAtPeriodEnd);
   if(a.cancelAtPeriodEnd)$("endBanner").textContent="Your plan is set to end on "+new Date(a.periodEnd).toLocaleDateString()+". Branded reports work until then.";
   if(on){var lim=a.limit;$("useTxt").textContent=lim==null?a.used+" branded reports this period. Unlimited.":a.used+" of "+lim+" branded reports used this month. "+a.left+" left.";
@@ -178,6 +180,9 @@ function render(a,fresh){
     $("period").textContent=a.periodEnd?"Renews "+new Date(a.periodEnd).toLocaleDateString()+".":""}
   else{$("useTxt").textContent="Activate Topaz to start your 200 branded reports a month.";$("useBar").style.width="0";$("period").textContent=""}
   var up=$("upg");up.disabled=!(on&&a.plan==="topaz"&&a.canUpgrade);up.textContent=a.plan==="opal"?"You are on Opal":(a.canUpgrade?"Upgrade to Opal":"Opal opens soon");
+  $("opalSub").textContent=a.plan==="opal"?"You are on Opal: unlimited branded reports, plus everything in Topaz. Your widget and scenarios dashboard are added here as they open.":"Unlimited reports, a co-branded Voklogik widget for your website, and a dashboard to save scenarios.";
+  $("opalFine").hidden=a.plan==="opal";up.hidden=a.plan==="opal";$("opalPill").hidden=a.plan==="opal";
+  var nm=a.plan==="opal"?"Opal":"Topaz";$("brandLine").firstChild.nodeValue=nm+" Level ";document.title=nm+" Level by Voklogik";$("gemEl").className="gem"+(a.plan==="opal"?" opal":"");
   $("billCard").hidden=!on;
   var b=a.brand||{};$("bName").value=b.name||"";$("bCompany").value=b.company||"";$("bTitle").value=b.title||"";$("bPhone").value=b.phone||"";$("bEmail").value=b.email||"";$("bWeb").value=b.website||"";$("bMls").value=b.mls||"";$("bNmls").value=b.nmls||"";
   pic("logo",b.logo);pic("head",b.headshot);
@@ -196,14 +201,14 @@ function wire(k,key,max){
   $(k+"File").onchange=function(){var f=this.files[0];this.value="";if(!f)return;
     if(!/^image\/(png|jpeg)$/.test(f.type)){msg("mBrand","Please choose a PNG or JPG.","err");return}
     shrink(f,max,k==="logo"?"image/png":"image/jpeg").then(function(d){var o={brand:cur()};o[key]=d;return api("brand",o)})
-     .then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved.","ok")}else msg("mBrand",j.error||"Could not save.","err")})
+     .then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved.","ok")}else msg("mBrand",j.error||"Could not save.","err")})
      .catch(function(e){msg("mBrand",e.message,"err")})};
-  $(k+"Del").onclick=function(){var o={brand:cur()};o[key]=null;api("brand",o).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,canUpgrade:acc.canUpgrade}))}})};
+  $(k+"Del").onclick=function(){var o={brand:cur()};o[key]=null;api("brand",o).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,canUpgrade:acc.canUpgrade}))}})};
 }
 function cur(){return{name:$("bName").value,company:$("bCompany").value,title:$("bTitle").value,phone:$("bPhone").value,email:$("bEmail").value,website:$("bWeb").value,mls:$("bMls").value,nmls:$("bNmls").value}}
 wire("logo","logo",400);wire("head","headshot",240);
 $("fBrand").onsubmit=function(e){e.preventDefault();msg("mBrand","Saving...");
-  api("brand",{brand:cur()}).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved. Your reports will use this.","ok")}else msg("mBrand",j.error||"Could not save.","err")})};
+  api("brand",{brand:cur()}).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved. Your reports will use this.","ok")}else msg("mBrand",j.error||"Could not save.","err")})};
 $("fReg").onsubmit=function(e){e.preventDefault();msg("mReg","Creating your account...");
   api("register",{name:$("rName").value,email:$("rEmail").value,password:$("rPw").value}).then(function(j){
    if(j.ok)return api("me",null,true).then(function(m){render(m.account,true)});msg("mReg",j.error||"Could not register.","err")})};
