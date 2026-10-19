@@ -17,3 +17,8 @@
   from = "/terms"
   to = "/terms.html"
   status = 200
+
+[[redirects]]
+  from = "/w/*"
+  to = "/w.html"
+  status = 200
