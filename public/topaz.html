@@ -38,6 +38,21 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
 .drop.head img{max-width:64px;max-height:64px;border-radius:50%}
 .small{font-size:13px;color:var(--muted)}.fine{font-size:12.5px;color:var(--muted);margin-top:26px}
 .tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--bg);border-radius:8px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}.tabs button[aria-selected=true]{background:var(--slate);color:#fff;border-color:var(--slate)}
+
+.up{background:linear-gradient(135deg,#FFFFFF,#F3F0FA 40%,#E8F2F5 70%,#F8ECF4);border-left:5px solid #B9A9E0}.up .pill{background:#4B3F78}
+body.opal{--bg:#F5F4F8;--ink:#2B2838;--muted:#6A6678;--line:#DCD8E8;--accent:#4B3F78;--accent2:#3A305F;--soft:#EFEBF8;--slate:#FAF9FC;--slate2:#7E6FB0}
+body.opal header.top{background:linear-gradient(110deg,#FFFFFF 0%,#F1EEF7 35%,#E6F1F4 60%,#F8ECF4 85%,#FFFFFF 100%);color:#2B2838;border-bottom:4px solid transparent;border-image:linear-gradient(90deg,#9CC9D8,#B9A9E0,#E8B5D0,#E6D3A8) 1}
+body.opal .brand small{color:#6A6678}body.opal .tier{color:#5C566E}body.opal .linkbtn{color:#3A305F;border-color:#B9B2CF}body.opal .gem{box-shadow:0 0 0 2px #E3D2A8}
+body.opal .meter i{background:linear-gradient(90deg,#9CC9D8,#B9A9E0,#E8B5D0,#E6D3A8)}body.opal .card{box-shadow:0 8px 24px rgba(110,92,160,.08)}
+body.opal .banner{border-color:#B9A9E0}body.opal .pill{background:#4B3F78}body.opal .up{border-left-color:#B9A9E0}
+@media (prefers-color-scheme:dark){body.opal{--bg:#17151F;--panel:#211E2C;--ink:#ECEAF4;--muted:#A9A5BC;--line:#38344A;--accent:#9F8FD6;--accent2:#B7A9E6;--soft:#2A2640}
+body.opal .btn,body.opal .mini.go,body.opal .range button[aria-pressed=true],body.opal .pill{color:#17151F}body.opal header.top{background:linear-gradient(110deg,#1B1826,#262237 40%,#1F2A32 70%,#2C2234);color:#F1EFF8}body.opal .brand small,body.opal .tier{color:#C9C4DE}body.opal .linkbtn{color:#E5E1F4;border-color:#5A5473}.up{background:linear-gradient(135deg,#262237,#2B2744 45%,#223039)}}
+.range{display:flex;gap:8px;margin:10px 0 4px}.range button{padding:6px 14px;border:1px solid var(--line);background:var(--bg);border-radius:8px;font:inherit;font-weight:600;color:var(--ink);cursor:pointer}.range button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 4px}@media(max-width:640px){.tiles{grid-template-columns:1fr 1fr}}
+.tile{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg)}.tile b{display:block;font-size:30px;line-height:1.1}.tile span{font-size:13px;color:var(--muted)}
+.spark{display:flex;align-items:flex-end;gap:4px;height:60px;margin:14px 0 4px}.spark i{flex:1;background:var(--accent);opacity:.75;border-radius:3px 3px 0 0;min-height:2px}
+.scn{border-top:1px solid var(--line);padding:12px 0}.scn .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.scn .nm{font-weight:700;flex:1;min-width:160px}.scn .nm input{width:100%;padding:7px 10px}
+.mini{background:none;border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:5px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.mini:hover{border-color:var(--accent)}.mini.go{background:var(--accent);border-color:var(--accent);color:#fff}
 [hidden]{display:none!important}
 </style></head><body>
 <header class="top"><div class="bar">
@@ -111,11 +126,62 @@ input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:
   </div>
   <div class="card up">
    <h2>Opal <span class="pill" id="opalPill">Next level</span></h2>
-   <p class="sub" id="opalSub">Unlimited reports, a co-branded Voklogik widget for your website, and a dashboard to save scenarios.</p>
+   <p class="sub" id="opalSub">Unlimited reports. Your own co-branded Voklogik page with the payment estimate and the Affordability check. A dashboard with lead alerts and every scenario your visitors run.</p>
    <p class="small" id="opalFine">Upgrade whenever you like. Opal starts the day you upgrade, the unused days of your Topaz month are credited, and the full Opal price begins when your current month ends.</p>
    <p style="margin:12px 0 0"><button class="btn" id="upg" type="button" disabled>Opal opens soon</button></p>
    <p class="msg" id="mUp"></p>
   </div>
+ </div>
+
+ <div class="card" id="widgetCard" hidden>
+  <h2>Your Voklogik page <span class="pill">Opal</span></h2>
+  <p class="sub">A co-branded page with the payment estimate and the Affordability check, under your logo, photo and contact details. Share the link or add it to your own site. People who ask you to follow up arrive as leads, with the numbers they ran, and Voklogik gets a copy.</p>
+  <form id="fWidget">
+   <div class="two">
+    <div><label for="wHandle">Page name</label>
+     <div style="display:flex;align-items:center;gap:6px"><span class="small" style="white-space:nowrap">voklogik.com/w/</span><input id="wHandle" type="text" maxlength="40" autocapitalize="none" spellcheck="false"></div>
+     <span class="small">Letters, numbers and dashes.</span></div>
+    <div><label for="wNotify">Send lead alerts to</label><input id="wNotify" type="email" placeholder="Leave empty to use your branding email"></div>
+   </div>
+   <label for="wIntro">Short welcome line <span class="small">(optional)</span></label><input id="wIntro" type="text" maxlength="160" placeholder="Run your numbers. I am happy to talk them through.">
+   <label style="display:flex;gap:8px;align-items:center;margin-top:14px"><input type="checkbox" id="wOn" style="width:18px;height:18px"> Page is on</label>
+   <p style="margin:14px 0 0"><button class="btn" type="submit">Save page</button></p>
+   <p class="msg" id="mWidget" role="status"></p>
+  </form>
+  <div id="wLinks" hidden>
+   <label for="wUrl">Your link</label>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="wUrl" type="text" readonly style="flex:1;min-width:220px"><button class="btn ghost" type="button" id="wCopyUrl">Copy</button><a class="btn ghost" id="wOpen" href="#" target="_blank" rel="noopener">Open</a></div>
+   <p class="small" style="margin:6px 0 0">Easiest way to share: text it, email it, put it in your bio or on a QR code.</p>
+   <label for="wEmbed" style="margin-top:14px">Or add it to your own website <span class="small">(paste this code)</span></label>
+   <textarea id="wEmbed" readonly rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace"></textarea>
+   <p style="margin:8px 0 0"><button class="btn ghost" type="button" id="wCopyEmbed">Copy code</button></p>
+  </div>
+  <h2 style="margin-top:22px">Leads</h2>
+  <p class="sub">People who asked you to follow up. Each one also arrives by email.</p>
+  <div id="leadList"><p class="small">No leads yet.</p></div>
+ </div>
+
+ <div class="card" id="activityCard" hidden>
+  <h2>Page activity <span class="pill">Opal</span></h2>
+  <p class="sub">How many people are using your page, including the ones who never send a lead.</p>
+  <div class="range" role="group" aria-label="Time range"><button type="button" id="r7" aria-pressed="true">Last 7 days</button><button type="button" id="r30" aria-pressed="false">Last 30 days</button></div>
+  <div class="tiles">
+   <div class="tile"><b id="st_view">0</b><span>Visits</span></div>
+   <div class="tile"><b id="st_estimate">0</b><span>Ran an estimate</span></div>
+   <div class="tile"><b id="st_aff">0</b><span>Opened Affordability</span></div>
+   <div class="tile"><b id="st_lead">0</b><span>Sent you a lead</span></div>
+  </div>
+  <div class="spark" id="spark" aria-label="Visits per day, last 14 days"></div>
+  <p class="small" id="sparkNote" style="margin:0">Visits per day, last 14 days.</p>
+  <p class="small" id="convNote" style="margin:8px 0 0"></p>
+  <p class="small" style="margin:8px 0 0">Counts are close, not exact. A person who comes back in the same browser session counts once, and your own visits from the Open button above are not counted. Only totals are kept, never names or addresses.</p>
+ </div>
+
+ <div class="card" id="scnCard" hidden>
+  <h2>Your saved scenarios <span class="pill">Opal</span></h2>
+  <p class="sub">Your own scenarios. While you are signed in, tap Save scenario in the bar at the top of the payment calculator or the Affordability check. You can reopen, rename or delete them here. Scenarios your visitors send arrive as leads and can not be edited.</p>
+  <div id="scnList"><p class="small">Nothing saved yet.</p></div>
+  <p class="small" style="margin:10px 0 0">Saved scenarios can hold your clients' financial details. Please do not type names or ID numbers into them.</p>
  </div>
 
  <div class="card">
@@ -180,14 +246,91 @@ function render(a,fresh){
     $("period").textContent=a.periodEnd?"Renews "+new Date(a.periodEnd).toLocaleDateString()+".":""}
   else{$("useTxt").textContent="Activate Topaz to start your 200 branded reports a month.";$("useBar").style.width="0";$("period").textContent=""}
   var up=$("upg");up.disabled=!(on&&a.plan==="topaz"&&a.canUpgrade);up.textContent=a.plan==="opal"?"You are on Opal":(a.canUpgrade?"Upgrade to Opal":"Opal opens soon");
-  $("opalSub").textContent=a.plan==="opal"?"You are on Opal: unlimited branded reports, plus everything in Topaz. Your widget and scenarios dashboard are added here as they open.":"Unlimited reports, a co-branded Voklogik widget for your website, and a dashboard to save scenarios.";
+  $("opalSub").textContent=a.plan==="opal"?"You are on Opal: unlimited branded reports, plus everything in Topaz. Set up your page below. Leads and the scenarios your visitors run show up in your dashboard.":"Unlimited reports. Your own co-branded Voklogik page with the payment estimate and the Affordability check. A dashboard with lead alerts and every scenario your visitors run.";
   $("opalFine").hidden=a.plan==="opal";up.hidden=a.plan==="opal";$("opalPill").hidden=a.plan==="opal";
+  document.body.classList.toggle("opal",a.plan==="opal");
   var nm=a.plan==="opal"?"Opal":"Topaz";$("brandLine").firstChild.nodeValue=nm+" Level ";document.title=nm+" Level by Voklogik";$("gemEl").className="gem"+(a.plan==="opal"?" opal":"");
   $("billCard").hidden=!on;
+  $("widgetCard").hidden=!a.widgetOk;$("activityCard").hidden=!a.widgetOk;$("scnCard").hidden=!a.widgetOk;if(a.widgetOk)loadWidget();
   var b=a.brand||{};$("bName").value=b.name||"";$("bCompany").value=b.company||"";$("bTitle").value=b.title||"";$("bPhone").value=b.phone||"";$("bEmail").value=b.email||"";$("bWeb").value=b.website||"";$("bMls").value=b.mls||"";$("bNmls").value=b.nmls||"";
   pic("logo",b.logo);pic("head",b.headshot);
   try{localStorage.setItem("voklogik:topaz","1")}catch(e){}
 }
+
+function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
+function showLinks(j){var ok=!!j.url;$("wLinks").hidden=!ok;if(ok){$("wUrl").value=j.url;$("wOpen").href=j.url+"?pv=1";$("wEmbed").value=j.embed||""}}
+var wLoaded=false;
+function loadWidget(){
+  if(wLoaded)return;wLoaded=true;
+  api("widget",null,true).then(function(j){if(!j.ok)return;var w=j.widget||{};
+    $("wHandle").value=w.handle||slug((acc.brand&&(acc.brand.company||acc.brand.name))||"");$("wNotify").value=w.notify||"";$("wIntro").value=w.intro||"";$("wOn").checked=!!w.enabled;showLinks(j)});
+  loadLeads();loadStats();loadScn();
+}
+function loadLeads(){
+  api("leads",null,true).then(function(j){var box=$("leadList");box.innerHTML="";
+    if(!j.ok||!j.leads.length){var p=document.createElement("p");p.className="small";p.textContent="No leads yet.";box.appendChild(p);return}
+    j.leads.forEach(function(l){var d=document.createElement("div");d.style.cssText="border-top:1px solid var(--line);padding:10px 0";
+      var t=document.createElement("div");var b=document.createElement("strong");b.textContent=l.name;t.appendChild(b);
+      var when=document.createElement("span");when.className="small";when.textContent="  "+new Date(l.at).toLocaleString();t.appendChild(when);d.appendChild(t);
+      var c=document.createElement("div");c.className="small";var a=document.createElement("a");a.href="mailto:"+l.email;a.textContent=l.email;c.appendChild(a);
+      if(l.phone)c.appendChild(document.createTextNode("  ·  "+l.phone));d.appendChild(c);
+      if(l.message){var m=document.createElement("div");m.textContent="\u201C"+l.message+"\u201D";d.appendChild(m)}
+      if(l.affordability&&l.affordability.length){var dt=document.createElement("details");dt.style.marginTop="6px";var sm=document.createElement("summary");sm.textContent="Affordability summary they ran";sm.style.cssText="cursor:pointer;font-size:14px;font-weight:600";dt.appendChild(sm);
+        l.affordability.forEach(function(r){var row=document.createElement("div");row.className="small";if(String(r[0]).indexOf("## ")===0){row.style.cssText="margin-top:8px;font-weight:700;color:var(--ink)";row.textContent=String(r[0]).slice(3)}else{row.textContent=r[0]+(r[1]?": "+r[1]:"")}dt.appendChild(row)});d.appendChild(dt)}
+      var sc=l.scenario||{};if(sc.price){var q=document.createElement("div");q.className="small";q.textContent="Estimate: $"+Math.round(sc.price).toLocaleString()+" home, "+sc.downPct+"% down, "+sc.rate+"%, "+sc.years+" yrs, about $"+Math.round(sc.payment||0).toLocaleString()+"/mo";d.appendChild(q)}
+      box.appendChild(d)})});
+}
+var sRange=7,sData=null;
+function loadStats(){api("stats",null,true).then(function(j){if(j.ok){sData=j;drawStats()}})}
+function drawStats(){
+  if(!sData)return;var t=sRange===7?sData.d7:sData.d30;
+  ["view","estimate","aff","lead"].forEach(function(f){$("st_"+f).textContent=(t[f]||0).toLocaleString()});
+  $("r7").setAttribute("aria-pressed",sRange===7);$("r30").setAttribute("aria-pressed",sRange===30);
+  var by={};sData.days.forEach(function(d){by[d.d]=d});var vals=[],labs=[];
+  for(var i=13;i>=0;i--){var k=new Date(Date.now()-i*86400000).toISOString().slice(0,10);vals.push((by[k]||{}).view||0);labs.push(k)}
+  var mx=Math.max.apply(null,vals.concat([1])),sp=$("spark");sp.innerHTML="";
+  vals.forEach(function(v,i){var b=document.createElement("i");b.style.height=Math.max(3,v/mx*100)+"%";b.title=labs[i]+": "+v+" visits";sp.appendChild(b)});
+  $("convNote").textContent=t.view>0?"About "+Math.round(t.lead/t.view*100)+"% of visits became a lead in this period.":"No visits in this period yet. Share your link and they will show up here.";
+}
+$("r7").onclick=function(){sRange=7;drawStats()};$("r30").onclick=function(){sRange=30;drawStats()};
+
+function fmtWhen(s){return new Date(s).toLocaleString()}
+function loadScn(){
+  api("scenarios",null,true).then(function(j){var box=$("scnList");box.innerHTML="";
+    if(!j.ok||!j.scenarios.length){var p=document.createElement("p");p.className="small";p.textContent="Nothing saved yet.";box.appendChild(p);return}
+    j.scenarios.forEach(function(s){
+      var d=document.createElement("div");d.className="scn";var row=document.createElement("div");row.className="row";
+      var nm=document.createElement("div");nm.className="nm";var st=document.createElement("span");st.textContent=s.name;nm.appendChild(st);
+      var meta=document.createElement("div");meta.className="small";meta.style.fontWeight="400";meta.textContent=(s.kind==="aff"?"Affordability check":"Payment estimate")+" · "+fmtWhen(s.at);nm.appendChild(meta);
+      var open=document.createElement("button");open.type="button";open.className="mini go";open.textContent="Open";open.onclick=function(){openScn(s.id,open)};
+      var ren=document.createElement("button");ren.type="button";ren.className="mini";ren.textContent="Rename";
+      ren.onclick=function(){var inp=document.createElement("input");inp.type="text";inp.maxLength=60;inp.value=s.name;st.replaceWith(inp);inp.focus();inp.select();ren.textContent="Save";
+        ren.onclick=function(){api("scenario",{op:"rename",id:s.id,name:inp.value}).then(function(r){if(r.ok)loadScn();else{inp.style.borderColor="var(--bad)"}})}};
+      var del=document.createElement("button");del.type="button";del.className="mini";del.textContent="Delete";
+      del.onclick=function(){if(!confirm("Delete “"+s.name+"”? This can not be undone."))return;api("scenario",{op:"delete",id:s.id}).then(function(){loadScn()})};
+      row.appendChild(nm);row.appendChild(open);row.appendChild(ren);row.appendChild(del);d.appendChild(row);
+      if(s.summary&&s.summary.length){var dt=document.createElement("details");dt.style.marginTop="6px";var sm=document.createElement("summary");sm.textContent="Numbers in this scenario";sm.style.cssText="cursor:pointer;font-size:14px;font-weight:600";dt.appendChild(sm);
+        s.summary.forEach(function(r){var x=document.createElement("div");x.className="small";if(String(r[0]).indexOf("## ")===0){x.style.cssText="margin-top:8px;font-weight:700;color:var(--ink)";x.textContent=String(r[0]).slice(3)}else x.textContent=r[0]+(r[1]?": "+r[1]:"");dt.appendChild(x)});d.appendChild(dt)}
+      box.appendChild(d)})});
+}
+// Put a saved scenario back into this browser's storage, then open the page that reads it.
+function openScn(id,btn){
+  btn.disabled=true;
+  api("scenario?id="+encodeURIComponent(id),null,true).then(function(j){
+    if(!j.ok){btn.disabled=false;return}
+    var sc=j.scenario,now=Date.now();
+    try{Object.keys(sc.snap).forEach(function(k){var v=JSON.parse(sc.snap[k]);if(k==="voklogik:payment")v.savedAt=now-5000;else v.t=now;localStorage.setItem(k,JSON.stringify(v))})}
+    catch(e){btn.disabled=false;alert("Your browser would not let us open this scenario. Check that site data is allowed.");return}
+    location.href=sc.kind==="aff"?"/affordability.html":"/";
+  }).catch(function(){btn.disabled=false});
+}
+function copyFrom(id,btn){var el=$(id);el.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}
+  if(navigator.clipboard)navigator.clipboard.writeText(el.value).then(function(){flash(btn)},function(){if(ok)flash(btn)});else if(ok)flash(btn)}
+function flash(btn){var t=btn.textContent;btn.textContent="Copied";setTimeout(function(){btn.textContent=t},1400)}
+$("wCopyUrl").onclick=function(){copyFrom("wUrl",this)};$("wCopyEmbed").onclick=function(){copyFrom("wEmbed",this)};
+$("fWidget").onsubmit=function(e){e.preventDefault();msg("mWidget","Saving...");
+  api("widget",{handle:$("wHandle").value,enabled:$("wOn").checked,notify:$("wNotify").value,intro:$("wIntro").value}).then(function(j){
+    if(j.ok){showLinks(j);msg("mWidget",j.widget&&j.widget.enabled?"Saved. Your page is on.":"Saved. Your page is off.","ok")}else msg("mWidget",j.error||"Could not save.","err")})};
 function pic(k,src){$(k+"Img").hidden=!src;$(k+"Ph").hidden=!!src;$(k+"Del").hidden=!src;if(src)$(k+"Img").src=src}
 function shrink(file,max,type){return new Promise(function(res,rej){
   var fr=new FileReader();fr.onerror=function(){rej(new Error("Could not read that file."))};
@@ -201,14 +344,14 @@ function wire(k,key,max){
   $(k+"File").onchange=function(){var f=this.files[0];this.value="";if(!f)return;
     if(!/^image\/(png|jpeg)$/.test(f.type)){msg("mBrand","Please choose a PNG or JPG.","err");return}
     shrink(f,max,k==="logo"?"image/png":"image/jpeg").then(function(d){var o={brand:cur()};o[key]=d;return api("brand",o)})
-     .then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved.","ok")}else msg("mBrand",j.error||"Could not save.","err")})
+     .then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,widgetOk:acc.widgetOk,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved.","ok")}else msg("mBrand",j.error||"Could not save.","err")})
      .catch(function(e){msg("mBrand",e.message,"err")})};
-  $(k+"Del").onclick=function(){var o={brand:cur()};o[key]=null;api("brand",o).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,canUpgrade:acc.canUpgrade}))}})};
+  $(k+"Del").onclick=function(){var o={brand:cur()};o[key]=null;api("brand",o).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,widgetOk:acc.widgetOk,canUpgrade:acc.canUpgrade}))}})};
 }
 function cur(){return{name:$("bName").value,company:$("bCompany").value,title:$("bTitle").value,phone:$("bPhone").value,email:$("bEmail").value,website:$("bWeb").value,mls:$("bMls").value,nmls:$("bNmls").value}}
 wire("logo","logo",400);wire("head","headshot",240);
 $("fBrand").onsubmit=function(e){e.preventDefault();msg("mBrand","Saving...");
-  api("brand",{brand:cur()}).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved. Your reports will use this.","ok")}else msg("mBrand",j.error||"Could not save.","err")})};
+  api("brand",{brand:cur()}).then(function(j){if(j.ok){render(Object.assign({},acc,j.account,{payLink:acc.payLink,opalLink:acc.opalLink,widgetOk:acc.widgetOk,canUpgrade:acc.canUpgrade}));msg("mBrand","Saved. Your reports will use this.","ok")}else msg("mBrand",j.error||"Could not save.","err")})};
 $("fReg").onsubmit=function(e){e.preventDefault();msg("mReg","Creating your account...");
   api("register",{name:$("rName").value,email:$("rEmail").value,password:$("rPw").value}).then(function(j){
    if(j.ok)return api("me",null,true).then(function(m){render(m.account,true)});msg("mReg",j.error||"Could not register.","err")})};

@@ -140,7 +140,7 @@ legend{font:500 .95rem "Bricolage Grotesque",sans-serif;color:var(--muted);paddi
 .pvAct{border-top:1px solid var(--line);justify-content:flex-end}
 #pvFrame{flex:1;width:100%;border:0;background:#fff}
 .payb div+div{margin-top:10px;border-top:1px solid var(--line)}
-.ur{display:flex;gap:8px}.ur input{flex:1;min-width:0}.ur select{width:auto;flex:none}
+.ur{display:flex;gap:8px}.ur input{flex:1;min-width:110px}.ur select{width:auto;flex:none}
 .seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
 .seg label:has(input:checked){background:var(--accent);color:var(--on-accent);font-weight:700}
 .seg label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:-3px}
@@ -326,8 +326,8 @@ table.sched th{color:var(--muted);font-weight:500}
       <div class="f w" id="apprF"><label for="appr">Appraised or current value ($)</label><input id="appr" type="number" inputmode="decimal" min="0" step="1000" placeholder="Leave blank to use the home price"><span class="k">If the appraised value is not known yet, the home price is used. LTV is based on the lower of the two.</span></div>
       <div class="f" id="downF"><label for="down">Down payment (%)</label><input id="down" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="20"></div>
       <div class="f" id="downAmtF"><label for="downAmt">Down payment ($)</label><input id="downAmt" type="number" inputmode="decimal" min="0" step="1000" value="80000"></div>
-      <div class="f"><label for="tax">Property tax ($)</label><div class="ur"><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="4800"><select id="taxU" aria-label="Property tax period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
-      <div class="f"><label for="ins">Home insurance ($)</label><div class="ur"><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="1500"><select id="insU" aria-label="Home insurance period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
+      <div class="f w"><label for="tax">Property tax ($)</label><div class="ur"><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="4800"><select id="taxU" aria-label="Property tax period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
+      <div class="f w"><label for="ins">Home insurance ($)</label><div class="ur"><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="1500"><select id="insU" aria-label="Home insurance period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
       <div class="f w" id="hoaF" hidden><label for="hoaIn" id="hoaL">HOA / association dues ($)</label><div class="ur"><input id="hoaIn" type="number" inputmode="decimal" min="0" step="10" value="300"><select id="hoaU" aria-label="HOA period"><option value="y">Yearly</option><option value="m" selected>Monthly</option></select></div></div>
       <div class="f w" id="miF" hidden><label for="miRate">Mortgage insurance (% of loan per year)</label><input id="miRate" type="number" inputmode="decimal" min="0" step="0.05" value="0.7"><span class="k">Usually required with less than 20% down or equity, and typically ends once you reach about 20% equity. The rate varies by credit score and loan.</span></div>
       <p class="k f w" id="refiNote" hidden style="margin:0"></p>
@@ -459,7 +459,7 @@ table.sched th{color:var(--muted);font-weight:500}
         <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan.</p>
         <div class="plans">
           <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
-          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month, coming soon: unlimited, plus a co-branded widget for your website and a dashboard. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month, coming soon: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
         </div>
         <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
         <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -538,6 +538,7 @@ table.sched th{color:var(--muted);font-weight:500}
     var d=new J({unit:"pt",format:"letter"}),PW=612,PH=792,L=56,W=PW-2*L;
     var PLUM=[126,90,135],OR=[196,88,28],OC=[226,160,63],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170],WH=[255,255,255];
     var COL={"Principal and interest":OR,"Property tax":OC,"Home insurance":[140,74,42],"Mortgage insurance":[125,123,59]},HOAC=[95,122,138];
+    if(window.VKTZ&&VKTZ.opal&&VKTZ.opal()){OR=[75,63,120];OC=[214,190,138];INK=[43,40,56];MU=[106,102,120];LN=[220,216,232];PLUM=[150,120,190];COL={"Principal and interest":OR,"Property tax":[143,184,212],"Home insurance":OC,"Mortgage insurance":[168,140,200]};HOAC=[120,170,150]}
     function T(c){d.setTextColor(c[0],c[1],c[2])}
     function F(c){d.setFillColor(c[0],c[1],c[2])}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
@@ -1013,7 +1014,7 @@ table.sched th{color:var(--muted);font-weight:500}
   });
 
   (function(){
-    var T={topaz:"Topaz Tier: 200 reports a month, with your logo, contact info, MLS# and headshot on every report.",opal:"Opal Tier: unlimited reports and everything in Topaz, plus a co-branded Voklogik widget for your website and a dashboard to save scenarios."},tip=document.getElementById("tierTip"),btns=document.querySelectorAll(".info"),cur=null;
+    var T={topaz:"Topaz Tier: 200 reports a month, with your logo, contact info, MLS# and headshot on every report.",opal:"Opal Tier: unlimited reports and everything in Topaz, plus your own co-branded Voklogik page (a shareable link or embed) with the payment estimate and Affordability check, and a dashboard with lead alerts and the scenarios your visitors run."},tip=document.getElementById("tierTip"),btns=document.querySelectorAll(".info"),cur=null;
     if(!tip)return;
     function show(b){cur=b;tip.textContent=T[b.getAttribute("data-t")];tip.hidden=false;var c=document.getElementById("circBiz");tip.style.top=(c.offsetHeight+6)+"px";btns.forEach(function(x){x.setAttribute("aria-expanded",x===b?"true":"false")});if(typeof track==="function")track("click_plan_info",{tier:b.getAttribute("data-t")})}
     function hide(){cur=null;tip.hidden=true;btns.forEach(function(x){x.setAttribute("aria-expanded","false")})}
@@ -1202,11 +1203,12 @@ table.sched th{color:var(--muted);font-weight:500}
     }catch(x){}
   }
   applyAffEdit();
+  try{if(/[?&]fresh=/.test(location.search))history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
   var clr=$("clearEntries");
   if(clr)clr.addEventListener("click",function(){
     noSave=true;
     try{localStorage.removeItem(SSK);localStorage.removeItem("voklogik:payment");localStorage.removeItem("voklogik:affState");localStorage.removeItem("voklogik:affEdit")}catch(e){}
-    location.reload();
+    location.replace(location.pathname+"?fresh="+Date.now());
   });
   var restored=false;
   var sessionMatch=location.search.match(/[?&]session_id=(cs_(?:live|test)_[A-Za-z0-9]+)/);
@@ -1285,5 +1287,6 @@ table.sched th{color:var(--muted);font-weight:500}
   }
 })();
 </script>
+<script src="/install-tip.js"></script>
 </body>
 </html>

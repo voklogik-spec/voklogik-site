@@ -27,6 +27,35 @@
 <meta property="og:image" content="https://voklogik.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<script>
+/* Widget mode: a visitor on a member's Opal page (/affordability.html?w=<page-name>). */
+(function(){var q=location.search,m=q.match(/[?&]w=([a-z0-9-]+)/i);if(!m)return;document.documentElement.classList.add("wmode");
+ var g=function(k){var r=q.match(new RegExp("[?&]"+k+"=([0-9.]+)"));return r?parseFloat(r[1]):0};
+ var loan=g("loan");
+ if(loan>0){try{var tax=g("tax"),ins=g("ins"),hoa=g("hoa");
+  localStorage.setItem("voklogik:payment",JSON.stringify({total:g("total"),loan:loan,ratePct:g("rate"),years:g("years")||30,extras:tax+ins+hoa,parts:{tax:tax,ins:ins,mi:0,hoa:hoa,second:0,hoaLabel:"HOA / association dues"},price:g("price"),appr:0,liens:0,s2:null,qual:false,refi:false,heq:false,occ:"primary",savedAt:Date.now()}))}catch(e){}}
+})();
+</script>
+<style>
+html.wmode.wmode.wmode{--bg:#F5F4F8;--ink:#2B2838;--muted:#6A6678;--line:#DCD8E8;--accent:#4B3F78;--on-accent:#fff;--clay:#4B3F78;--panel:#FFFFFF;color-scheme:light}
+.wmode header,.wmode .lede,.wmode #creditInfo,.wmode #lenderSection,.wmode main>section:not(#wLead),.wmode footer,.wmode #keyActs,.wmode #keyNote,.wmode #freeNote,.wmode #manageSub,.wmode #paywall{display:none!important}
+.wmode main>h1{font-size:1.7rem;margin:6px 0 4px}
+.wmode.embed main{padding-top:6px}
+#wAgent{background:#fff;border:1px solid #DCD8E8;border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 6px;border-bottom:4px solid #B9A9E0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+#wAgent img.logo{max-height:52px;max-width:140px;object-fit:contain}#wAgent img.face{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #DCD8E8}
+#wAgent .who{flex:1;min-width:170px}#wAgent .who b{display:block;font-size:17px;line-height:1.25}#wAgent .who span{display:block;font-size:14px;color:#6A6678}
+#wAgent .ct{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;font-size:14px}#wAgent .ct a{color:#4B3F78;font-weight:600;text-decoration:none}
+#wBack{display:inline-block;margin:8px 2px 0;font:600 .95rem -apple-system,"Segoe UI",Arial,sans-serif;color:#4B3F78;text-decoration:none}
+#wLead{background:#fff;border:1px solid #DCD8E8;border-radius:14px;padding:18px;margin:16px 0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+#wLead h2{font-size:19px;margin:0 0 4px}#wLead .sub{color:#6A6678;font-size:14px;margin:0 0 12px}
+#wLead .g{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){#wLead .g{grid-template-columns:1fr}}
+#wLead label{display:block;font-weight:600;font-size:14px;margin:0 0 4px}
+#wLead .consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:13.5px;color:#6A6678;margin:12px 0}#wLead .consent input{width:18px;height:18px;flex:none;margin-top:3px}
+#wLead .send{background:#4B3F78;color:#fff;border:0;border-radius:9px;padding:13px 20px;font:700 1rem inherit;cursor:pointer;width:100%}#wLead .send:disabled{opacity:.55}
+#wLead .msg{margin:10px 0 0;font-size:14px;min-height:20px}#wLead .msg.err{color:#B3261E}#wLead .msg.ok{color:#2E7D4F;font-weight:600}
+#wLead .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+#wFine{font:12.5px/1.5 -apple-system,"Segoe UI",Arial,sans-serif;color:#6A6678;margin:0 2px 20px}#wFine a{color:#4B3F78}
+</style>
 <script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
 <script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
@@ -128,6 +157,14 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .lender .links{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px}
 .lender .links a{color:var(--accent);font-weight:700;text-decoration:underline}
 .astline{grid-template-columns:1fr 1fr 1fr auto!important}
+.bhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
+.btgl{flex:1;display:flex;align-items:center;gap:12px;background:none;border:0;padding:6px 0;cursor:pointer;color:var(--ink);text-align:left;font:700 1.05rem "Bricolage Grotesque",sans-serif}
+.btgl .tot{color:var(--accent);margin-left:auto}.btgl .chev{transition:transform .15s}.btgl[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.cnt{font:500 .85rem "Bricolage Grotesque",sans-serif;color:var(--muted);margin-left:8px}
+.yn{font:700 1.3rem "Bricolage Grotesque",sans-serif}.yn.yes{color:var(--good)}.yn.no{color:var(--warn)}
+.mathrow{display:flex;justify-content:space-between;gap:12px;padding:4px 0}.mathrow.tot{border-top:1px solid var(--line);margin-top:4px;font-weight:700}
+.verdict{margin:14px 0 0;padding:12px 14px;border-radius:8px;font-weight:700}.verdict.yes{background:rgba(75,122,61,.15);color:var(--good)}.verdict.no{background:rgba(156,59,46,.15);color:var(--warn)}
+.astliq{grid-template-columns:1fr 1fr 1fr!important}@media (max-width:640px){.astliq{grid-template-columns:1fr!important}}
 .ro{border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;display:flex;align-items:center;font-weight:700;background:rgba(0,0,0,.03)}
 .debtline{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px}
 @media (max-width:640px){.grid,.two{grid-template-columns:1fr}.debtline,.astline{grid-template-columns:1fr 1fr!important}.debtline .editlink{grid-column:1/-1;justify-self:start}}
@@ -214,11 +251,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   <!-- Gross Monthly Income -->
   <div class="row open" id="rowIncome">
     <button type="button" class="rowhead" data-row="rowIncome">
-      <span class="rowlabel">Gross Monthly Income</span>
+      <span class="rowlabel">Gross Monthly Income<span class="cnt" id="incomeCount"></span></span>
       <span class="rowright"><span class="rowvalue" id="incomeSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <h3 style="font-size:1.05rem; margin:0 0 8px">Borrower 1 income</h3>
+      <div class="bhead"><h3 id="b1H3" style="font-size:1.05rem; margin:0">Borrower 1 income</h3>
+        <button type="button" class="btgl" id="b1Tgl" aria-expanded="true" hidden><span>Borrower 1 income</span><span class="tot" id="b1Tot"></span><span class="chev">&#9662;</span></button></div>
+      <div id="b1Body">
       <p class="k" style="margin:0 0 14px">Turn on any income sources that apply. Each adds to your total below.</p>
       <div class="bubbles">
         <button type="button" class="bubble" data-src="employment" aria-pressed="true">+ Employment income</button>
@@ -290,11 +329,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
       <!-- Additional income (built by script) -->
       <div class="source" id="srcAdditional" hidden></div>
+      </div>
 
       <div id="borrowersContainer"></div>
 
       <div class="source" style="margin-top:18px">
         <button type="button" class="bubble" id="addBorrowerBtn" aria-pressed="false">+ Add a co-borrower</button>
+        <button type="button" class="editlink" id="collapseAll" hidden style="margin-left:14px">Collapse all</button>
       </div>
 
       <button type="button" class="editlink" id="incomeDone" style="margin-top:18px">Done &#8594;</button>
@@ -388,7 +429,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <span class="rowright"><span class="rowvalue" id="debtsSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. A credit report lists your accounts and payments; it doesn't show a score (see the note below your ratios). If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
+      <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. For credit cards, enter the minimum payment required each month, not the balance. A credit report lists your accounts and payments; it doesn't show a score (see the note below your ratios). If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
       <div id="debtsList"></div>
       <div class="debtwrap" id="ownedDebtRow" hidden style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Payments on other properties</strong><strong id="ownedDebtAmt">$0/mo</strong></div>
@@ -461,6 +502,38 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     </div>
   </div>
 
+  <!-- Cash required at closing -->
+  <div class="row" id="rowCash">
+    <button type="button" class="rowhead" data-row="rowCash">
+      <span class="rowlabel">Cash Required at Closing</span>
+      <span class="rowright"><span class="rowvalue" id="cashSummary">Not set</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <p class="k" style="margin:0 0 14px">What you would bring to closing: the down payment balance plus estimated points and fees, less any earnest money you have already paid and cleared. These are estimates for planning only.</p>
+      <div class="grid">
+        <div class="f"><label for="feePct">Estimated points and fees (% of loan amount)</label>
+          <select id="feePct"><option value="2">2%</option><option value="2.5">2.5%</option><option value="3" selected>3%</option><option value="3.5">3.5%</option><option value="4">4%</option><option value="4.5">4.5%</option><option value="5">5%</option></select></div>
+        <div class="f"><label for="feeAmt">Or enter your own estimate ($) <span class="k">(optional)</span></label><input id="feeAmt" type="number" inputmode="decimal" min="0" step="100" placeholder="e.g. 9000"></div>
+      </div>
+      <div id="cashOut" style="margin-top:14px"></div>
+      <p class="k" style="margin:10px 0 0">Points, lender fees, title and settlement charges, prepaid taxes and insurance, and escrow deposits are commonly around 2% to 5% of the loan amount. Your Loan Estimate shows the real figures. On a refinance, fees can often be rolled into the new loan. Add earnest money under Total Assets.</p>
+      <button type="button" class="editlink" id="cashDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Liquid assets vs cash required -->
+  <div class="row" id="rowLiq">
+    <button type="button" class="rowhead" data-row="rowLiq">
+      <span class="rowlabel">Liquid Assets &gt; Cash Required at Closing</span>
+      <span class="rowright"><span class="rowvalue" id="liqSummary">Not set</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <div id="liqOut"></div>
+      <p class="k" style="margin:10px 0 0">Liquid assets are checking, savings and money market funds, plus any part of a retirement account, mutual fund or stock you say you would sell or withdraw. Reserves are set aside first.</p>
+      <button type="button" class="editlink" id="liqDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- Ratios -->
@@ -528,7 +601,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan. Your entries on this page stay put while you check out in a new tab.</p>
     <div class="plans">
       <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
-          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month, coming soon: unlimited, plus a co-branded widget for your website and a dashboard. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month, coming soon: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
     </div>
     <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
     <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -605,7 +678,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   document.querySelectorAll(".rowhead").forEach(function(btn){
     btn.addEventListener("click",function(){toggleRow(btn.getAttribute("data-row"))});
   });
-  ["incomeDone","txnDone","subjDone","paymentDone","debtsDone","ownedDone","assetsDone","reservesDone"].forEach(function(id){
+  ["incomeDone","txnDone","subjDone","paymentDone","debtsDone","ownedDone","assetsDone","reservesDone","cashDone","liqDone"].forEach(function(id){
     $(id).addEventListener("click",function(e){
       e.stopPropagation();
       $(id).parentNode.parentNode.classList.remove("open");
@@ -918,10 +991,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var p="b"+num;
     return ''
       +'<div class="source" id="'+p+'Wrap" style="border:1px solid var(--line); border-radius:8px; padding:16px; margin-top:14px">'
-      +'<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">'
-      +'<h3 style="font-size:1.05rem; margin:0">Borrower '+num+' income</h3>'
+      +'<div class="bhead">'
+      +'<button type="button" class="btgl" id="'+p+'Tgl" aria-expanded="true"><span>Borrower '+num+' income</span><span class="tot" id="'+p+'Tot"></span><span class="chev">&#9662;</span></button>'
       +'<button type="button" class="editlink" data-removeborrower="'+p+'Wrap">Remove</button>'
       +'</div>'
+      +'<div id="'+p+'Body">'
       +'<div class="bubbles">'
       +'<button type="button" class="bubble" data-srcn="employment" data-prefix="'+p+'" aria-pressed="false">+ Employment income</button>'
       +'<button type="button" class="bubble" data-srcn="selfemp" data-prefix="'+p+'" aria-pressed="false">+ Self-employed income</button>'
@@ -933,6 +1007,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="source" id="'+p+'srcRetirement" hidden>'+retirementHtml(p)+'</div>'
       +'<div class="source" id="'+p+'srcAdditional" hidden>'+additionalHtml(p)+'</div>'
       +'<p class="k" style="margin:16px 0 0"><strong>Borrower '+num+' total:</strong> <span id="'+p+'IncomeSubtotal">$0/mo</span></p>'
+      +'</div>'
       +'</div>';
   }
 
@@ -964,6 +1039,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     });
 
     $("addBorrowerBtn").textContent="+ Add another co-borrower";
+    wireToggle(p);
     recompute();
   }
   $("addBorrowerBtn").addEventListener("click",addBorrower);
@@ -1061,11 +1137,32 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     return v;
   }
   wireExtras(borrowers[0]);
+  // collapse / expand each borrower's income, with the total beside the name
+  function wireToggle(id){
+    var b=$(id+"Tgl");if(!b)return;
+    b.addEventListener("click",function(){var body=$(id+"Body"),open=body.hidden;body.hidden=!open;b.setAttribute("aria-expanded",open);syncCollapseAll()});
+  }
+  function bodyIds(){return borrowers.map(function(b){return b.prefix===""?"b1":b.prefix})}
+  function syncCollapseAll(){var ids=bodyIds(),allShut=ids.every(function(i){return $(i+"Body")&&$(i+"Body").hidden});$("collapseAll").textContent=allShut?"Expand all":"Collapse all"}
+  $("collapseAll").addEventListener("click",function(){
+    var ids=bodyIds(),allShut=ids.every(function(i){return $(i+"Body").hidden});
+    ids.forEach(function(i){$(i+"Body").hidden=!allShut;$(i+"Tgl").setAttribute("aria-expanded",allShut)});syncCollapseAll();
+  });
+  wireToggle("b1");
+  function borrowerHeads(bv){
+    var multi=bv.length>1;
+    $("b1Tgl").hidden=!multi;$("b1H3").hidden=multi;if(!multi)$("b1Body").hidden=false;
+    $("collapseAll").hidden=!multi;
+    var used=0;
+    bv.forEach(function(x){var id=x.b.prefix===""?"b1":x.b.prefix,t=$(id+"Tot");if(t)t.textContent=usd.format(x.v)+"/mo";if(x.v>0)used++});
+    $("incomeCount").textContent=multi&&used>0?" \u00b7 "+used+" borrower"+(used===1?"":"s"):"";
+    return used;
+  }
   $("rowIncome").addEventListener("input",function(){recompute()});
   $("rowIncome").addEventListener("change",function(){recompute()});
 
   // ---- itemized other monthly debts ----
-  var debtLines=[], debtSeq=0;
+  var debtLines=[], debtSeq=0, incomeBorrowers=0;
   // Adds amounts typed like "25+40+75" (no eval). Returns the total, or 0 when empty or invalid.
   function sumParts(str){
     var raw=String(str||"").replace(/[,$\s]/g,"").replace(/=+$/,"");
@@ -1115,6 +1212,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="f"><label for="'+t+'Amt">Monthly payment ($)</label><input id="'+t+'Amt" type="text" inputmode="decimal" autocomplete="off" placeholder="0 or 25+40+75"><span class="k" id="'+t+'Sum" hidden></span></div>'
       +'<button type="button" class="editlink" data-removedebt="'+id+'" aria-label="Remove this debt">Remove</button>'
       +'</div>'
+      +'<p class="k" id="'+t+'CardNote" hidden style="margin:-4px 0 12px">Enter the minimum payment required each month, not the balance.</p>'
       +'<div class="f" id="'+t+'LeftField" hidden style="margin-bottom:12px"><label for="'+t+'Left">Payments left (optional)</label><input id="'+t+'Left" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 8"></div>'
       +'<div class="note" id="'+t+'Note" hidden style="margin:0 0 12px">10 or fewer payments left: some lenders may leave this debt out of your DTI. We count it by default, to be cautious. Check with your lender before leaving it out.'
       +'<label class="chk"><input type="checkbox" id="'+t+'Excl"> Leave this out of my DTI</label></div>'
@@ -1153,6 +1251,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     debtLines.forEach(function(id){
       var info=debtInfo(id);
       $("debt"+id+"LeftField").hidden=!info.installment;
+      var isCard=$("debt"+id+"Type").value==="card";$("debt"+id+"CardNote").hidden=!isCard;
+      var dl=document.querySelector('label[for="debt'+id+'Amt"]');if(dl)dl.textContent=isCard?"Minimum payment required ($)":"Monthly payment ($)";
       $("debt"+id+"Note").hidden=!info.short;
       if(!info.short){$("debt"+id+"Excl").checked=false;info.excluded=false}
       if(info.short)shortTotal+=info.amt;
@@ -1358,7 +1458,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   // ---- assets and reserves ----
   var assetLines=[], assetSeq=0, assetsInfo={liquid:0,nonliquid:0,items:[]};
-  var ASSET={checking:["Checking",1],savings:["Savings",1],mmkt:["Money market / CD",1],retirement:["Retirement (401(k), IRA)",0],mutual:["Mutual funds",0],stocks:["Stocks / bonds",0],other:["Other",0]};
+  var ASSET={checking:["Checking",1],savings:["Savings",1],mmkt:["Money market / CD",1],earnest:["Earnest money deposit",2],retirement:["Retirement (401(k), IRA)",0],mutual:["Mutual funds",0],stocks:["Stocks / bonds",0],other:["Other",0]};
   function assetTemplate(id){
     var t="ast"+id;
     return ''
@@ -1368,6 +1468,11 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="f"><label for="'+t+'Amt">Balance ($)</label><input id="'+t+'Amt" type="number" inputmode="decimal" min="0" step="500" placeholder="0"></div>'
       +'<div class="f"><label>Balance after reserves ($)</label><div class="ro" id="'+t+'After">\u2014</div></div>'
       +'<button type="button" class="editlink" data-removeasset="'+id+'" aria-label="Remove this account">Remove</button></div>'
+      +'<div class="f" id="'+t+'PaidField" hidden style="margin:0 0 12px"><label for="'+t+'Paid">Has this been paid and cleared?</label><select id="'+t+'Paid"><option value="no">Not yet paid</option><option value="yes">Yes, paid and cleared</option></select></div>'
+      +'<div class="debtline astliq" id="'+t+'LiqField" hidden>'
+      +'<div class="f"><label for="'+t+'LMode">If you would sell or withdraw some of it</label><select id="'+t+'LMode"><option value="none">Do not count it as liquid</option><option value="pct">Count a % of the balance</option><option value="amt">Count a dollar amount</option></select></div>'
+      +'<div class="f" id="'+t+'LValF" hidden><label for="'+t+'LVal" id="'+t+'LValL">Percent of balance (%)</label><input id="'+t+'LVal" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 50"></div>'
+      +'<div class="f"><label>Counted as liquid</label><div class="ro" id="'+t+'LOut">$0</div></div></div>'
       +'<p class="k" id="'+t+'Note" style="margin:0"></p></div>';
   }
   function addAsset(skip){
@@ -1387,33 +1492,50 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   $("rowReserves").addEventListener("change",function(){recompute()});
   var resInfo={months:0};
   function assetsCalc(){
-    var liq=0,non=0,items=[];
+    var liq=0,non=0,earn=0,earnNo=0,items=[];
     assetLines.forEach(function(id){
-      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),isL=ASSET[k][1]===1;
-      $(t+"Note").textContent="";$(t+"After").textContent=usd.format(a);
-      if(isL)liq+=a;else non+=a;
-      items.push({id:id,type:ASSET[k][0],liquid:isL,amt:a,used:0});
+      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),fl=ASSET[k][1],isE=fl===2,isL=fl===1,Lq=0;
+      $(t+"PaidField").hidden=!isE;$(t+"LiqField").hidden=fl!==0;
+      var lbl=document.querySelector('label[for="'+t+'Amt"]');if(lbl)lbl.textContent=isE?"Earnest money amount ($)":"Balance ($)";
+      if(fl===0){
+        var mode=$(t+"LMode").value,lv=n(t+"LVal");
+        $(t+"LValF").hidden=mode==="none";
+        $(t+"LValL").textContent=mode==="pct"?"Percent of balance (%)":"Amount you would have, after taxes or penalties ($)";
+        Lq=mode==="pct"?a*Math.min(lv,100)/100:(mode==="amt"?Math.min(lv,a):0);
+      }
+      $(t+"LOut").textContent=usd.format(Lq);
+      if(isE){
+        var paid=$(t+"Paid").value==="yes";if(paid)earn+=a;else earnNo+=a;
+        $(t+"After").textContent="—";
+        $(t+"Note").textContent=paid?"Paid and cleared: counted as a credit toward your cash required at closing (see Cash Required at Closing). It is not counted again as a liquid asset.":"Not paid yet, so it is not counted here. Keep these funds in your checking or savings until you pay it. They count as liquid there.";
+        items.push({id:id,type:ASSET[k][0],liquid:false,earnest:true,paid:paid,amt:a,used:0,lq:0,nl:0,lqOwn:0});
+        return;
+      }
+      $(t+"After").textContent=usd.format(a);
+      if(isL)liq+=a;else{liq+=Lq;non+=a-Lq}
+      items.push({id:id,type:ASSET[k][0],liquid:isL,earnest:false,amt:a,used:0,lq:isL?a:Lq,nl:isL?0:a-Lq,lqOwn:isL?0:Lq});
     });
     var tot=liq+non;
-    $("assetsSummary").textContent=usd.format(tot);
-    $("assetsTotalLine").textContent=tot>0?("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot)):"";
     // reserves
     var months=Math.max(0,Math.floor(n("resMonths"))),subj=paymentTotal().total,other=0;
     ownedInfo.items.forEach(function(x){other+=x.pay});
     var all=$("resBasis").value==="all",base=subj+(all?other:0);
     var req=months*base,usedN=Math.min(req,non),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
-    // spread the reserves across accounts: non-liquid first, then liquid
-    var rem=req;
-    items.filter(function(x){return !x.liquid}).concat(items.filter(function(x){return x.liquid})).forEach(function(x){var u=Math.min(rem,x.amt);x.used=u>0?u:0;rem-=x.used});
+    // spread the reserves across accounts: non-liquid portions first, then liquid portions
+    var rem=req,real=items.filter(function(x){return !x.earnest});
+    real.forEach(function(x){var u=Math.min(rem,x.nl);x.used=u>0?u:0;rem-=x.used});
+    real.forEach(function(x){var u=Math.min(rem,x.lq);u=u>0?u:0;x.used+=u;rem-=u});
     items.forEach(function(x){
-      var t="ast"+x.id,note=x.liquid?"Liquid: available right away.":"Non-liquid: may need to be liquidated to use for cash to close or a down payment.";
+      if(x.earnest)return;
+      var t="ast"+x.id,note=x.liquid?"Liquid: available right away.":(x.lqOwn>0?("You counted "+usd.format(x.lqOwn)+" of this as liquid (after selling or withdrawing). The other "+usd.format(x.nl)+" stays non-liquid."):"Non-liquid: may need to be liquidated to use for cash to close or a down payment. Use the options above to count the part you would sell or withdraw.");
       if(x.used>0)note+=" "+usd.format(x.used)+" set aside for reserves, "+usd.format(x.amt-x.used)+" remaining.";
       $(t+"Note").textContent=note;
       $(t+"After").textContent=usd.format(x.amt-x.used);
     });
-    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered};
+    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo};
     $("assetsSummary").textContent=usd.format(tot-covered);
-    $("assetsTotalLine").textContent=tot>0?(covered>0?("Total assets after reserves: "+usd.format(tot-covered)+" (total assets "+usd.format(tot)+" minus "+usd.format(covered)+" set aside for reserves)"):("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot))):"";
+    var eTxt=earn>0?" Earnest money already paid, credited at closing: "+usd.format(earn)+".":"";
+    $("assetsTotalLine").textContent=(tot>0?(covered>0?("Total assets after reserves: "+usd.format(tot-covered)+" (total assets "+usd.format(tot)+" minus "+usd.format(covered)+" set aside for reserves)"):("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot))):"")+eTxt;
     var usedList=items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)});
     $("assetsUseLine").textContent=covered>0?("Set aside for reserves: "+usedList.join(", ")+". Available after reserves: "+usd.format(tot-covered)+"."):"";
     resInfo={months:months,base:base,subj:subj,other:all?other:0,all:all,req:req,usedN:usedN,usedL:usedL,short:short,left:left,haveMonths:base>0?(tot/base):0};
@@ -1431,10 +1553,47 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         +row("Liquid left for down payment and closing costs",usd.format(left))
         +(usedList.length?'<p class="k" style="margin:8px 0 0;font-size:.8rem">Accounts used: '+usedList.map(esc).join(", ")+'.</p>':'')
         +'<p class="k" style="margin:8px 0 0">All of your assets together equal about '+(Math.round(resInfo.haveMonths*10)/10)+' months of PITIA.</p>';
-      $("reservesSummary").textContent=months+" mo \u00b7 "+(short>0?"short "+usd.format(short):"covered");
+      $("reservesSummary").textContent=months+" mo · "+(short>0?"short "+usd.format(short):"covered");
     }
     return resInfo;
   }
+
+  // ---- cash required at closing, and whether liquid assets cover it ----
+  var cashInfo={on:false};
+  function cashCalc(){
+    var refi=subjTxn()==="refi",price=n("propValue"),loan=n("pLoan");
+    var s2=(pS2&&pS2.on)?(pS2.drawn||0):0;
+    var down=refi?0:Math.max(price-loan-s2,0);
+    var pct=parseFloat($("feePct").value)||3,own=n("feeAmt"),fees=own>0?own:loan*pct/100;
+    var earn=refi?0:(assetsInfo.earnest||0),gross=down+fees,need=Math.max(gross-earn,0);
+    var avail=resInfo.left||0,diff=avail-need,ok=diff>=-0.5,on=loan>0&&(refi||price>0);
+    var nonCounted=assetsInfo.nonliquid||0;
+    cashInfo={on:on,refi:refi,price:price,loan:loan,s2:s2,down:down,pct:pct,own:own,fees:fees,earn:earn,earnPending:assetsInfo.earnestPending||0,gross:gross,need:need,liq:assetsInfo.liquid||0,usedL:resInfo.usedL||0,avail:avail,diff:diff,ok:ok,nonCounted:nonCounted};
+    var mr=function(a,b,tot){return '<div class="mathrow'+(tot?' tot':'')+'"><span>'+a+'</span><span>'+b+'</span></div>'};
+    var ce=$("cashOut"),le=$("liqOut");
+    if(!on){
+      ce.innerHTML='<p class="k" style="margin:0">Enter a loan amount'+(refi?'':' and purchase price')+' in Monthly Payment and Subject Property to see this.</p>';
+      le.innerHTML='<p class="k" style="margin:0">Complete Cash Required at Closing first.</p>';
+      $("cashSummary").textContent="Not set";var lv=$("liqSummary");lv.textContent="Not set";lv.className="rowvalue";return;
+    }
+    ce.innerHTML=(refi?'':mr("Purchase price",usd.format(price))+mr("Less first mortgage",usd.format(loan))+(s2>0?mr("Less second mortgage funded at closing",usd.format(s2)):'')+mr("Down payment balance",usd.format(down),1))
+      +mr("Estimated points and fees ("+(own>0?"your estimate":pct+"% of "+usd.format(loan))+")",usd.format(fees),refi)
+      +(refi?'':mr("Cash required before credits",usd.format(gross),1))
+      +(earn>0?mr("Less earnest money paid and cleared",usd.format(earn)):'')
+      +mr("Cash still needed at closing",usd.format(need),1)
+      +(cashInfo.earnPending>0&&!refi?'<p class="k" style="margin:8px 0 0">Earnest money not yet paid ('+usd.format(cashInfo.earnPending)+') is not credited until it is paid and cleared.</p>':'');
+    $("cashSummary").textContent=usd.format(need);
+    le.innerHTML=mr("Liquid assets (checking, savings, money market, plus any amount you would liquidate)",usd.format(cashInfo.liq))
+      +(cashInfo.usedL>0?mr("Less liquid assets set aside for reserves",usd.format(cashInfo.usedL)):'')
+      +mr("Liquid assets available for closing",usd.format(avail),1)
+      +mr("Cash still needed at closing",usd.format(need))
+      +mr(ok?"Left over":"Short by",usd.format(Math.abs(diff)),1)
+      +'<div class="verdict '+(ok?'yes':'no')+'">'+(ok?'Yes. Your liquid assets cover the cash needed at closing.':'No. Your liquid assets are '+usd.format(Math.abs(diff))+' short of the cash needed at closing.')+'</div>'
+      +(!ok&&nonCounted>0?'<p class="k" style="margin:8px 0 0">You have '+usd.format(nonCounted)+' in non-liquid accounts that is not counted. If you would sell or withdraw some of it, enter that under Total Assets and it will count here.</p>':'');
+    var lv2=$("liqSummary");lv2.textContent=ok?"Yes":"No";lv2.className="rowvalue yn "+(ok?"yes":"no");
+  }
+  $("rowCash").addEventListener("input",function(){recompute()});
+  $("rowCash").addEventListener("change",function(){recompute()});
 
   // ---- payment (pulled from the main calculator via localStorage) ----
   var pmtExtras=0, pmtYears=30, usingSaved=false, savedTxn=false, pS2=null, extrasBase=0;
@@ -1533,12 +1692,14 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     subjectSync();
     ownedCalc();
     assetsCalc();
+    var bvals=[];
     borrowers.forEach(function(b){
       if($(b.prefix+"hoursField"))$(b.prefix+"hoursField").hidden = $(b.prefix+"wageFreq").value!=="hourly";
       var v=borrowerTotal(b);
       if(b.prefix!=="")$(b.prefix+"IncomeSubtotal").textContent=usd.format(v)+"/mo";
-      income+=v;
+      income+=v;bvals.push({b:b,v:v});
     });
+    incomeBorrowers=borrowerHeads(bvals);
     lastIncome=income;
     $("incomeSummary").textContent=usd.format(income)+"/mo";
 
@@ -1580,6 +1741,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     word($("frontWord"),front,28,36);
     word($("backWord"),back,36,43);
     ltvStats();
+    cashCalc();
   }
 
   document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
@@ -1749,6 +1911,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         R("Other monthly debts",usd.format(debtTotal)+"/mo"),
         RR("Housing ratio",frontV,"frontWord"),RR("Debt-to-income ratio (DTI)",backV,"backWord")];
       if(lv.on){s.push(RR("Loan-to-value (LTV)",ltvV,"ltvWord"));s.push(RR("Combined loan-to-value (CLTV)",cltvV,"cltvWord"))}
+      cashCalc();if(cashInfo.on)s.push({k:"row",a:"Estimated cash needed at closing",b:usd.format(cashInfo.need),w:cashInfo.ok?"Covered":"Short",wc:cashInfo.ok?"good":"warn"});
       S.push({head:"Summary",items:[].concat(s)});
     }else{
       // income, by borrower
@@ -1764,6 +1927,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         });
       });
       inc.push(R("Gross monthly income",income,1));
+      if(borrowers.length>1&&incomeBorrowers>0)inc.push(Sm("Income of "+incomeBorrowers+" borrower"+(incomeBorrowers===1?"":"s")+" is included."));
       S.push({head:"Gross monthly income",items:inc});
       // payment
       var pm=[R("Principal & interest",usd.format(pay.pi)+"/mo")];
@@ -1831,8 +1995,12 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       assetsCalc();var ac=assetsInfo,rs=resInfo;
       if(ac.items.some(function(x){return x.amt>0})){
         var as=[];
-        ac.items.forEach(function(x){if(x.amt>0)as.push(R(x.type+(x.liquid?"":" (non-liquid)"),usd.format(x.amt)))});
+        ac.items.forEach(function(x){if(x.amt>0){
+          as.push(R(x.earnest?x.type+(x.paid?" (paid and cleared)":" (not yet paid)"):x.type+(x.liquid?"":" (non-liquid)"),usd.format(x.amt)));
+          if(x.lqOwn>0)as.push(Sm(usd.format(x.lqOwn)+" of this is counted as liquid, after selling or withdrawing."));
+        }});
         as.push(R("Liquid",usd.format(ac.liquid)));as.push(R("Non-liquid",usd.format(ac.nonliquid)));as.push(R("Total assets (liquid + non-liquid)",usd.format(ac.liquid+ac.nonliquid),1));
+        if(ac.earnest>0)as.push(Sm("Earnest money already paid ("+usd.format(ac.earnest)+") is not included in the totals above. It is credited under Cash required at closing."));
         if(ac.reserved>0)as.push(R("Total assets after reserves",usd.format(ac.avail),1));
         if(ac.reserved>0)as.push(Sm("Set aside for reserves: "+ac.items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)}).join(", ")+". Available after reserves: "+usd.format(ac.avail)+"."));
         as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
@@ -1845,6 +2013,24 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
           R("Liquid left for down payment and closing costs",usd.format(rs.left)),
           Sm("Non-liquid assets are applied to reserves first so checking and savings stay available for the down payment and closing costs.")];
         S.push({head:"Reserves",items:rv});
+      }
+      cashCalc();var ci=cashInfo;
+      if(ci.on){
+        var cs=[];
+        if(!ci.refi){cs.push(R("Purchase price",usd.format(ci.price)));cs.push(R("Less loan(s)",usd.format(ci.loan+ci.s2)));cs.push(R("Down payment balance",usd.format(ci.down)))}
+        cs.push(R("Estimated points and fees ("+(ci.own>0?"your estimate":ci.pct+"% of loan amount")+")",usd.format(ci.fees)));
+        if(!ci.refi)cs.push(R("Cash required before credits",usd.format(ci.gross)));
+        if(ci.earn>0)cs.push(R("Less earnest money paid and cleared",usd.format(ci.earn)));
+        cs.push(R("Cash still needed at closing",usd.format(ci.need),1));
+        cs.push(Sm("Estimates for planning only. Points, lender fees, title, prepaids and escrow are commonly about 2% to 5% of the loan amount. Your Loan Estimate shows the real figures."));
+        S.push({head:"Cash required at closing",items:cs});
+        var ls=[R("Liquid assets",usd.format(ci.liq))];
+        if(ci.usedL>0)ls.push(R("Less set aside for reserves",usd.format(ci.usedL)));
+        ls.push(R("Liquid assets available for closing",usd.format(ci.avail)));
+        ls.push(R("Cash still needed at closing",usd.format(ci.need)));
+        ls.push({k:"row",a:ci.ok?"Left over":"Short by",b:usd.format(Math.abs(ci.diff)),w:ci.ok?"Yes":"No",wc:ci.ok?"good":"warn"});
+        ls.push(Sm("Liquid assets are checking, savings and money market funds, plus any part of a retirement account, mutual fund or stock you said you would sell or withdraw."));
+        S.push({head:"Liquid assets vs cash required",items:ls});
       }
     }
     return {
@@ -1873,6 +2059,9 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function fillPrint(){
     try{$("printReport").innerHTML=(window.VKTZ&&VKTZ.printing?VKTZ.printHtml():"")+renderPrint(buildReport(rptMode()))}catch(e){}
   }
+  // Used by the Opal widget page to send the member a summary of what the visitor entered.
+  window.__vkRows=function(){var rep=buildReport("detailed"),rows=[];
+    rep.sections.forEach(function(sec){rows.push(["## "+sec.head,""]);sec.items.forEach(function(it){if(it.k==="row"||it.k==="sub")rows.push([it.a,String(it.b==null?"":it.b)+(it.w?" ("+it.w+")":"")])})});return rows};
   window.addEventListener("beforeprint",fillPrint);
   // ---- report limit: the same free reports and paid plans as the payment calculator ----
   function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
@@ -1950,7 +2139,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
     function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
     function chk(need){if(y+ (need||18) >758){d.addPage();y=64}}
-    var CLAY=[140,74,42],CREAM=[242,230,211];
+    var CLAY=[140,74,42],CREAM=[242,230,211],OP=!!(window.VKTZ&&VKTZ.opal&&VKTZ.opal());
+    if(OP){OR=[75,63,120];INK=[43,40,56];MU=[106,102,120];LN=[220,216,232];CLAY=[58,48,95];CREAM=[243,240,250]}
     function head(t){chk(40);T(CLAY);font("bold",14);d.text(t,L,y);y+=8;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=20}
     function row(a,b,big){if(big)y+=10;chk();T(INK);font(big?"bold":"normal",big?18:11);d.text(a,L,y);if(big)T(OR);font("bold",big?18:11);d.text(b,L+W,y,{align:"right"});y+=big?26:18}
     function ratioRow(a,val,word,cls){chk();T(INK);font("normal",11);d.text(a,L,y);var wc=cls==="warn"?[156,59,46]:(cls==="info"?[47,95,140]:[75,122,61]);font("bold",11);var ww=d.getTextWidth(word);T(wc);d.text(word,L+W,y,{align:"right"});font("bold",13);T(OR);d.text(val,L+W-ww-10,y,{align:"right"});y+=20}
@@ -1965,7 +2155,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     y+=6;
     var sy=TZ?26:16;T(MU);font("italic",11);d.text(rep.sub,L,y+sy);
     d.text(rep.date,L+W,y+sy,{align:"right"});
-    y+=34;D(OR);d.setLineWidth(2);d.line(L,y,L+W,y);y+=26;
+    y+=34;D(OP?[214,190,138]:OR);d.setLineWidth(2);d.line(L,y,L+W,y);y+=26;
 
     rep.sections.forEach(function(sec){
       head(sec.head);
@@ -2208,16 +2398,19 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   document.addEventListener("input",affSaveSoon);document.addEventListener("change",affSaveSoon);document.addEventListener("click",affSaveSoon);
   window.addEventListener("pagehide",affSave);
   document.addEventListener("visibilitychange",function(){if(document.hidden)affSave()});
+  try{if(/[?&]fresh=/.test(location.search))history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
   var clrA=$("clearEntries");
   if(clrA)clrA.addEventListener("click",function(){
     noSaveA=true;
     try{localStorage.removeItem(ASK);localStorage.removeItem("voklogik:calcState");localStorage.removeItem("voklogik:payment");localStorage.removeItem("voklogik:affEdit")}catch(e){}
-    location.reload();
+    location.replace(location.pathname+"?fresh="+Date.now());
   });
   var hadState=affRestore();
   if(hadState)updatePaymentSource();
   recompute();
 })();
 </script>
+<script src="/widget-aff.js"></script>
+<script src="/install-tip.js"></script>
 </body>
 </html>

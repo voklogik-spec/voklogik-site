@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payment estimate</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg">
+<style>
+:root{--bg:#F5F4F8;--panel:#fff;--ink:#2B2838;--muted:#6A6678;--line:#DCD8E8;--accent:#4B3F78;--accent2:#3A305F;--soft:#F8F7FB;--bad:#B3261E;--ok:#2E7D4F;--irid:linear-gradient(90deg,#9CC9D8,#B9A9E0,#E8B5D0,#E6D3A8)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif}
+body.embed{background:transparent}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 28px}
+body.embed .wrap{padding:8px 4px 14px}
+.agent{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-bottom:4px solid #B9A9E0}
+.agent .logo{max-height:56px;max-width:150px;object-fit:contain}
+.agent .face{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--line);flex:none}
+.agent .who{flex:1;min-width:180px}.agent .who b{font-size:18px;display:block;line-height:1.25}
+.agent .who span{color:var(--muted);font-size:14px;display:block}
+.contact{display:flex;gap:6px 16px;flex-wrap:wrap;margin-top:6px;font-size:14px}.contact a{color:var(--accent2);text-decoration:none;font-weight:600}
+.intro{margin:14px 2px 0;color:var(--muted)}
+h1{font-size:26px;line-height:1.2;margin:18px 2px 4px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:480px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:600;font-size:14px;margin:0 0 4px}
+.in{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--ink);font:inherit}
+.in:focus,button:focus-visible,.chk:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.big{background:linear-gradient(135deg,#FFFFFF 0%,#F3F0FA 30%,#E6F1F4 55%,#F8ECF4 80%,#FFFFFF 100%);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:14px;border-bottom:5px solid #B9A9E0;box-shadow:0 10px 30px rgba(110,92,160,.12)}
+.big small{display:block;color:var(--muted);font-size:13px;letter-spacing:.6px;text-transform:uppercase}
+.big .num{font-size:42px;font-weight:800;line-height:1.1;margin:4px 0 2px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 8px;background:#E4E0EE}
+.bar i{display:block;height:100%}
+.legend{display:grid;gap:6px;margin:10px 0 0;font-size:15px}.legend div{display:flex;justify-content:space-between;gap:10px}.legend em{font-style:normal;display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:8px}
+.big .legend{color:#3A3650}.alt{display:block;text-align:center;margin-top:12px;font-weight:700;color:var(--accent);text-decoration:none;padding:12px;border:1px solid var(--accent);border-radius:9px;background:#fff}.alt:hover{background:#F3F0FA}
+h2{font-size:19px;margin:0 0 4px}.sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:0;border-radius:9px;padding:13px 20px;font:inherit;font-weight:700;cursor:pointer;width:100%}
+.btn:hover{background:var(--accent2)}.btn[disabled]{opacity:.55;cursor:not-allowed}
+.consent{font-weight:400;display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--muted);margin:12px 0}
+.consent input{margin-top:3px;width:18px;height:18px;flex:none}
+.msg{margin:10px 0 0;font-size:14px;min-height:20px}.msg.err{color:var(--bad)}.msg.ok{color:var(--ok);font-weight:600}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.fine{font-size:12.5px;color:var(--muted);margin:16px 2px 0}.fine a{color:var(--accent2)}
+.pw{text-align:center;margin:14px 0 0;font-size:13px;color:var(--muted)}.pw a{color:var(--accent2);font-weight:700;text-decoration:none}
+[hidden]{display:none!important}
+.gone{text-align:center;padding:60px 16px}
+</style></head><body>
+<div class="wrap" id="app" hidden>
+ <div class="agent" id="agent">
+  <img class="logo" id="aLogo" alt="" hidden><img class="face" id="aFace" alt="" hidden>
+  <div class="who"><b id="aName"></b><span id="aRole"></span><div class="contact" id="aContact"></div></div>
+ </div>
+ <p class="intro" id="intro"></p>
+ <h1>What could your monthly payment look like?</h1>
+ <p class="sub" style="margin:0 2px">Change the numbers and watch where each dollar goes.</p>
+
+ <div class="card">
+  <div class="grid">
+   <div><label for="price">Home price</label><input class="in" id="price" inputmode="decimal" value="450,000" autocomplete="off"></div>
+   <div><label for="down">Down payment (%)</label><input class="in" id="down" inputmode="decimal" value="20" autocomplete="off"></div>
+   <div><label for="rate">Interest rate (%)</label><input class="in" id="rate" inputmode="decimal" value="6.5" autocomplete="off"></div>
+   <div><label for="years">Loan term</label><select class="in" id="years"><option value="30">30 years</option><option value="20">20 years</option><option value="15">15 years</option></select></div>
+   <div><label for="tax">Property tax (per year)</label><input class="in" id="tax" inputmode="decimal" autocomplete="off"></div>
+   <div><label for="ins">Home insurance (per year)</label><input class="in" id="ins" inputmode="decimal" value="1,500" autocomplete="off"></div>
+   <div><label for="hoa">HOA (per month)</label><input class="in" id="hoa" inputmode="decimal" value="0" autocomplete="off"></div>
+  </div>
+ </div>
+
+ <div class="big" aria-live="polite">
+  <small>Estimated monthly payment</small>
+  <div class="num" id="total">$0</div>
+  <div class="bar" id="bar"></div>
+  <div class="legend" id="legend"></div>
+ </div>
+
+ <div class="card" id="affCard">
+  <h2>Check your affordability</h2>
+  <p class="sub">Add your income, debts and savings to see your housing ratio, debt-to-income ratio and more. Your numbers stay in your browser until you choose to send them.</p>
+  <a class="alt" id="affGo" href="#" style="margin-top:0">Check my affordability &rarr;</a>
+ </div>
+
+ <div class="card" id="leadCard">
+  <h2 id="leadH">Want to talk it through?</h2>
+  <p class="sub" id="leadSub">Send me your numbers and I will follow up.</p>
+  <form id="f" novalidate>
+   <div class="grid">
+    <div><label for="lName">Your name</label><input class="in" id="lName" autocomplete="name" maxlength="80"></div>
+    <div><label for="lEmail">Email</label><input class="in" id="lEmail" type="email" autocomplete="email" maxlength="120"></div>
+    <div><label for="lPhone">Phone <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input class="in" id="lPhone" type="tel" autocomplete="tel" maxlength="30"></div>
+    <div><label for="lMsg">Message <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input class="in" id="lMsg" maxlength="500"></div>
+   </div>
+   <div class="hp" aria-hidden="true"><label>Leave this empty<input id="lWeb" tabindex="-1" autocomplete="off"></label></div>
+   <label class="consent"><input type="checkbox" id="lOk"><span id="consentTxt"></span></label>
+   <button class="btn" type="submit" id="send">Send my numbers</button>
+   <p class="msg" id="msg" role="status"></p>
+  </form>
+ </div>
+
+ <p class="fine" id="fine"></p>
+ <p class="pw">Payment estimate by <a href="https://voklogik.com" target="_blank" rel="noopener">Voklogik</a></p>
+</div>
+<div class="wrap gone" id="gone" hidden><h1>This page is not available</h1><p class="sub">The link may be wrong, or the page may be switched off.</p></div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var embed=/[?&]embed=1/.test(location.search);if(embed)document.body.className="embed";
+var h=(location.pathname.match(/\/w\/([a-z0-9-]+)/i)||[])[1]||(location.search.match(/[?&]h=([a-z0-9-]+)/i)||[])[1]||"";
+var P=null,taxEdited=false,CUR=null;
+var pv=/[?&]pv=1/.test(location.search),sent={};
+// Plain activity counts for the page owner. Nothing about the visitor is sent. The owner's own "Open" link adds pv=1 so it is not counted.
+function track(e){if(pv||sent[e])return;sent[e]=1;try{var k="vk:ev:"+h+":"+e;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(x){}
+  try{fetch("/api/widget/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({h:h,e:e}),keepalive:true}).catch(function(){})}catch(x){}}
+function num(v){var n=parseFloat(String(v).replace(/[^0-9.]/g,""));return isFinite(n)?n:0}
+function usd(n){return "$"+Math.round(n).toLocaleString("en-US")}
+function fmtField(el){var n=num(el.value);if(el.value!=="")el.value=n.toLocaleString("en-US",{maximumFractionDigits:2})}
+function calc(){
+  var price=num($("price").value),dp=Math.min(100,num($("down").value)),rate=num($("rate").value),yrs=num($("years").value)||30;
+  var loan=Math.max(0,price*(1-dp/100)),r=rate/1200,n=yrs*12;
+  var pi=r>0?loan*r/(1-Math.pow(1+r,-n)):loan/n;
+  if(!taxEdited)$("tax").value=Math.round(price*0.011).toLocaleString("en-US");
+  var tax=num($("tax").value)/12,ins=num($("ins").value)/12,hoa=num($("hoa").value);
+  var total=pi+tax+ins+hoa;
+  $("total").textContent=usd(total);
+  var parts=[["Principal & interest",pi,"#5B4B8A"],["Property tax",tax,"#8FB8D4"],["Home insurance",ins,"#D3A9DA"],["HOA",hoa,"#A8DCC5"]].filter(function(p){return p[1]>0.5});
+  $("bar").innerHTML="";$("legend").innerHTML="";
+  parts.forEach(function(p){var i=document.createElement("i");i.style.width=(total?p[1]/total*100:0)+"%";i.style.background=p[2];$("bar").appendChild(i);
+    var d=document.createElement("div"),l=document.createElement("span"),e=document.createElement("em");e.style.background=p[2];l.appendChild(e);l.appendChild(document.createTextNode(p[0]));
+    var v=document.createElement("span");v.textContent=usd(p[1])+"/mo";d.appendChild(l);d.appendChild(v);$("legend").appendChild(d)});
+  CUR={price:price,loan:loan,rate:rate,years:yrs,tax:tax*12,ins:ins*12,hoa:hoa,total:total};
+  return {price:price,downPct:dp,rate:rate,years:yrs,payment:total};
+}
+["price","down","rate","years","tax","ins","hoa"].forEach(function(id){
+  var el=$(id);el.addEventListener("input",function(){if(id==="tax")taxEdited=true;calc();track("estimate")});
+  if(id!=="years"&&id!=="down"&&id!=="rate")el.addEventListener("blur",function(){fmtField(el);calc()});
+});
+function safeHost(w){w=String(w||"").trim().replace(/^https?:\/\//i,"").replace(/\/+$/,"");return /^[A-Za-z0-9.-]+\.[A-Za-z]{2,}([\/?#][A-Za-z0-9\/._~%?=&#+-]*)?$/.test(w)?w:null}
+function link(txt,href){var a=document.createElement("a");a.textContent=txt;a.href=href;return a}
+function render(p){
+  var b=p.brand;P=p;document.title=(b.name||b.company||"Payment estimate")+" | Payment estimate";
+  if(b.logo){$("aLogo").src=b.logo;$("aLogo").hidden=false}
+  if(b.headshot){$("aFace").src=b.headshot;$("aFace").hidden=false}
+  $("aName").textContent=b.name||b.company||"";
+  $("aRole").textContent=[b.title,b.name?b.company:""].filter(Boolean).join(" · ");
+  var c=$("aContact");
+  if(b.phone)c.appendChild(link(b.phone,"tel:"+b.phone.replace(/[^0-9+]/g,"")));
+  if(b.email&&/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(b.email))c.appendChild(link(b.email,"mailto:"+b.email));
+  var w=safeHost(b.website);if(w)c.appendChild(link(w,"https://"+w));
+  var who=b.name||b.company||"me",first=(b.name||"").split(" ")[0]||"your agent";
+  $("intro").textContent=p.intro||"Run your numbers. I am happy to talk them through whenever you are ready.";
+  $("leadSub").textContent="Send your numbers to "+(b.name||b.company||"us")+" and get a reply.";
+  $("consentTxt").textContent="I agree that "+who+" and Voklogik may contact me about this estimate by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment.";
+  var fine=["This is an estimate for planning only. It is not a loan offer, approval or commitment. Actual rates, taxes, insurance and costs depend on your situation and lender."];
+  var ids=[];if(b.nmls)ids.push("NMLS ID #"+b.nmls);if(b.mls)ids.push(b.mls);
+  fine.push((ids.length?ids.join(" · ")+" · ":"")+"Equal Housing Opportunity.");
+  $("fine").innerHTML="";fine.forEach(function(t,i){if(i)$("fine").appendChild(document.createElement("br"));$("fine").appendChild(document.createTextNode(t))});
+  $("fine").appendChild(document.createElement("br"));$("fine").appendChild(link("Privacy notice","/privacy.html"));
+  $("app").hidden=false;calc();track("view");
+}
+fetch("/api/widget/profile?h="+encodeURIComponent(h)).then(function(r){return r.ok?r.json():null}).then(function(j){
+  if(j&&j.ok)render(j);else $("gone").hidden=false}).catch(function(){$("gone").hidden=false});
+$("affGo").addEventListener("click",function(e){
+  e.preventDefault();var c=calc()&&CUR;if(!c)return;
+  var r=function(n){return Math.round(n*100)/100};
+  location.href="/affordability.html?w="+encodeURIComponent(h)+(embed?"&embed=1":"")+"&price="+r(c.price)+"&loan="+r(c.loan)+"&rate="+r(c.rate)+"&years="+c.years+"&tax="+r(c.tax/12)+"&ins="+r(c.ins/12)+"&hoa="+r(c.hoa)+"&total="+r(c.total)+(pv?"&pv=1":"");
+});
+$("f").onsubmit=function(e){
+  e.preventDefault();var m=$("msg");m.className="msg";m.textContent="";
+  if(!$("lName").value.trim()){m.className="msg err";m.textContent="Please add your name.";return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("lEmail").value.trim())){m.className="msg err";m.textContent="Please enter a valid email.";return}
+  if(!$("lOk").checked){m.className="msg err";m.textContent="Please tick the box so we know it is OK to contact you.";return}
+  $("send").disabled=true;m.textContent="Sending...";
+  fetch("/api/widget/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    h:h,name:$("lName").value,email:$("lEmail").value,phone:$("lPhone").value,message:$("lMsg").value,website:$("lWeb").value,consent:true,scenario:calc()})})
+  .then(function(r){return r.json().then(function(j){return{ok:r.ok&&j.ok,j:j}})}).then(function(x){
+    if(x.ok){$("f").hidden=true;$("leadH").textContent="Thank you.";$("leadSub").textContent="Your numbers were sent. You should hear back soon."}
+    else{$("send").disabled=false;m.className="msg err";m.textContent=x.j.error||"Could not send. Please try again."}})
+  .catch(function(){$("send").disabled=false;m.className="msg err";m.textContent="Could not send. Please try again."});
+};
+})();
+</script></body></html>
