@@ -245,7 +245,7 @@ function render(a,fresh){
     $("useBar").style.width=lim==null?"100%":Math.max(0,Math.min(100,a.left/lim*100))+"%";
     $("period").textContent=a.periodEnd?"Renews "+new Date(a.periodEnd).toLocaleDateString()+".":""}
   else{$("useTxt").textContent="Activate Topaz to start your 200 branded reports a month.";$("useBar").style.width="0";$("period").textContent=""}
-  var up=$("upg");up.disabled=!(on&&a.plan==="topaz"&&a.canUpgrade);up.textContent=a.plan==="opal"?"You are on Opal":(a.canUpgrade?"Upgrade to Opal":"Opal opens soon");
+  var up=$("upg");up.disabled=!(on&&a.plan==="topaz"&&a.canUpgrade&&!a.cancelAtPeriodEnd);up.textContent=a.plan==="opal"?"You are on Opal":(a.cancelAtPeriodEnd&&a.canUpgrade?"Upgrade unavailable while your plan is ending":(a.canUpgrade?"Upgrade to Opal":"Opal opens soon"));
   $("opalSub").textContent=a.plan==="opal"?"You are on Opal: unlimited branded reports, plus everything in Topaz. Set up your page below. Leads and the scenarios your visitors run show up in your dashboard.":"Unlimited reports. Your own co-branded Voklogik page with the payment estimate and the Affordability check. A dashboard with lead alerts and every scenario your visitors run.";
   $("opalFine").hidden=a.plan==="opal";up.hidden=a.plan==="opal";$("opalPill").hidden=a.plan==="opal";
   document.body.classList.toggle("opal",a.plan==="opal");
