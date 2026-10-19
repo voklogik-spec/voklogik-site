@@ -12,6 +12,10 @@ export const config = { path: "/api/topaz/*" };
 const withCookie = (res, c) => { res.headers.append("set-cookie", c); return res; };
 const body = async (req) => { try { return await req.json(); } catch { return {}; } };
 const emailKey = (e) => "user:" + e;
+// Opal stays off until you set OPAL_LIVE=1 in Netlify, even when the price id is already there.
+const opalLive = () => !!process.env.OPAL_PRICE_ID && process.env.OPAL_LIVE === "1";
+const withRef = (link, id, email) =>
+  link + (link.includes("?") ? "&" : "?") + "client_reference_id=" + id + "&prefilled_email=" + encodeURIComponent(email);
 
 export default async (req) => {
   const action = new URL(req.url).pathname.split("/").pop();
@@ -96,11 +100,10 @@ export default async (req) => {
 
   if (action === "me") {
     const out = publicAccount(a, await getImages(id));
-    out.payLink = process.env.TOPAZ_PAYMENT_LINK
-      ? process.env.TOPAZ_PAYMENT_LINK + (process.env.TOPAZ_PAYMENT_LINK.includes("?") ? "&" : "?") +
-        "client_reference_id=" + id + "&prefilled_email=" + encodeURIComponent(a.email)
-      : null;
-    out.canUpgrade = !!process.env.OPAL_PRICE_ID;
+    out.payLink = process.env.TOPAZ_PAYMENT_LINK ? withRef(process.env.TOPAZ_PAYMENT_LINK, id, a.email) : null;
+    // Direct Opal sign-up (the founding code is typed at checkout). Only offered once Opal is live.
+    out.opalLink = opalLive() && process.env.OPAL_PAYMENT_LINK ? withRef(process.env.OPAL_PAYMENT_LINK, id, a.email) : null;
+    out.canUpgrade = opalLive();
     return json({ ok: true, account: out });
   }
 
@@ -143,7 +146,7 @@ export default async (req) => {
   // attached here, by design: it is only for businesses that join Opal directly.
   if (action === "upgrade" && req.method === "POST") {
     const price = process.env.OPAL_PRICE_ID;
-    if (!price) return json({ error: "Opal is not open yet." }, 503);
+    if (!opalLive()) return json({ error: "Opal is not open yet." }, 503);
     if (a.plan !== "topaz" || !a.subscription) return json({ error: "Only an active Topaz plan can upgrade." }, 400);
     try {
       const sub = await stripeApi("/subscriptions/" + a.subscription, {}, "GET");
