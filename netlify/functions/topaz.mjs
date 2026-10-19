@@ -251,8 +251,11 @@ export default async (req) => {
     const price = process.env.OPAL_PRICE_ID;
     if (!opalLive(a)) return json({ error: "Opal is not open yet." }, 503);
     if (a.plan !== "topaz" || !a.subscription) return json({ error: "Only an active Topaz plan can upgrade." }, 400);
+    const ENDMSG = "Your Topaz plan is set to end, so it cannot be upgraded. Use \"Manage or cancel your subscription\" to keep it going first, or start Opal as a new plan.";
+    if (a.cancelAtPeriodEnd) return json({ error: ENDMSG }, 400);
     try {
       const sub = await stripeApi("/subscriptions/" + a.subscription, {}, "GET");
+      if (sub.cancel_at_period_end || sub.cancel_at || !["active", "trialing"].includes(sub.status)) return json({ error: ENDMSG }, 400);
       const item = sub.items.data[0].id;
       await stripeApi("/subscriptions/" + a.subscription, {
         "items[0][id]": item, "items[0][price]": price,
