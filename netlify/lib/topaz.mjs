@@ -88,7 +88,7 @@ export function cleanImage(v) {
   if (!/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(v)) throw new Error("image must be PNG or JPEG");
   return v;
 }
-const clip = (v, n) => String(v ?? "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, n);
+export const clip = (v, n) => String(v ?? "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, n);
 export function cleanBrand(b) {
   return {
     name: clip(b.name, 80),
@@ -128,3 +128,38 @@ export async function readResetToken(token) {
   return r && r.exp > Date.now() ? r : null;
 }
 export const dropResetToken = (token) => store().delete("reset:" + sha(token));
+
+// ---- Opal features (widget, leads)
+// OPAL_PREVIEW_EMAILS (comma list in Netlify) lets you try Opal on your own account before launch.
+export const previewEmail = (e) =>
+  (process.env.OPAL_PREVIEW_EMAILS || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean).includes(normEmail(e));
+export const opalOk = (a) => !!a && (previewEmail(a.email) || (a.plan === "opal" && isActive(a)));
+
+export const HANDLE_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
+export const RESERVED = new Set(["api", "admin", "www", "w", "topaz", "opal", "voklogik", "app", "login", "support", "help", "terms", "privacy", "affordability", "index", "static", "assets"]);
+export const SITE = () => process.env.SITE_URL || "https://voklogik.com";
+export const sha256 = sha;
+
+// ---- Opal page activity: plain daily counters per member. No names, no addresses.
+export const STAT_FIELDS = ["view", "estimate", "aff", "lead"];
+export async function countStat(id, field, when = new Date()) {
+  if (!STAT_FIELDS.includes(field)) return;
+  const s = store(), k = "stat:" + id + ":" + when.toISOString().slice(0, 10);
+  const cur = (await s.get(k, { type: "json" })) || {};
+  cur[field] = (Number(cur[field]) || 0) + 1;
+  await s.setJSON(k, cur);
+}
+export async function readStats(id, days = 30, now = new Date()) {
+  const s = store();
+  const { blobs } = await s.list({ prefix: "stat:" + id + ":" });
+  const cutoff = new Date(now.getTime() - (days - 1) * 86400000).toISOString().slice(0, 10);
+  const keys = blobs.map((x) => x.key).filter((k) => k.slice(-10) >= cutoff).sort();
+  const out = [];
+  for (const k of keys) {
+    const v = (await s.get(k, { type: "json" })) || {};
+    out.push({ d: k.slice(-10), view: v.view || 0, estimate: v.estimate || 0, aff: v.aff || 0, lead: v.lead || 0 });
+  }
+  const sum = (rows) => rows.reduce((t, r) => { for (const f of STAT_FIELDS) t[f] += r[f]; return t; }, { view: 0, estimate: 0, aff: 0, lead: 0 });
+  const c7 = new Date(now.getTime() - 6 * 86400000).toISOString().slice(0, 10);
+  return { days: out, d7: sum(out.filter((r) => r.d >= c7)), d30: sum(out) };
+}
