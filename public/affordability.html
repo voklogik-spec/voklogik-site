@@ -162,6 +162,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .btgl .tot{color:var(--accent);margin-left:auto}.btgl .chev{transition:transform .15s}.btgl[aria-expanded="false"] .chev{transform:rotate(-90deg)}
 .cnt{font:500 .85rem "Bricolage Grotesque",sans-serif;color:var(--muted);margin-left:8px}
 .yn{font:700 1.3rem "Bricolage Grotesque",sans-serif}.yn.yes{color:var(--good)}.yn.no{color:var(--warn)}
+.rdorow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 26px}.rdolab{flex-basis:100%;font:500 .95rem 'Inter','Helvetica Neue',Arial,sans-serif;color:var(--muted)}.rdo{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font:600 1rem 'Inter','Helvetica Neue',Arial,sans-serif;color:var(--ink)}.rdo input{width:auto;min-width:0;margin:0;padding:0;accent-color:var(--accent)}
 .mathrow{display:flex;justify-content:space-between;gap:12px;padding:4px 0}.mathrow.tot{border-top:1px solid var(--line);margin-top:4px;font-weight:700}
 .verdict{margin:14px 0 0;padding:12px 14px;border-radius:8px;font-weight:700}.verdict.yes{background:rgba(75,122,61,.15);color:var(--good)}.verdict.no{background:rgba(156,59,46,.15);color:var(--warn)}
 .astliq{grid-template-columns:1fr 1fr 1fr!important}@media (max-width:640px){.astliq{grid-template-columns:1fr!important}}
@@ -509,14 +510,19 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <span class="rowright"><span class="rowvalue" id="cashSummary">Not set</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <p class="k" style="margin:0 0 14px">What you would bring to closing: the down payment balance plus estimated points and fees, less any earnest money you have already paid and cleared. These are estimates for planning only.</p>
+      <p class="k" style="margin:0 0 14px">What you would bring to closing: the down payment balance plus estimated points and fees, less any earnest money you have already paid and cleared, any gift to be received at closing, and any seller or closing credit. These are estimates for planning only.</p>
       <div class="grid">
         <div class="f"><label for="feePct">Estimated points and fees (% of loan amount)</label>
           <select id="feePct"><option value="2">2%</option><option value="2.5">2.5%</option><option value="3" selected>3%</option><option value="3.5">3.5%</option><option value="4">4%</option><option value="4.5">4.5%</option><option value="5">5%</option></select></div>
         <div class="f"><label for="feeAmt">Or enter your own estimate ($) <span class="k">(optional)</span></label><input id="feeAmt" type="number" inputmode="decimal" min="0" step="100" placeholder="e.g. 9000"></div>
       </div>
+      <div class="grid" id="credGrid" style="margin-top:14px">
+        <div class="f"><label for="credMode">Seller / closing credit</label>
+          <select id="credMode"><option value="none">None</option><option value="pct">% of the purchase price</option><option value="amt">A dollar amount</option></select></div>
+        <div class="f" id="credValF" hidden><label for="credVal" id="credValL">Credit (% of purchase price)</label><input id="credVal" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 3"></div>
+      </div>
       <div id="cashOut" style="margin-top:14px"></div>
-      <p class="k" style="margin:10px 0 0">Points, lender fees, title and settlement charges, prepaid taxes and insurance, and escrow deposits are commonly around 2% to 5% of the loan amount. Your Loan Estimate shows the real figures. On a refinance, fees can often be rolled into the new loan. Add earnest money under Total Assets.</p>
+      <p class="k" style="margin:10px 0 0">Points, lender fees, title and settlement charges, prepaid taxes and insurance, and escrow deposits are commonly around 2% to 5% of the loan amount. Your Loan Estimate shows the real figures. On a refinance, fees can often be rolled into the new loan. Add earnest money and gift funds under Total Assets.</p>
       <button type="button" class="editlink" id="cashDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -1458,7 +1464,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   // ---- assets and reserves ----
   var assetLines=[], assetSeq=0, assetsInfo={liquid:0,nonliquid:0,items:[]};
-  var ASSET={checking:["Checking",1],savings:["Savings",1],mmkt:["Money market / CD",1],earnest:["Earnest money deposit",2],retirement:["Retirement (401(k), IRA)",0],mutual:["Mutual funds",0],stocks:["Stocks / bonds",0],other:["Other",0]};
+  var ASSET={checking:["Checking",1],savings:["Savings",1],mmkt:["Money market / CD",1],earnest:["Earnest money deposit",2],gift:["Gift funds",3],retirement:["Retirement (401(k), IRA)",0],mutual:["Mutual funds",0],stocks:["Stocks / bonds",0],other:["Other",0]};
   function assetTemplate(id){
     var t="ast"+id;
     return ''
@@ -1469,6 +1475,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="f"><label>Balance after reserves ($)</label><div class="ro" id="'+t+'After">\u2014</div></div>'
       +'<button type="button" class="editlink" data-removeasset="'+id+'" aria-label="Remove this account">Remove</button></div>'
       +'<div class="f" id="'+t+'PaidField" hidden style="margin:0 0 12px"><label for="'+t+'Paid">Has this been paid and cleared?</label><select id="'+t+'Paid"><option value="no">Not yet paid</option><option value="yes">Yes, paid and cleared</option></select></div>'
+      +'<div class="f" id="'+t+'GiftDepField" hidden style="margin:0 0 12px"><div class="rdorow"><span class="rdolab">Gift received and deposited?</span><label class="rdo"><input type="radio" name="'+t+'GiftDep" value="yes">Yes</label><label class="rdo"><input type="radio" name="'+t+'GiftDep" value="no">No</label></div></div>'
+      +'<div class="f" id="'+t+'GiftCloseField" hidden style="margin:0 0 12px"><div class="rdorow"><span class="rdolab">Gift to be received at closing?</span><label class="rdo"><input type="radio" name="'+t+'GiftClose" value="yes">Yes</label><label class="rdo"><input type="radio" name="'+t+'GiftClose" value="no">No</label></div></div>'
       +'<div class="debtline astliq" id="'+t+'LiqField" hidden>'
       +'<div class="f"><label for="'+t+'LMode">If you would sell or withdraw some of it</label><select id="'+t+'LMode"><option value="none">Do not count it as liquid</option><option value="pct">Count a % of the balance</option><option value="amt">Count a dollar amount</option></select></div>'
       +'<div class="f" id="'+t+'LValF" hidden><label for="'+t+'LVal" id="'+t+'LValL">Percent of balance (%)</label><input id="'+t+'LVal" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 50"></div>'
@@ -1492,11 +1500,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   $("rowReserves").addEventListener("change",function(){recompute()});
   var resInfo={months:0};
   function assetsCalc(){
-    var liq=0,non=0,earn=0,earnNo=0,items=[];
+    var liq=0,non=0,earn=0,earnNo=0,giftC=0,giftD=0,giftNo=0,items=[];
     assetLines.forEach(function(id){
-      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),fl=ASSET[k][1],isE=fl===2,isL=fl===1,Lq=0;
+      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),fl=ASSET[k][1],isE=fl===2,isG=fl===3,isL=fl===1,Lq=0;
       $(t+"PaidField").hidden=!isE;$(t+"LiqField").hidden=fl!==0;
-      var lbl=document.querySelector('label[for="'+t+'Amt"]');if(lbl)lbl.textContent=isE?"Earnest money amount ($)":"Balance ($)";
+      var gdEl=document.querySelector('input[name="'+t+'GiftDep"]:checked'),gcEl=document.querySelector('input[name="'+t+'GiftClose"]:checked'),gd=gdEl?gdEl.value:"",gc=gcEl?gcEl.value:"";
+      $(t+"GiftDepField").hidden=!isG;$(t+"GiftCloseField").hidden=!(isG&&gd==="no");
+      var lbl=document.querySelector('label[for="'+t+'Amt"]');if(lbl)lbl.textContent=isE?"Earnest money amount ($)":(isG?"Gift amount ($)":"Balance ($)");
       if(fl===0){
         var mode=$(t+"LMode").value,lv=n(t+"LVal");
         $(t+"LValF").hidden=mode==="none";
@@ -1511,6 +1521,14 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         items.push({id:id,type:ASSET[k][0],liquid:false,earnest:true,paid:paid,amt:a,used:0,lq:0,nl:0,lqOwn:0});
         return;
       }
+      if(isG){
+        var dep=gd==="yes",atc=gd==="no"&&gc==="yes";
+        if(dep)giftD+=a;else if(atc)giftC+=a;else if(gd==="no"&&gc==="no")giftNo+=a;
+        $(t+"After").textContent="\u2014";
+        $(t+"Note").textContent=dep?"Received and deposited: please confirm these funds are already included in the balance of the checking or savings account you listed. They are not counted again here, so nothing is counted twice.":(atc?"To be received at closing: counted as a credit toward your cash required at closing (see Cash Required at Closing).":((gd==="no"&&gc==="no")?"Not counted. If the gift will be received at closing, choose Yes under \u201cGift to be received at closing?\u201d and it will be credited at closing. Once it is deposited, make sure it is included in your checking or savings balance.":""));
+        items.push({id:id,type:ASSET[k][0],liquid:false,earnest:false,gift:true,dep:dep,atClose:atc,amt:a,used:0,lq:0,nl:0,lqOwn:0});
+        return;
+      }
       $(t+"After").textContent=usd.format(a);
       if(isL)liq+=a;else{liq+=Lq;non+=a-Lq}
       items.push({id:id,type:ASSET[k][0],liquid:isL,earnest:false,amt:a,used:0,lq:isL?a:Lq,nl:isL?0:a-Lq,lqOwn:isL?0:Lq});
@@ -1522,19 +1540,20 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var all=$("resBasis").value==="all",base=subj+(all?other:0);
     var req=months*base,usedN=Math.min(req,non),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
     // spread the reserves across accounts: non-liquid portions first, then liquid portions
-    var rem=req,real=items.filter(function(x){return !x.earnest});
+    var rem=req,real=items.filter(function(x){return !x.earnest&&!x.gift});
     real.forEach(function(x){var u=Math.min(rem,x.nl);x.used=u>0?u:0;rem-=x.used});
     real.forEach(function(x){var u=Math.min(rem,x.lq);u=u>0?u:0;x.used+=u;rem-=u});
     items.forEach(function(x){
-      if(x.earnest)return;
+      if(x.earnest||x.gift)return;
       var t="ast"+x.id,note=x.liquid?"Liquid: available right away.":(x.lqOwn>0?("You counted "+usd.format(x.lqOwn)+" of this as liquid (after selling or withdrawing). The other "+usd.format(x.nl)+" stays non-liquid."):"Non-liquid: may need to be liquidated to use for cash to close or a down payment. Use the options above to count the part you would sell or withdraw.");
       if(x.used>0)note+=" "+usd.format(x.used)+" set aside for reserves, "+usd.format(x.amt-x.used)+" remaining.";
       $(t+"Note").textContent=note;
       $(t+"After").textContent=usd.format(x.amt-x.used);
     });
-    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo};
+    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo,giftClose:giftC,giftDep:giftD,giftPending:giftNo};
     $("assetsSummary").textContent=usd.format(tot-covered);
     var eTxt=earn>0?" Earnest money already paid, credited at closing: "+usd.format(earn)+".":"";
+    if(giftC>0)eTxt+=" Gift to be received at closing, credited at closing: "+usd.format(giftC)+".";
     $("assetsTotalLine").textContent=(tot>0?(covered>0?("Total assets after reserves: "+usd.format(tot-covered)+" (total assets "+usd.format(tot)+" minus "+usd.format(covered)+" set aside for reserves)"):("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot))):"")+eTxt;
     var usedList=items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)});
     $("assetsUseLine").textContent=covered>0?("Set aside for reserves: "+usedList.join(", ")+". Available after reserves: "+usd.format(tot-covered)+"."):"";
@@ -1565,10 +1584,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var s2=(pS2&&pS2.on)?(pS2.drawn||0):0;
     var down=refi?0:Math.max(price-loan-s2,0);
     var pct=parseFloat($("feePct").value)||3,own=n("feeAmt"),fees=own>0?own:loan*pct/100;
-    var earn=refi?0:(assetsInfo.earnest||0),gross=down+fees,need=Math.max(gross-earn,0);
+    var cm=$("credMode").value,cv=n("credVal");
+    $("credValF").hidden=cm==="none"||refi;$("credGrid").hidden=refi;
+    $("credValL").textContent=cm==="pct"?"Credit (% of purchase price)":"Credit amount ($)";
+    var cred=refi?0:(cm==="pct"?price*Math.min(cv,100)/100:(cm==="amt"?cv:0));
+    var gift=refi?0:(assetsInfo.giftClose||0);
+    var earn=refi?0:(assetsInfo.earnest||0),gross=down+fees,need=Math.max(gross-earn-gift-cred,0);
     var avail=resInfo.left||0,diff=avail-need,ok=diff>=-0.5,on=loan>0&&(refi||price>0);
     var nonCounted=assetsInfo.nonliquid||0;
-    cashInfo={on:on,refi:refi,price:price,loan:loan,s2:s2,down:down,pct:pct,own:own,fees:fees,earn:earn,earnPending:assetsInfo.earnestPending||0,gross:gross,need:need,liq:assetsInfo.liquid||0,usedL:resInfo.usedL||0,avail:avail,diff:diff,ok:ok,nonCounted:nonCounted};
+    cashInfo={on:on,refi:refi,price:price,loan:loan,s2:s2,down:down,pct:pct,own:own,fees:fees,earn:earn,gift:gift,cred:cred,credMode:cm,credPct:cv,giftPending:assetsInfo.giftPending||0,giftDep:assetsInfo.giftDep||0,earnPending:assetsInfo.earnestPending||0,gross:gross,need:need,liq:assetsInfo.liquid||0,usedL:resInfo.usedL||0,avail:avail,diff:diff,ok:ok,nonCounted:nonCounted};
     var mr=function(a,b,tot){return '<div class="mathrow'+(tot?' tot':'')+'"><span>'+a+'</span><span>'+b+'</span></div>'};
     var ce=$("cashOut"),le=$("liqOut");
     if(!on){
@@ -1580,8 +1604,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +mr("Estimated points and fees ("+(own>0?"your estimate":pct+"% of "+usd.format(loan))+")",usd.format(fees),refi)
       +(refi?'':mr("Cash required before credits",usd.format(gross),1))
       +(earn>0?mr("Less earnest money paid and cleared",usd.format(earn)):'')
+      +(gift>0?mr("Less gift to be received at closing",usd.format(gift)):'')
+      +(cred>0?mr("Less seller / closing credit"+(cm==="pct"?" ("+cv+"% of purchase price)":""),usd.format(cred)):'')
       +mr("Cash still needed at closing",usd.format(need),1)
-      +(cashInfo.earnPending>0&&!refi?'<p class="k" style="margin:8px 0 0">Earnest money not yet paid ('+usd.format(cashInfo.earnPending)+') is not credited until it is paid and cleared.</p>':'');
+      +(cred>0?'<p class="k" style="margin:8px 0 0">Credits are limited by the loan program and the actual closing costs. Your lender confirms what is allowed.</p>':'')
+      +(cashInfo.earnPending>0&&!refi?'<p class="k" style="margin:8px 0 0">Earnest money not yet paid ('+usd.format(cashInfo.earnPending)+') is not credited until it is paid and cleared.</p>':'')
+      +(cashInfo.giftPending>0&&!refi?'<p class="k" style="margin:8px 0 0">A gift not received at closing ('+usd.format(cashInfo.giftPending)+') is not credited. To credit it, choose Yes under \u201cGift to be received at closing?\u201d in Total Assets.</p>':'');
+
     $("cashSummary").textContent=usd.format(need);
     le.innerHTML=mr("Liquid assets (checking, savings, money market, plus any amount you would liquidate)",usd.format(cashInfo.liq))
       +(cashInfo.usedL>0?mr("Less liquid assets set aside for reserves",usd.format(cashInfo.usedL)):'')
@@ -1996,11 +2025,13 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       if(ac.items.some(function(x){return x.amt>0})){
         var as=[];
         ac.items.forEach(function(x){if(x.amt>0){
-          as.push(R(x.earnest?x.type+(x.paid?" (paid and cleared)":" (not yet paid)"):x.type+(x.liquid?"":" (non-liquid)"),usd.format(x.amt)));
+          as.push(R(x.earnest?x.type+(x.paid?" (paid and cleared)":" (not yet paid)"):(x.gift?x.type+(x.dep?" (received and deposited)":(x.atClose?" (to be received at closing)":" (not counted)")):x.type+(x.liquid?"":" (non-liquid)")),usd.format(x.amt)));
           if(x.lqOwn>0)as.push(Sm(usd.format(x.lqOwn)+" of this is counted as liquid, after selling or withdrawing."));
         }});
         as.push(R("Liquid",usd.format(ac.liquid)));as.push(R("Non-liquid",usd.format(ac.nonliquid)));as.push(R("Total assets (liquid + non-liquid)",usd.format(ac.liquid+ac.nonliquid),1));
         if(ac.earnest>0)as.push(Sm("Earnest money already paid ("+usd.format(ac.earnest)+") is not included in the totals above. It is credited under Cash required at closing."));
+        if(ac.giftDep>0)as.push(Sm("Gift funds already deposited ("+usd.format(ac.giftDep)+") are not counted again here. Please confirm they are included in the checking or savings balance listed above."));
+        if(ac.giftClose>0)as.push(Sm("Gift to be received at closing ("+usd.format(ac.giftClose)+") is not included in the totals above. It is credited under Cash required at closing."));
         if(ac.reserved>0)as.push(R("Total assets after reserves",usd.format(ac.avail),1));
         if(ac.reserved>0)as.push(Sm("Set aside for reserves: "+ac.items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)}).join(", ")+". Available after reserves: "+usd.format(ac.avail)+"."));
         as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
@@ -2021,7 +2052,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         cs.push(R("Estimated points and fees ("+(ci.own>0?"your estimate":ci.pct+"% of loan amount")+")",usd.format(ci.fees)));
         if(!ci.refi)cs.push(R("Cash required before credits",usd.format(ci.gross)));
         if(ci.earn>0)cs.push(R("Less earnest money paid and cleared",usd.format(ci.earn)));
+        if(ci.gift>0)cs.push(R("Less gift to be received at closing",usd.format(ci.gift)));
+        if(ci.cred>0)cs.push(R("Less seller / closing credit"+(ci.credMode==="pct"?" ("+ci.credPct+"% of purchase price)":""),usd.format(ci.cred)));
         cs.push(R("Cash still needed at closing",usd.format(ci.need),1));
+        if(ci.cred>0)cs.push(Sm("Credits are limited by the loan program and the actual closing costs. Your lender confirms what is allowed."));
         cs.push(Sm("Estimates for planning only. Points, lender fees, title, prepaids and escrow are commonly about 2% to 5% of the loan amount. Your Loan Estimate shows the real figures."));
         S.push({head:"Cash required at closing",items:cs});
         var ls=[R("Liquid assets",usd.format(ci.liq))];
