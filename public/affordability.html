@@ -167,6 +167,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .verdict{margin:14px 0 0;padding:12px 14px;border-radius:8px;font-weight:700}.verdict.yes{background:rgba(75,122,61,.15);color:var(--good)}.verdict.no{background:rgba(156,59,46,.15);color:var(--warn)}
 .astliq{grid-template-columns:1fr 1fr 1fr!important}@media (max-width:640px){.astliq{grid-template-columns:1fr!important}}
 .ro{border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;display:flex;align-items:center;font-weight:700;background:rgba(0,0,0,.03)}
+.dedbox{margin-top:14px;padding:10px 14px;border:1px dashed var(--line);border-radius:8px}.dedrow{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:.95rem}
 .debtline{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px}
 @media (max-width:640px){.grid,.two{grid-template-columns:1fr}.debtline,.astline{grid-template-columns:1fr 1fr!important}.debtline .editlink{grid-column:1/-1;justify-self:start}}
 /* income type circles and years side by side */
@@ -330,6 +331,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
       <!-- Additional income (built by script) -->
       <div class="source" id="srcAdditional" hidden></div>
+      <div class="dedbox" id="b1Ded" hidden></div>
       </div>
 
       <div id="borrowersContainer"></div>
@@ -431,6 +433,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     </button>
     <div class="rowbody">
       <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. For credit cards, enter the minimum payment required each month, not the balance. A credit report lists your accounts and payments; it doesn't show a score (see the note below your ratios). If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
+      <div class="f" style="margin:0 0 14px"><div class="rdorow"><span class="rdolab">Do you have any tax liens, judgments, collections or charge-offs?</span><label class="rdo"><input type="radio" name="pubRec" value="yes">Yes</label><label class="rdo"><input type="radio" name="pubRec" value="no" checked>No</label></div></div>
+      <div class="note warn" id="pubRecNote" hidden style="margin:0 0 16px">Lenders may require tax liens, judgments, collections and charge-offs to be paid off, or otherwise resolved, before or at closing. Any payoff adds to the cash you need, and it is not included in Cash Required at Closing. Ask your lender what applies to you.</div>
       <div id="debtsList"></div>
       <div class="debtwrap" id="ownedDebtRow" hidden style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Payments on other properties</strong><strong id="ownedDebtAmt">$0/mo</strong></div>
@@ -1012,6 +1016,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="source" id="'+p+'srcSelfemp" hidden>'+selfEmpHtml(p)+'</div>'
       +'<div class="source" id="'+p+'srcRetirement" hidden>'+retirementHtml(p)+'</div>'
       +'<div class="source" id="'+p+'srcAdditional" hidden>'+additionalHtml(p)+'</div>'
+      +'<div class="dedbox" id="'+p+'Ded" hidden></div>'
       +'<p class="k" style="margin:16px 0 0"><strong>Borrower '+num+' total:</strong> <span id="'+p+'IncomeSubtotal">$0/mo</span></p>'
       +'</div>'
       +'</div>';
@@ -1160,7 +1165,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("b1Tgl").hidden=!multi;$("b1H3").hidden=multi;if(!multi)$("b1Body").hidden=false;
     $("collapseAll").hidden=!multi;
     var used=0;
-    bv.forEach(function(x){var id=x.b.prefix===""?"b1":x.b.prefix,t=$(id+"Tot");if(t)t.textContent=usd.format(x.v)+"/mo";if(x.v>0)used++});
+    bv.forEach(function(x){var id=x.b.prefix===""?"b1":x.b.prefix,t=$(id+"Tot");if(t)t.textContent=usdNet(x.v)+"/mo";if((x.g!==undefined?x.g:x.v)>0)used++});
     $("incomeCount").textContent=multi&&used>0?" \u00b7 "+used+" borrower"+(used===1?"":"s"):"";
     return used;
   }
@@ -1214,10 +1219,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="f"><label for="'+t+'Type">Type</label><select id="'+t+'Type">'
       +'<option value="card">Credit card</option><option value="auto">Auto loan</option>'
       +'<option value="student">Student loan</option><option value="personal">Personal loan</option>'
-      +'<option value="support">Child support / alimony</option><option value="other">Other</option></select></div>'
+      +'<option value="alimony">Alimony</option><option value="childsupport">Child support</option>'
+      +'<option value="sepmaint">Separate maintenance</option><option value="equal">Equalization payment</option>'
+      +'<option value="other">Other</option></select></div>'
       +'<div class="f"><label for="'+t+'Amt">Monthly payment ($)</label><input id="'+t+'Amt" type="text" inputmode="decimal" autocomplete="off" placeholder="0 or 25+40+75"><span class="k" id="'+t+'Sum" hidden></span></div>'
       +'<button type="button" class="editlink" data-removedebt="'+id+'" aria-label="Remove this debt">Remove</button>'
       +'</div>'
+      +'<div class="f" id="'+t+'SupField" hidden style="margin:0 0 12px"><div class="rdorow"><span class="rdolab">How should this payment be treated?</span><label class="rdo"><input type="radio" name="'+t+'Trt" value="debt" checked>Count as a monthly debt</label><label class="rdo"><input type="radio" name="'+t+'Trt" value="inc">Deduct from income</label></div></div>'
+      +'<div class="f" id="'+t+'BorField" hidden style="margin:0 0 12px"><div class="rdorow"><span class="rdolab">Deduct from which borrower\'s income?</span><span id="'+t+'BorOpts" style="display:contents"></span></div></div>'
+      +'<p class="k" id="'+t+'SupNote" hidden style="margin:-4px 0 12px"></p>'
       +'<p class="k" id="'+t+'CardNote" hidden style="margin:-4px 0 12px">Enter the minimum payment required each month, not the balance.</p>'
       +'<div class="f" id="'+t+'LeftField" hidden style="margin-bottom:12px"><label for="'+t+'Left">Payments left (optional)</label><input id="'+t+'Left" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 8"></div>'
       +'<div class="note" id="'+t+'Note" hidden style="margin:0 0 12px">10 or fewer payments left: some lenders may leave this debt out of your DTI. We count it by default, to be cautious. Check with your lender before leaving it out.'
@@ -1249,11 +1259,64 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var installment=(type==="auto"||type==="student"||type==="personal");
     var raw=$("debt"+id+"Left").value, left=parseFloat(raw);
     var short=installment&&raw!==""&&isFinite(left)&&left<=10;
-    return {amt:sumExpr($("debt"+id+"Amt").value),installment:installment,short:short,excluded:short&&$("debt"+id+"Excl").checked};
+    var trt=document.querySelector('input[name="debt'+id+'Trt"]:checked');
+    var ded=(type==="alimony"||type==="sepmaint"||type==="equal")&&!!trt&&trt.value==="inc";
+    return {amt:sumExpr($("debt"+id+"Amt").value),installment:installment,short:short,excluded:short&&$("debt"+id+"Excl").checked,ded:ded};
+  }
+  // alimony, separate maintenance and equalization payments can be deducted from a borrower's income instead of counted as a debt
+  function usdNet(v){return v<0?"("+usd.format(-v)+")":usd.format(v)}
+  function borId(b){return b.prefix===""?"b1":b.prefix}
+  var dedInfo={by:{},total:0};
+  function refreshBorSelects(){
+    var ids=borrowers.map(borId),sig=ids.join(",");
+    debtLines.forEach(function(id){
+      var host=$("debt"+id+"BorOpts");if(!host)return;
+      var cur=borVal(id);
+      var pick=ids.indexOf(cur)>-1?cur:"b1";
+      if(host.getAttribute("data-sig")!==sig){
+        var h="";borrowers.forEach(function(b,i){h+='<label class="rdo"><input type="radio" name="debt'+id+'Bor" value="'+borId(b)+'"'+(borId(b)===pick?" checked":"")+'>Borrower '+(i+1)+'</label>'});
+        host.innerHTML=h;host.setAttribute("data-sig",sig);
+        host.querySelectorAll("input").forEach(function(e){e.addEventListener("change",recompute)});
+      }
+    });
+  }
+  function borVal(id){var e=document.querySelector('input[name="debt'+id+'Bor"]:checked');return e?e.value:"b1"}
+  function calcDed(){
+    refreshBorSelects();
+    var by={},total=0;
+    debtLines.forEach(function(id){
+      var type=$("debt"+id+"Type").value;
+      var dedType=(type==="alimony"||type==="sepmaint"||type==="equal"),isSup=dedType||type==="childsupport";
+      var info=debtInfo(id),note=$("debt"+id+"SupNote");
+      $("debt"+id+"SupField").hidden=!dedType;
+      $("debt"+id+"BorField").hidden=!info.ded;
+      note.hidden=!isSup;
+      if(type==="childsupport")note.textContent="Child support is counted as a monthly debt.";
+      else if(info.ded){
+        var bi=0;borrowers.forEach(function(b,i){if(borId(b)===borVal(id))bi=i+1});
+        note.textContent="Deducted from Borrower "+(bi||1)+"\u2019s income instead of being counted as a debt. It shows as a negative under that borrower\u2019s income. Your lender decides which method applies.";
+      }else if(dedType)note.textContent="Counted as a monthly debt. Some lenders may deduct this from income instead. Choose that option to see how it changes your ratios. Your lender decides which method applies.";
+      if(info.ded&&info.amt>0){
+        var bid=borVal(id);
+        by[bid]=by[bid]||{total:0,items:[]};
+        by[bid].total+=info.amt;by[bid].items.push({label:$("debt"+id+"Type").selectedOptions[0].text,amt:info.amt});
+        total+=info.amt;
+      }
+    });
+    dedInfo={by:by,total:total};
+  }
+  function renderDed(b,net){
+    var id=borId(b),box=$(id+"Ded"),d=dedInfo.by[id];
+    if(!box)return;
+    if(!d){box.hidden=true;box.innerHTML="";return}
+    var h="";
+    d.items.forEach(function(it){h+='<div class="dedrow"><span>Less: '+it.label+' (deducted from income)</span><strong>('+usd.format(it.amt)+')/mo</strong></div>'});
+    if(id==="b1")h+='<div class="dedrow"><span><strong>Borrower 1 income after deductions</strong></span><strong>'+usdNet(net)+'/mo</strong></div>';
+    box.innerHTML=h;box.hidden=false;
   }
   var SHORT_DEBT_WARN_PCT=5; // rule of thumb: combined short-term payments above this % of gross monthly income are often still counted
   function debtTotals(){
-    var counted=0, excluded=0, shortTotal=0;
+    var counted=0, excluded=0, shortTotal=0, moved=0;
     debtLines.forEach(function(id){
       var info=debtInfo(id);
       $("debt"+id+"LeftField").hidden=!info.installment;
@@ -1262,9 +1325,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       $("debt"+id+"Note").hidden=!info.short;
       if(!info.short){$("debt"+id+"Excl").checked=false;info.excluded=false}
       if(info.short)shortTotal+=info.amt;
+      if(info.ded){moved+=info.amt;return}
       if(info.excluded)excluded+=info.amt;else counted+=info.amt;
     });
-    return {counted:counted,excluded:excluded,shortTotal:shortTotal};
+    return {counted:counted,excluded:excluded,shortTotal:shortTotal,moved:moved};
   }
   $("addDebtBtn").addEventListener("click",function(){addDebt()});
 
@@ -1722,13 +1786,17 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     ownedCalc();
     assetsCalc();
     var bvals=[];
+    calcDed();
     borrowers.forEach(function(b){
       if($(b.prefix+"hoursField"))$(b.prefix+"hoursField").hidden = $(b.prefix+"wageFreq").value!=="hourly";
-      var v=borrowerTotal(b);
-      if(b.prefix!=="")$(b.prefix+"IncomeSubtotal").textContent=usd.format(v)+"/mo";
-      income+=v;bvals.push({b:b,v:v});
+      var g=borrowerTotal(b),dd=dedInfo.by[borId(b)],v=g-(dd?dd.total:0);
+      if(b.prefix!=="")$(b.prefix+"IncomeSubtotal").textContent=usdNet(v)+"/mo";
+      renderDed(b,v);
+      income+=v;bvals.push({b:b,v:v,g:g});
     });
+    income=Math.max(income,0);
     incomeBorrowers=borrowerHeads(bvals);
+    $("pubRecNote").hidden=sel("pubRec")!=="yes";
     lastIncome=income;
     $("incomeSummary").textContent=usd.format(income)+"/mo";
 
@@ -1745,7 +1813,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         ?"Added from "+rentalLossItems.length+" rental entries that lose money: "+rentalLossItems.map(function(x){return usd.format(x.amt)}).join(" + ")+". "
         :"")+"This comes from your Schedule E rental income, after the rental payment. A rental that earns a profit stays in your income. To change this, edit the rental figures under Self-employed income.";
     }
-    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"")+(rentalLoss>0?" (includes "+usd.format(rentalLoss)+"/mo rental loss from Schedule E)":"")+(oc.debt>0?" (includes "+usd.format(oc.debt)+"/mo payments on other properties)":"");
+    $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"")+(rentalLoss>0?" (includes "+usd.format(rentalLoss)+"/mo rental loss from Schedule E)":"")+(oc.debt>0?" (includes "+usd.format(oc.debt)+"/mo payments on other properties)":"")+(dt.moved>0?" (leaving out "+usd.format(dt.moved)+"/mo you chose to deduct from income)":"");
     var shortPct = income>0 ? dt.shortTotal/income*100 : 0;
     var sw=$("debtsShortWarn");
     if(dt.shortTotal>0&&shortPct>SHORT_DEBT_WARN_PCT){
@@ -1946,14 +2014,20 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       // income, by borrower
       var inc=[];
       borrowers.forEach(function(b,i){
-        var lines=incomeLinesFor(b);
-        if(!lines.length)return;
+        var lines=incomeLinesFor(b),dd=dedInfo.by[borId(b)];
+        if(!lines.length&&!dd)return;
         var sub=0;lines.forEach(function(l){sub+=l.amt});
-        if(borrowers.length>1)inc.push({k:"sub",a:"Borrower "+(i+1),b:usd.format(sub)+"/mo"});
+        if(dd)sub-=dd.total;
+        if(borrowers.length>1)inc.push({k:"sub",a:"Borrower "+(i+1),b:usdNet(sub)+"/mo"});
         lines.forEach(function(l){
           inc.push(R(l.label,usd.format(l.amt)+"/mo"));
           (l.small||[]).forEach(function(t){inc.push(Sm(t))});
         });
+        if(dd){
+          dd.items.forEach(function(it){inc.push(R("Less: "+it.label+" (deducted from income)","("+usd.format(it.amt)+")/mo"))});
+          if(borrowers.length===1)inc.push(R("Income after deductions",usdNet(sub)+"/mo"));
+          inc.push(Sm("Payments chosen to be deducted from income reduce this borrower\u2019s income instead of counting as a monthly debt. Your lender decides which method applies."));
+        }
       });
       inc.push(R("Gross monthly income",income,1));
       if(borrowers.length>1&&incomeBorrowers>0)inc.push(Sm("Income of "+incomeBorrowers+" borrower"+(incomeBorrowers===1?"":"s")+" is included."));
@@ -1977,7 +2051,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       var db=[];
       debtLines.forEach(function(id){
         var info=debtInfo(id);
-        if(!(info.amt>0))return;
+        if(!(info.amt>0)||info.ded)return;
         db.push(R($("debt"+id+"Type").selectedOptions[0].text+(info.excluded?" (left out of DTI)":""),usd.format(info.amt)+"/mo"));
         var left=$("debt"+id+"Left").value;
         if(info.installment&&left!=="")db.push(Sm(left+" payment"+(parseFloat(left)===1?"":"s")+" left"));
@@ -1988,6 +2062,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         oc2.items.forEach(function(it){if(!it.complete&&it.pay>0)db.push(Sm(it.name+": "+usd.format(it.pay)+"/mo"))});
       }
       if(!db.length)db.push({k:"text",t:"No other monthly debts entered."});
+      if(sel("pubRec")==="yes"){
+        db.push(R("Tax liens, judgments, collections or charge-offs","Yes"));
+        db.push(Sm("Lenders may require these to be paid off, or otherwise resolved, before or at closing. A payoff adds to the cash needed and is not included in Cash required at closing. Ask your lender."));
+      }
       if(debtLines.some(function(id){return debtInfo(id).excluded})){
         db.push(Sm("Debts marked as left out assume your lender excludes installment loans with 10 or fewer payments remaining. Confirm this with your lender."));
         if(!$("debtsShortWarn").hidden)db.push(Sm($("debtsShortWarn").textContent));
