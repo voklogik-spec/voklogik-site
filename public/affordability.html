@@ -501,6 +501,14 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
           <select id="resBasis"><option value="subject">PITIA of the subject property</option><option value="all">PITIA of the subject property plus other properties owned</option></select></div>
         <div class="f"><label for="resMonths">Number of months</label><input id="resMonths" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 6"></div>
       </div>
+      <div id="resPickBox" hidden style="margin-top:14px"><div class="f"><label>Which other properties' PITIA should be added?</label></div>
+        <div id="resPickList"></div>
+        <p class="k" id="resPickEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p></div>
+      <h4 class="subtitle" style="margin:22px 0 6px">Unpaid principal balance (UPB)</h4>
+      <p class="k" style="margin:0 0 10px">Some lenders figure reserves as a percentage of the unpaid principal balance of a property. Choose the properties, enter each balance, and set a percentage for each property. Leave a property's percentage blank to use the default below. A balance you enter here also fills in that property under Additional Properties Owned, and the other way around.</p>
+      <div id="resUpbList"></div>
+      <p class="k" id="resUpbEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p>
+      <div class="grid" style="margin-top:10px"><div class="f"><label for="resUpbPct">Default percentage of UPB (%), used when a property has none of its own</label><input id="resUpbPct" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 2"></div></div>
       <div id="resOut" style="margin-top:14px"></div>
       <p class="k" style="margin:10px 0 0">We use your non-liquid assets (retirement, mutual funds, stocks) first, so your checking and savings stay available for the down payment and closing costs. That may mean liquidating them, so check the taxes and penalties first.</p>
       <button type="button" class="editlink" id="reservesDone" style="margin-top:14px">Done &#8594;</button>
@@ -1347,8 +1355,9 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       +'<div class="grid">'
       +'<div class="f"><label for="'+t+'Occ">Occupancy</label><select id="'+t+'Occ"><option value="secondary">Second home</option><option value="pied">Pied-\u00e0-terre</option><option value="investment">Investment property</option><option value="primary">Primary residence</option></select></div>'
       +'<div class="f"><label for="'+t+'Pay">Monthly payment ($)</label><input id="'+t+'Pay" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>'
+      +'<div class="f"><label for="'+t+'Upb">Unpaid principal balance, UPB ($)</label><input id="'+t+'Upb" type="number" inputmode="decimal" min="0" step="1000" placeholder="Optional"></div>'
       +'</div>'
-      +'<p class="k" style="margin:6px 0 14px">Include principal, interest, taxes, insurance and any HOA dues (PITIA).</p>'
+      +'<p class="k" style="margin:6px 0 14px">Include principal, interest, taxes, insurance and any HOA dues (PITIA). The unpaid principal balance is optional. It is used under Reserves if your lender bases reserves on a percentage of it.</p>'
       +'<div id="'+t+'SchQ"><div class="f"><label>Is this property listed on your Schedule E?</label>'
       +'<div class="seg"><label><input type="radio" name="'+t+'Sche" value="no" checked>No</label><label><input type="radio" name="'+t+'Sche" value="yes">Yes</label></div></div>'
       +'<div id="'+t+'SchBox" hidden style="margin-top:14px"><div class="f"><label>How is the payment handled?</label>'
@@ -1428,7 +1437,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         debt+=pay;
         if(declared)unlinked++;
       }
-      items.push({host:inHost,name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,target:tg?tg.label:""});
+      items.push({id:id,upb:n(t+"Upb"),host:inHost,name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,target:tg?tg.label:""});
     });
     ownedLinks=links;
     ownedInfo={debt:debt,items:items,excl:excl};
@@ -1560,6 +1569,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   $("addAssetBtn").addEventListener("click",function(){addAsset()});
   $("assetsList").addEventListener("input",function(){recompute()});
   $("assetsList").addEventListener("change",function(){recompute()});
+  $("resUpbList").addEventListener("input",function(e){var m=/^resUpb(\d+)$/.exec(e.target.id);if(m){var o=$("own"+m[1]+"Upb");if(o)o.value=e.target.value}});
   $("rowReserves").addEventListener("input",function(){recompute()});
   $("rowReserves").addEventListener("change",function(){recompute()});
   var resInfo={months:0};
@@ -1600,9 +1610,32 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     var tot=liq+non;
     // reserves
     var months=Math.max(0,Math.floor(n("resMonths"))),subj=paymentTotal().total,other=0;
-    ownedInfo.items.forEach(function(x){other+=x.pay});
-    var all=$("resBasis").value==="all",base=subj+(all?other:0);
-    var req=months*base,usedN=Math.min(req,non),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
+    var all=$("resBasis").value==="all";
+    // property pick lists and UPB rows
+    var oi=ownedInfo.items,sig=oi.map(function(x){return x.id}).join(",");
+    var ph=$("resPickList"),uh=$("resUpbList");
+    if(ph.getAttribute("data-s")!==sig){
+      ph.setAttribute("data-s",sig);
+      ph.innerHTML=oi.map(function(x){return '<label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;text-align:left;cursor:pointer;margin:8px 0"><input type="checkbox" id="resPick'+x.id+'" checked style="width:auto;margin:4px 0 0;flex:none"><span id="resPickT'+x.id+'"></span></label>'}).join("");
+      uh.innerHTML=oi.map(function(x){return '<div class="f" style="margin:10px 0"><label style="display:flex;gap:10px;align-items:flex-start;font-weight:600;text-align:left;cursor:pointer"><input type="checkbox" id="resUpbOn'+x.id+'" checked style="width:auto;margin:4px 0 0;flex:none"><span id="resUpbT'+x.id+'"></span></label><div style="display:flex;gap:10px;margin-top:6px"><input id="resUpb'+x.id+'" type="number" inputmode="decimal" min="0" step="1000" placeholder="Unpaid principal balance ($)" style="flex:2 1 0;min-width:0"><input id="resUpbP'+x.id+'" type="number" inputmode="decimal" min="0" step="0.5" placeholder="% of UPB" aria-label="Percentage of UPB for this property" style="flex:1 1 0;min-width:0"></div></div>'}).join("");
+    }
+    $("resPickBox").hidden=!all;
+    $("resPickEmpty").hidden=oi.length>0;$("resUpbEmpty").hidden=oi.length>0;
+    var pickedNames=[],upbItems=[],upbTotal=0,upbReq=0;
+    oi.forEach(function(x){
+      var pk=$("resPick"+x.id),on=$("resUpbOn"+x.id),ur=$("resUpb"+x.id),uo=$("own"+x.id+"Upb");
+      $("resPickT"+x.id).textContent=x.name+" ("+usd.format(x.pay)+"/mo)";
+      $("resUpbT"+x.id).textContent=x.name;
+      if(ur&&uo&&document.activeElement!==ur&&ur.value!==uo.value)ur.value=uo.value;
+      if(all&&(!pk||pk.checked)){other+=x.pay;pickedNames.push(x.name)}
+      var u=ur?(parseFloat(ur.value)||0):0;
+      var pe=$("resUpbP"+x.id),pv=pe?parseFloat(pe.value):NaN;
+      var pp=(pv>=0)?pv:Math.max(0,parseFloat($("resUpbPct").value)||0);
+      if(pe)pe.placeholder=($("resUpbPct").value!==""?$("resUpbPct").value+"% (default)":"% of UPB");
+      if(on&&on.checked&&u>0&&pp>0){var am=u*pp/100;upbItems.push({name:x.name,upb:u,pct:pp,amt:am});upbTotal+=u;upbReq+=am}
+    });
+    var base=subj+other,upbPct=Math.max(0,parseFloat($("resUpbPct").value)||0);
+    var req=months*base+upbReq,usedN=Math.min(req,non),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
     // spread the reserves across accounts: non-liquid portions first, then liquid portions
     var rem=req,real=items.filter(function(x){return !x.earnest&&!x.gift});
     real.forEach(function(x){var u=Math.min(rem,x.nl);x.used=u>0?u:0;rem-=x.used});
@@ -1621,22 +1654,23 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     $("assetsTotalLine").textContent=(tot>0?(covered>0?("Total assets after reserves: "+usd.format(tot-covered)+" (total assets "+usd.format(tot)+" minus "+usd.format(covered)+" set aside for reserves)"):("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot))):"")+eTxt;
     var usedList=items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)});
     $("assetsUseLine").textContent=covered>0?("Set aside for reserves: "+usedList.join(", ")+". Available after reserves: "+usd.format(tot-covered)+"."):"";
-    resInfo={months:months,base:base,subj:subj,other:all?other:0,all:all,req:req,usedN:usedN,usedL:usedL,short:short,left:left,haveMonths:base>0?(tot/base):0};
+    resInfo={months:months,base:base,subj:subj,other:all?other:0,all:all,picked:pickedNames,monthsReq:months*base,upbItems:upbItems,upbTotal:upbTotal,upbPct:upbPct,upbReq:upbReq,req:req,usedN:usedN,usedL:usedL,short:short,left:left,haveMonths:base>0?(tot/base):0};
     var out=$("resOut");
-    if(!(months>0)||!(base>0)){
-      out.innerHTML='<p class="k" style="margin:0">Enter the number of months to see your reserves.</p>';
+    if(!((months>0&&base>0)||upbReq>0)){
+      out.innerHTML='<p class="k" style="margin:0">Enter the number of months, or choose properties and a percentage of their unpaid principal balance, to see your reserves.</p>';
       $("reservesSummary").textContent="Not set";
     }else{
       var row=function(a,b,bold){return '<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0'+(bold?';border-top:1px solid var(--line);margin-top:4px;font-weight:700':'')+'"><span>'+a+'</span><span>'+b+'</span></div>'};
-      out.innerHTML=row("Monthly PITIA used"+(all?" (subject "+usd.format(subj)+" + other properties "+usd.format(other)+")":""),usd.format(base)+"/mo")
-        +row("Reserves needed ("+months+" months)",usd.format(req))
+      out.innerHTML=(months>0?row("Monthly PITIA used"+(all?" (subject "+usd.format(subj)+" + other properties "+usd.format(other)+")":""),usd.format(base)+"/mo")+row("Reserves for PITIA ("+months+" months)",usd.format(months*base)):'')
+        +(upbReq>0?upbItems.map(function(x){return row("Reserves based on UPB: "+esc(x.name)+" ("+x.pct+"% of "+usd.format(x.upb)+")",usd.format(x.amt))}).join("")+(upbItems.length>1?row("Total reserves based on UPB",usd.format(upbReq)):''):'')
+        +row("Reserves needed",usd.format(req),1)
         +row("Covered by non-liquid assets",usd.format(usedN))
         +row("Covered by liquid assets",usd.format(usedL))
         +row(short>0?"Short by":"Reserves covered",short>0?usd.format(short):"Yes",1)
         +row("Liquid left for down payment and closing costs",usd.format(left))
         +(usedList.length?'<p class="k" style="margin:8px 0 0;font-size:.8rem">Accounts used: '+usedList.map(esc).join(", ")+'.</p>':'')
         +'<p class="k" style="margin:8px 0 0">All of your assets together equal about '+(Math.round(resInfo.haveMonths*10)/10)+' months of PITIA.</p>';
-      $("reservesSummary").textContent=months+" mo · "+(short>0?"short "+usd.format(short):"covered");
+      $("reservesSummary").textContent=(months>0?months+" mo":"")+(months>0&&upbReq>0?" + ":"")+(upbReq>0?"UPB":"")+" · "+(short>0?"short "+usd.format(short):"covered");
     }
     return resInfo;
   }
@@ -2115,12 +2149,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
         S.push({head:"Total assets",items:as});
       }
-      if(rs.months>0&&rs.base>0){
-        var rv=[R("Monthly PITIA used",usd.format(rs.base)+"/mo"),R("Reserves needed ("+rs.months+" months)",usd.format(rs.req)),
+      if((rs.months>0&&rs.base>0)||rs.upbReq>0){
+        var rv=[];
+        if(rs.months>0){rv.push(R("Monthly PITIA used",usd.format(rs.base)+"/mo"));if(rs.all)rv.push(Sm("Subject property plus: "+(rs.picked.length?rs.picked.join(", "):"no other properties selected")+"."));rv.push(R("Reserves for PITIA ("+rs.months+" months)",usd.format(rs.monthsReq)))}
+        if(rs.upbReq>0){rs.upbItems.forEach(function(x){rv.push(R("Reserves based on UPB: "+x.name+" ("+x.pct+"% of "+usd.format(x.upb)+")",usd.format(x.amt)))});if(rs.upbItems.length>1)rv.push(R("Total reserves based on UPB",usd.format(rs.upbReq)))}
+        rv=rv.concat([R("Reserves needed",usd.format(rs.req),1),
           R("Covered by non-liquid assets",usd.format(rs.usedN)),R("Covered by liquid assets",usd.format(rs.usedL)),
           R(rs.short>0?"Short by":"Reserves covered",rs.short>0?usd.format(rs.short):"Yes",1),
           R("Liquid left for down payment and closing costs",usd.format(rs.left)),
-          Sm("Non-liquid assets are applied to reserves first so checking and savings stay available for the down payment and closing costs.")];
+          Sm("Non-liquid assets are applied to reserves first so checking and savings stay available for the down payment and closing costs. How reserves are figured varies by lender and program.")]);
         S.push({head:"Reserves",items:rv});
       }
       cashCalc();var ci=cashInfo;
