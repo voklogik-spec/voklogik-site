@@ -87,6 +87,7 @@ h1{font-size:clamp(2rem,4.6vw,3rem);line-height:1.06;letter-spacing:-.03em;margi
 label{font-size:.95rem;font-weight:500;color:var(--muted)}
 input,select{font:500 1.05rem "Bricolage Grotesque",sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:11px 12px;width:100%}
 .k{font-size:.95rem;color:var(--muted)}
+.plainradio{display:flex;gap:28px;margin:2px 0 0}.plainradio label{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:1rem;color:var(--ink);margin:0}.plainradio input{width:20px;height:20px;margin:0;accent-color:var(--accent);cursor:pointer}
 .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)}
 .seg label{position:relative;text-align:center;padding:10px 8px;cursor:pointer;font-size:1rem;color:var(--ink);margin:0}
 .seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
@@ -484,6 +485,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <button type="button" class="bubble" id="addAssetBtn" style="margin-top:6px">+ Add an account</button>
       <p class="srctotal" id="assetsTotalLine"></p>
       <p class="k" id="assetsUseLine" style="margin:4px 0 0;font-size:.8rem"></p>
+      <div class="f" style="margin-top:16px"><label>Do you have any large deposits?</label>
+        <p class="srctotal" style="margin:0 0 8px;font-style:italic">Usually a deposit larger than 50% of your total monthly income. Deposits from an employer, the IRS or Social Security may not need verification, at the lender's discretion.</p>
+        <div class="plainradio" role="radiogroup"><label><input type="radio" name="largeDep" value="no" checked>No</label><label><input type="radio" name="largeDep" value="yes">Yes</label></div>
+        <p class="k" id="largeDepNote" hidden style="margin:8px 0 0;font-size:.8rem"></p></div>
       <button type="button" class="editlink" id="assetsDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -1812,6 +1817,12 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
 
   // ---- master recompute ----
+  function ldepUpdate(){
+    var yes=sel("largeDep")==="yes",el=$("largeDepNote");if(!el)return;
+    el.hidden=!yes;
+    if(yes){var t=Math.round((lastIncome||0)*0.5);
+      el.textContent=(t>0?"Based on your income, a deposit above about "+usd.format(t)+" is usually treated as large. ":"")+"Lenders often ask for a statement and a short explanation for each one, so have them ready. Whether a deposit needs verification is up to the lender.";}
+  }
   function recompute(){
     s2Sync();
     var income=0;
@@ -1819,6 +1830,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     subjectSync();
     ownedCalc();
     assetsCalc();
+    ldepUpdate();
     var bvals=[];
     calcDed();
     borrowers.forEach(function(b){
@@ -2146,6 +2158,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         if(ac.giftClose>0)as.push(Sm("Gift to be received at closing ("+usd.format(ac.giftClose)+") is not included in the totals above. It is credited under Cash required at closing."));
         if(ac.reserved>0)as.push(R("Total assets after reserves",usd.format(ac.avail),1));
         if(ac.reserved>0)as.push(Sm("Set aside for reserves: "+ac.items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)}).join(", ")+". Available after reserves: "+usd.format(ac.avail)+"."));
+        as.push(R("Large deposits",sel("largeDep")==="yes"?"Yes":"No"));
+        if(sel("largeDep")==="yes")as.push(Sm("Large deposits are usually deposits above 50% of total monthly income. Lenders may ask for statements and an explanation, and may not require verification for deposits from an employer, the IRS or Social Security. This is at the lender\u2019s discretion."));
         as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
         S.push({head:"Total assets",items:as});
       }
