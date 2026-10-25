@@ -44,7 +44,7 @@
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Fraunces:ital,opsz,wght@1,9..144,600;1,9..144,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Fraunces:ital,opsz,wght@1,9..144,600;1,9..144,700&family=Caveat:wght@500;600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F2E6D3;--ink:#3B2416;--muted:#6E5240;--line:#DCC7AA;--accent:#C4581C;--on-accent:#fff;--ochre:#E2A03F;--clay:#8C4A2A;--mi:#7D7B3B;--hoa:#5F7A8A;--s2:#7E5A87;--panel:#FBF5EA;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -84,6 +84,13 @@ input,select{font:500 1.05rem "Bricolage Grotesque",sans-serif;color:var(--ink);
 .leg li span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;background:var(--c)}
 .sum{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .sum b{display:block;font:700 1.25rem "Bricolage Grotesque",sans-serif}
+.mission{width:min(340px,100%);aspect-ratio:1;border-radius:50%;border:3px solid var(--accent);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;margin:0 0 8px;color:var(--accent)}
+.mission .mlabel{font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;font-weight:800;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.mission .mlogo{width:46px;height:46px;border-radius:12px;margin-top:14px}
+.mission p{margin:0;font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;font-weight:700;font-size:1.08rem;line-height:1.3;color:var(--accent)}
+.hand{max-width:36em}.hand p{font-family:"Caveat","Segoe Script","Bradley Hand","Comic Sans MS",cursive;font-weight:500;font-size:1.45rem;line-height:1.35;color:var(--ink);margin:0 0 14px}
+.sig{font-family:"Mrs Saint Delafield","Segoe Script","Brush Script MT",cursive;font-size:3.2rem;line-height:1;color:var(--accent);margin:18px 0 0;transform:rotate(-3deg);transform-origin:left;display:inline-block}
+.sigrole{font-family:"Caveat","Segoe Script",cursive;font-size:1.15rem;color:var(--muted);margin-top:4px}
 section{padding:56px 0;border-top:1px solid var(--line)}
 h2{font-size:clamp(1.6rem,3.2vw,2.2rem);letter-spacing:-.025em;margin:0 0 16px;line-height:1.1}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
@@ -511,13 +518,26 @@ table.sched th{color:var(--muted);font-weight:500}
 </section>
 
 <section id="about">
-  <h2>The name</h2>
+  <div class="mission"><span class="mlabel">Our mission</span><p>Demystifying homeownership. We make the mortgage underwriting process clear and understandable for everyone.</p><img src="/icon-192.png" alt="Voklogik" class="mlogo"></div>
+
+  <h2 style="margin-top:36px">From the founder</h2>
+  <div class="hand">
+    <p>I started Voklogik to close the gap between you and a decision on your mortgage.</p>
+    <p>In my years in underwriting, I saw how information got lost as a file moved from sales to operations, and especially to underwriting. Details that mattered were missed or arrived late, and clients paid for it in time and stress.</p>
+    <p>Voklogik closes that gap by giving you a clear view of what operations might be looking at when they review your file, before you apply.</p>
+    <div class="sig">Voka Mankenda</div>
+    <div class="sigrole">Founder, Voklogik</div>
+  </div>
+
+  <h2 style="margin-top:36px">The name</h2>
   <p class="lede">Vok means to call. Logik is logic. Voklogik is the voice of logic in mortgage, built by an underwriter with 15+ years of experience.</p>
 </section>
 
 <section id="contact">
-  <h2>Questions or feedback?</h2>
-  <p class="lede">Write to <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
+  <h2>Contact us</h2>
+  <p class="lede">Questions, feedback or a business inquiry? We would like to hear from you.</p>
+  <p class="lede" style="max-width:36em"><strong style="color:var(--ink)">Voklogik</strong><br>Email: <a href="mailto:hello@voklogik.com">hello@voklogik.com</a><br>Website: <a href="https://voklogik.com">voklogik.com</a></p>
+  <p class="k" style="margin:0;font-size:.8rem;max-width:40em">Voklogik is an educational planning tool. It is not a lender and is not affiliated with any lender, brokerage or loan software provider. Estimates are not a loan offer, approval or commitment.</p>
 </section>
 </main>
 
