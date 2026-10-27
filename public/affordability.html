@@ -111,6 +111,10 @@ input,select{font:500 1.05rem "Bricolage Grotesque",sans-serif;color:var(--ink);
 .chev{color:var(--muted);transition:transform .15s;font-size:.85rem}
 .row.open .chev{transform:rotate(180deg)}
 .rowbody{padding:0 20px 22px}
+.rowflags{padding:0 20px 14px;margin-top:-10px;font-size:.78rem;line-height:1.6;color:var(--muted,#6b6b6b)}
+.row.open .rowflags{display:none}
+.rowflags b.yes{color:#c62828}.rowflags b.no{color:#2e7d32}
+.dgblock+.dgblock{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .row:not(.open) .rowbody{display:none}
 
 /* result stat */
@@ -432,6 +436,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <span class="rowlabel">Other Monthly Debts</span>
       <span class="rowright"><span class="rowvalue" id="debtsSummary">$0</span><span class="chev">&#9662;</span></span>
     </button>
+    <div class="rowflags" id="debtsFlags"></div>
     <div class="rowbody">
       <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. For credit cards, enter the minimum payment required each month, not the balance. A credit report lists your accounts and payments; it doesn't show a score (see the note below your ratios). If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
       <div class="f" style="margin:0 0 14px"><div class="rdorow"><span class="rdolab">Do you have any tax liens, judgments, collections or charge-offs?</span><label class="rdo"><input type="radio" name="pubRec" value="yes">Yes</label><label class="rdo"><input type="radio" name="pubRec" value="no" checked>No</label></div></div>
@@ -448,6 +453,73 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       <div class="note warn" id="debtsShortWarn" hidden style="margin:0 0 12px"></div>
       <button type="button" class="bubble" id="addDebtBtn" style="margin-top:6px">+ Add a debt</button>
       <p class="srctotal" id="debtsTotalLine"></p>
+      <div class="f" style="margin:18px 0 0"><div class="rdorow"><span class="rdolab">Significant derogatory credit events?</span><label class="rdo"><input type="radio" name="derog" value="yes">Yes</label><label class="rdo"><input type="radio" name="derog" value="no" checked>No</label></div>
+        <p class="srctotal" style="margin:6px 0 0;font-style:italic">Bankruptcy, foreclosure, deed-in-lieu of foreclosure, pre-foreclosure (short) sale or a mortgage charge-off. Not sure? Choose Yes. If none of the options below applies, go back and choose No.</p></div>
+      <div id="derogBox" hidden style="margin-top:12px">
+        <p class="k" style="margin:0 0 10px;font-size:.8rem">Use the discharge, dismissal, completion or sale date that applies. Add it to see an estimated date.</p>
+        <div class="dgblock" id="dgb1">
+          <div class="grid">
+            <div class="f"><label for="derogType">Which event?</label>
+              <select id="derogType"><option value="">Choose one</option>
+              <option value="b711">Bankruptcy, Chapter 7 or 11</option>
+              <option value="b13d">Bankruptcy, Chapter 13 (discharged)</option>
+              <option value="b13x">Bankruptcy, Chapter 13 (dismissed)</option>
+              <option value="bmulti">More than one bankruptcy filing in the past 7 years</option>
+              <option value="fcl">Foreclosure</option>
+              <option value="dil">Deed-in-lieu of foreclosure, pre-foreclosure (short) sale or mortgage charge-off</option></select></div>
+            <div class="f"><label for="derogDate">Date <span class="k">(optional)</span></label><input id="derogDate" type="date"></div>
+          </div>
+          
+          <div class="note" id="derogOut" hidden style="margin-top:12px"></div>
+        </div>
+        <div class="dgblock" id="dgb2" hidden>
+          <div class="grid">
+            <div class="f"><label for="derogType2">Event 2</label>
+              <select id="derogType2"><option value="">Choose one</option>
+              <option value="b711">Bankruptcy, Chapter 7 or 11</option>
+              <option value="b13d">Bankruptcy, Chapter 13 (discharged)</option>
+              <option value="b13x">Bankruptcy, Chapter 13 (dismissed)</option>
+              <option value="bmulti">More than one bankruptcy filing in the past 7 years</option>
+              <option value="fcl">Foreclosure</option>
+              <option value="dil">Deed-in-lieu of foreclosure, pre-foreclosure (short) sale or mortgage charge-off</option></select></div>
+            <div class="f"><label for="derogDate2">Date <span class="k">(optional)</span></label><input id="derogDate2" type="date"></div>
+          </div>
+          <button type="button" class="editlink" data-dgrm="2" style="margin-top:6px">Remove this event</button>
+          <div class="note" id="derogOut2" hidden style="margin-top:12px"></div>
+        </div>
+        <div class="dgblock" id="dgb3" hidden>
+          <div class="grid">
+            <div class="f"><label for="derogType3">Event 3</label>
+              <select id="derogType3"><option value="">Choose one</option>
+              <option value="b711">Bankruptcy, Chapter 7 or 11</option>
+              <option value="b13d">Bankruptcy, Chapter 13 (discharged)</option>
+              <option value="b13x">Bankruptcy, Chapter 13 (dismissed)</option>
+              <option value="bmulti">More than one bankruptcy filing in the past 7 years</option>
+              <option value="fcl">Foreclosure</option>
+              <option value="dil">Deed-in-lieu of foreclosure, pre-foreclosure (short) sale or mortgage charge-off</option></select></div>
+            <div class="f"><label for="derogDate3">Date <span class="k">(optional)</span></label><input id="derogDate3" type="date"></div>
+          </div>
+          <button type="button" class="editlink" data-dgrm="3" style="margin-top:6px">Remove this event</button>
+          <div class="note" id="derogOut3" hidden style="margin-top:12px"></div>
+        </div>
+        <div class="dgblock" id="dgb4" hidden>
+          <div class="grid">
+            <div class="f"><label for="derogType4">Event 4</label>
+              <select id="derogType4"><option value="">Choose one</option>
+              <option value="b711">Bankruptcy, Chapter 7 or 11</option>
+              <option value="b13d">Bankruptcy, Chapter 13 (discharged)</option>
+              <option value="b13x">Bankruptcy, Chapter 13 (dismissed)</option>
+              <option value="bmulti">More than one bankruptcy filing in the past 7 years</option>
+              <option value="fcl">Foreclosure</option>
+              <option value="dil">Deed-in-lieu of foreclosure, pre-foreclosure (short) sale or mortgage charge-off</option></select></div>
+            <div class="f"><label for="derogDate4">Date <span class="k">(optional)</span></label><input id="derogDate4" type="date"></div>
+          </div>
+          <button type="button" class="editlink" data-dgrm="4" style="margin-top:6px">Remove this event</button>
+          <div class="note" id="derogOut4" hidden style="margin-top:12px"></div>
+        </div>
+        <p class="k" id="derogFoot" hidden style="margin:12px 0 0;font-size:.85rem">Extenuating circumstances are events beyond your control, such as a serious illness or job loss, that your lender must be able to document. These are general waiting periods for a typical conventional loan. They vary by lender and loan program (FHA, VA, jumbo and others differ), and the lender decides what applies. This is an estimate for planning only.</p>
+        <button type="button" class="bubble" id="derogAdd" style="margin-top:12px">+ Add another event</button>
+      </div>
       <button type="button" class="editlink" id="debtsDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -1817,6 +1889,53 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
 
   // ---- master recompute ----
+  var DEROG={
+    b711:{n:"Bankruptcy, Chapter 7 or 11",s:4,e:2,from:"discharge date"},
+    b13d:{n:"Bankruptcy, Chapter 13 (discharged)",s:2,e:2,from:"discharge date"},
+    b13x:{n:"Bankruptcy, Chapter 13 (dismissed)",s:4,e:2,from:"dismissal date"},
+    bmulti:{n:"More than one bankruptcy filing in the past 7 years",s:5,e:3,from:"most recent discharge or dismissal date",ex:"The waiting period is 5 years, or 3 years from the most recent discharge or dismissal date with extenuating circumstances."},
+    fcl:{n:"Foreclosure",s:7,e:3,from:"completion date",ex:"After 3 years and up to 7 years, a lower maximum loan-to-value of 90% may apply for a purchase of a principal residence and for a limited cash-out refinance."},
+    dil:{n:"Deed-in-lieu of foreclosure, pre-foreclosure (short) sale or mortgage charge-off",s:4,e:2,from:"completion or sale date"}
+  };
+  function derogEst(d,yrs){if(!d)return"";var p=d.split("-");if(p.length<3)return"";var dt=new Date(+p[0]+yrs,+p[1]-1,+p[2]);if(isNaN(dt))return"";return dt.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}
+  var DG_MAX=4,dgShown=1;
+  function dgSfx(i){return i===1?"":String(i)}
+  function derogInfo(i){
+    if(sel("derog")!=="yes")return null;
+    var sf=dgSfx(i||1),k=$("derogType"+sf).value,x=DEROG[k];if(!x)return null;
+    var d=$("derogDate"+sf).value;
+    return {n:x.n,s:x.s,e:x.e,from:x.from,ex:x.ex||"",sDate:derogEst(d,x.s),eDate:derogEst(d,x.e)};
+  }
+  function derogHtml(x){
+    return "<strong>"+x.n+"</strong><br>Typical waiting period: <strong>"+x.s+" years</strong> from the "+x.from+(x.sDate?" (about "+x.sDate+")":"")+".<br>With documented extenuating circumstances: <strong>"+x.e+" years</strong>"+(x.eDate?" (about "+x.eDate+")":"")+(x.ex?".<br><span class=\"k\" style=\"font-size:.85rem\">"+x.ex+"</span>":".");
+  }
+  function derogUpdate(){
+    var yes=sel("derog")==="yes";$("derogBox").hidden=!yes;
+    for(var i=DG_MAX;i>=1;i--){if($("derogType"+dgSfx(i)).value){dgShown=Math.max(dgShown,i);break}}
+    for(var j=1;j<=DG_MAX;j++){
+      $("dgb"+j).hidden=j>dgShown;
+      var o=$("derogOut"+dgSfx(j)),x=(yes&&j<=dgShown)?derogInfo(j):null;
+      if(!x){o.hidden=true;o.innerHTML=""}else{o.hidden=false;o.innerHTML=derogHtml(x)}
+    }
+    var ft=$("derogFoot");
+    if(ft){ft.hidden=!yes||!derogAny()}
+    $("derogAdd").hidden=!yes||dgShown>=DG_MAX;
+  }
+  function derogAny(){for(var i=1;i<=dgShown;i++){if(derogInfo(i))return true}return false}
+  function derogList(){var r=[];for(var i=1;i<=dgShown;i++){var x=derogInfo(i);if(x)r.push(x)}return r}
+  function flagsUpdate(){
+    var el=$("debtsFlags");if(!el)return;
+    function f(lbl,v){return '<div>'+lbl+': <b class="'+(v==="yes"?"yes":"no")+'">'+(v==="yes"?"Yes":"No")+'</b></div>'}
+    el.innerHTML=f("Significant derogatory credit events",sel("derog"))+f("Tax liens, judgments, collections or charge-offs",sel("pubRec"));
+  }
+  $("derogAdd").addEventListener("click",function(){if(dgShown<DG_MAX){dgShown++;derogUpdate();affSaveSoon();var s=$("derogType"+dgSfx(dgShown));if(s)s.focus()}});
+  document.querySelectorAll("[data-dgrm]").forEach(function(b){b.addEventListener("click",function(){
+    var i=parseInt(b.getAttribute("data-dgrm"),10);
+    for(var k=i;k<DG_MAX;k++){$("derogType"+dgSfx(k)).value=$("derogType"+dgSfx(k+1)).value;$("derogDate"+dgSfx(k)).value=$("derogDate"+dgSfx(k+1)).value}
+    $("derogType"+dgSfx(DG_MAX)).value="";$("derogDate"+dgSfx(DG_MAX)).value="";
+    if(dgShown>1)dgShown--;
+    recompute();affSaveSoon();
+  })});
   function ldepUpdate(){
     var yes=sel("largeDep")==="yes",el=$("largeDepNote");if(!el)return;
     el.hidden=!yes;
@@ -1831,6 +1950,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     ownedCalc();
     assetsCalc();
     ldepUpdate();
+    derogUpdate();
+    flagsUpdate();
     var bvals=[];
     calcDed();
     borrowers.forEach(function(b){
@@ -2118,6 +2239,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       }
       db.push(R("Total other monthly debts",usd.format(debtTotal)+"/mo",1));
       S.push({head:"Other monthly debts",items:db});
+      if(sel("derog")==="yes"){
+        var di=[R("Significant derogatory credit events","Yes")],dl=derogList();
+        dl.forEach(function(dg,ix){
+          var pre=dl.length>1?"Event "+(ix+1)+": ":"";
+          di.push(R(pre+"Event",dg.n));di.push(R(pre+"Typical waiting period",dg.s+" years from the "+dg.from+(dg.sDate?" (about "+dg.sDate+")":"")));di.push(R(pre+"With extenuating circumstances",dg.e+" years"+(dg.eDate?" (about "+dg.eDate+")":"")));if(dg.ex)di.push(Sm(dg.ex));
+        });
+        di.push(Sm("General waiting periods for a typical conventional loan. They vary by lender and loan program, and your lender decides what applies. Extenuating circumstances must be documented. For planning only."));
+        S.push({head:"Credit events",items:di});
+      }
       // ratios
       var rt=[RR("Housing ratio",frontV,"frontWord"),Sm("Monthly payment "+usd.format(pay.total)+" ÷ gross monthly income "+usd.format(lastIncome)),
         RR("Debt-to-income ratio (DTI)",backV,"backWord"),Sm("(Monthly payment "+usd.format(pay.total)+" + other debts "+usd.format(debtTotal)+") ÷ gross monthly income "+usd.format(lastIncome))];
