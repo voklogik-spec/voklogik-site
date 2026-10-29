@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Voklogik Mortgage Analyzer | Mortgage Calculator &amp; DTI</title>
+<title>Voklogik Mortgage Analyzer | DTI, Assets and Reserves</title>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMN78R5ESY"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -11,29 +11,29 @@
   gtag('js', new Date());
   gtag('config', 'G-DMN78R5ESY', {page_location: location.href.replace(/([?&])session_id=[^&#]*&?/,'$1').replace(/[?&]$/,'')});
 </script>
-<meta name="description" content="Voklogik, the voice of logic in mortgage. A mortgage calculator and analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
+<meta name="description" content="Voklogik, the voice of logic in mortgage. A mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
 <link rel="canonical" href="https://voklogik.com/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#C4581C">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Voklogik">
-<meta property="og:title" content="Voklogik Mortgage Analyzer | Mortgage Calculator and DTI">
-<meta property="og:description" content="Voklogik, the voice of logic in mortgage. A mortgage calculator and analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
+<meta property="og:title" content="Voklogik Mortgage Analyzer | DTI, Assets and Reserves">
+<meta property="og:description" content="Voklogik, the voice of logic in mortgage. A mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
 <meta property="og:url" content="https://voklogik.com/">
 <meta property="og:image" content="https://voklogik.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Voklogik Mortgage Analyzer | Mortgage Calculator and DTI">
-<meta name="twitter:description" content="Voklogik, the voice of logic in mortgage. A mortgage calculator and analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
+<meta name="twitter:title" content="Voklogik Mortgage Analyzer | DTI, Assets and Reserves">
+<meta name="twitter:description" content="Voklogik, the voice of logic in mortgage. A mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
 <meta name="twitter:image" content="https://voklogik.com/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Voklogik Mortgage Analyzer",
-  "alternateName": ["Voklogik", "Voklogik Mortgage Calculator"],
+  "alternateName": ["Voklogik", "Voklogik Mortgage Analyzer"],
   "url": "https://voklogik.com/",
   "publisher": {"@type": "Organization", "name": "Voklogik", "url": "https://voklogik.com/", "logo": "https://voklogik.com/icon-512.png"},
-  "description": "Voklogik, the voice of logic in mortgage. A mortgage calculator and analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.",
+  "description": "Voklogik, the voice of logic in mortgage. A mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -68,6 +68,15 @@ h1{font-size:clamp(2.4rem,5.8vw,4.3rem);line-height:1.02;letter-spacing:-.04em;m
 h1 em{font-style:normal;color:var(--accent,#A9501F)}
 .eyebrow{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(1.7rem,3.6vw,2.5rem);line-height:1.1;letter-spacing:-.01em;color:var(--accent);margin:0 0 14px}
 .lede{color:var(--muted);margin:0 0 16px;max-width:32em}
+.sampcard{display:block;margin:18px 0 0;max-width:34em;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel);text-decoration:none;color:var(--ink)}
+.sampcard:hover{border-color:var(--accent)}
+.sampcard .sc-tag{display:inline-block;font:700 .72rem "Bricolage Grotesque",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.sampcard .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+.sampcard .sc-grid span{display:flex;flex-direction:column}
+.sampcard b{font:600 .78rem "Bricolage Grotesque",sans-serif;color:var(--muted)}
+.sampcard em{font:800 1.5rem/1.2 "Bricolage Grotesque",sans-serif;font-style:normal;color:var(--accent)}
+.sampcard i{font:600 .78rem "Bricolage Grotesque",sans-serif;font-style:normal;color:#2e7d32}
+.sampcard .sc-note{display:block;margin-top:10px;font-size:.82rem;color:var(--muted)}
 .calc{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px}
 .grid,.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .f{display:flex;flex-direction:column;gap:6px}
@@ -201,10 +210,18 @@ table.sched th{color:var(--muted);font-weight:500}
 .plans-hero{grid-column:2;grid-row:1;text-align:center;padding:0 0 12px}
 @media (min-width:821px){.hero:not(.wide){row-gap:76px}}
 .hero.wide>.plans-hero{padding-bottom:0}
-.hero-eyebrow{grid-column:1;grid-row:1}
+.hero-eyebrow{grid-column:1;grid-row:1 / span 2}
+.hero-eyebrow .hero-main{padding-top:26px}
 .hero-main{grid-column:1;grid-row:2;padding-top:14px}
+.sample-hero{grid-column:2;grid-row:1}
+.plansband{padding:8px 0 56px;border-top:1px solid var(--line);margin-top:8px}
+.plansband .plans-hero{grid-column:auto;grid-row:auto;max-width:720px;margin:0 auto;padding-top:28px}
+.freeline{margin:6px 0 0}
+.sample-hero .sampcard{max-width:none}
+
 .hero-main h1{margin-top:0}
 .hero>.calc{grid-column:2;grid-row:2}
+@media (max-width:820px){.hero-eyebrow{display:contents}.hero-eyebrow>.eyebrow{order:1;grid-column:1;grid-row:auto}.hero-eyebrow>.freeline{order:2}.sample-hero{order:3}.hero-eyebrow>.hero-main{order:4;grid-column:1!important;grid-row:auto!important}.hero>.calc{order:5}}
 .hero.wide>*{grid-column:1!important;grid-row:auto!important}
 @media (max-width:820px){.hero>*{grid-column:1!important;grid-row:auto!important}}
 .plans-hero h2{margin:0 0 2px;font-size:1.35rem}
@@ -242,7 +259,8 @@ table.sched th{color:var(--muted);font-weight:500}
 <main id="top">
 <div id="iosBanner"><span>On iPhone: tap the Share icon, then "Add to Home Screen" to install Voklogik.</span><button type="button" id="iosBannerClose" aria-label="Dismiss">&times;</button></div>
 <div class="hero">
-  <div class="hero-eyebrow"><p class="eyebrow">Look inside the file review, before it happens.</p></div>
+  <div class="hero-eyebrow"><p class="eyebrow">Look inside the file review, before it happens.</p>
+  <p class="lede freeline"><strong>Free to start.</strong> Your first 5 reports are free. <a href="#plans" onclick="track('click_see_plans')">See plans</a></p>
   <div class="hero-main">
     <h1>Mortgage math, <em>the way an underwriter sees it.</em></h1>
     <p class="lede" style="margin-bottom:10px">For borrowers, realtors, loan officers, processors and underwriters.</p>
@@ -250,42 +268,24 @@ table.sched th{color:var(--muted);font-weight:500}
       <li>Built by an underwriter with 15+ years of experience.</li>
       <li>See your file before the underwriter does.</li>
     </ul>
-    <p class="lede">Start with the payment calculator, then check your ratios, assets and reserves.</p>
-    <p><a class="btn" href="/affordability.html" style="display:inline-block;text-decoration:none" onclick="track('click_hero_affordability')">Try the Affordability Check</a></p>
+  </div>
+  </div>
+  <div class="sample-hero">
+    <p class="lede">Your payment, plus everything underwriting looks at: ratios, assets and reserves.</p>
+    <p style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="btn" href="/affordability.html?sample=1" style="display:inline-block;text-decoration:none" onclick="track('click_hero_sample')">See a sample analysis in 10 seconds</a><a href="/affordability.html" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" onclick="track('click_hero_affordability')">Or start with your numbers</a></p>
+    <a class="sampcard" href="/affordability.html?sample=1" onclick="track('click_hero_samplecard')" aria-label="Open the sample analysis">
+      <span class="sc-tag">Sample result</span>
+      <span class="sc-grid">
+        <span><b>Housing ratio</b><em>24.9%</em><i class="ok">Comfortable</i></span>
+        <span><b>Debt-to-income</b><em>31.0%</em><i class="ok">Comfortable</i></span>
+        <span><b>Reserves</b><em>6 months</em><i class="ok">Covered</i></span>
+        <span><b>Cash to close</b><em>$44,450</em><i class="ok">Covered</i></span>
+      </span>
+      <span class="sc-note">Made-up numbers. Tap to see how it works, then try your own.</span>
+    </a>
   </div>
 
-  <div class="plans-hero" id="plans">
-    <h2>Pick what fits you</h2>
-    <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
-    <div class="circles">
-      <div class="cwrap">
-        <div class="circ" id="circInd">
-          <span class="ctag">Individual</span>
-          <span class="cprice">$4.99</span>
-          <span class="cper">per month</span>
-          <p>25 reports a month. No worries: 5 free before you purchase.</p>
-        </div>
-        <a class="btn" href="#inputsArea" onclick="track('click_plans_individual')">Start with 5 free reports</a>
-      </div>
-      <div class="cwrap">
-        <div class="circ" id="circBiz">
-          <span class="ctag">Business</span>
-          <span class="cper">Mortgage professionals and realtors</span>
-          <ul class="tiers">
-            <li><span class="gem topaz" aria-hidden="true"></span>Topaz Tier <span class="pr">$29.99</span><button type="button" class="info" data-t="topaz" aria-expanded="false" aria-describedby="tierTip" aria-label="About Topaz Tier">i</button></li>
-            <li><span class="gem opal" aria-hidden="true"></span>Opal Tier <span class="pr">$79</span><button type="button" class="info" data-t="opal" aria-expanded="false" aria-describedby="tierTip" aria-label="About Opal Tier">i</button></li>
-          </ul>
-          <p class="k" style="margin-top:6px;font-size:.78rem">Per month. Opal coming soon.</p>
-        </div>
-        <div class="tipbox" id="tierTip" role="tooltip" hidden></div>
-        <a class="btn" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
-        <p class="k" style="margin:8px 0 0;font-size:.8rem"><a href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Join the Opal waitlist</a> &middot; <a href="/topaz.html">Topaz sign in</a></p>
-      </div>
-    </div>
-    <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Founding offer: the first 20 businesses get Opal for $49.99 per month for their first year, then $79. Opal is coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
-  </div>
-
-  <div class="calc" role="group" aria-label="Mortgage calculator">
+  <div class="calc" role="group" aria-label="Mortgage analyzer">
     <p class="k" id="prepPrint"></p>
     <div id="inputsArea">
     <fieldset><legend>Transaction type</legend>
@@ -475,8 +475,41 @@ table.sched th{color:var(--muted);font-weight:500}
   </div>
 </div>
 
+<div class="plansband">
+  <div class="plans-hero" id="plans">
+    <h2>Plans, when you are ready</h2>
+    <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
+    <div class="circles">
+      <div class="cwrap">
+        <div class="circ" id="circInd">
+          <span class="ctag">Individual</span>
+          <span class="cprice">$4.99</span>
+          <span class="cper">per month</span>
+          <p>25 reports a month. No worries: 5 free before you purchase.</p>
+        </div>
+        <a class="btn" href="#inputsArea" onclick="track('click_plans_individual')">Start with 5 free reports</a>
+      </div>
+      <div class="cwrap">
+        <div class="circ" id="circBiz">
+          <span class="ctag">Business</span>
+          <span class="cper">Mortgage professionals and realtors</span>
+          <ul class="tiers">
+            <li><span class="gem topaz" aria-hidden="true"></span>Topaz Tier <span class="pr">$29.99</span><button type="button" class="info" data-t="topaz" aria-expanded="false" aria-describedby="tierTip" aria-label="About Topaz Tier">i</button></li>
+            <li><span class="gem opal" aria-hidden="true"></span>Opal Tier <span class="pr">$79</span><button type="button" class="info" data-t="opal" aria-expanded="false" aria-describedby="tierTip" aria-label="About Opal Tier">i</button></li>
+          </ul>
+          <p class="k" style="margin-top:6px;font-size:.78rem">Per month. Opal coming soon.</p>
+        </div>
+        <div class="tipbox" id="tierTip" role="tooltip" hidden></div>
+        <a class="btn" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
+        <p class="k" style="margin:8px 0 0;font-size:.8rem"><a href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Join the Opal waitlist</a> &middot; <a href="/topaz.html">Topaz sign in</a></p>
+      </div>
+    </div>
+    <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Founding offer: the first 20 businesses get Opal for $49.99 per month for their first year, then $79. Opal is coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
+  </div>
+</div>
+
 <section id="how">
-  <h2>How the mortgage calculator works</h2>
+  <h2>How the mortgage analyzer works</h2>
   <div class="two">
     <div>
       <p>Principal and interest use the standard fixed-rate formula, where P is the loan amount, r is the monthly rate (annual rate divided by 12) and n is the number of monthly payments.</p>

@@ -80,6 +80,10 @@ nav a{margin-left:22px;text-decoration:none;color:var(--muted);font-size:1rem}
 nav a:hover{color:var(--ink)}
 h1{font-size:clamp(2rem,4.6vw,3rem);line-height:1.06;letter-spacing:-.03em;margin:12px 0 12px;font-weight:700}
 .lede{color:var(--muted);margin:0 0 28px;max-width:38em}
+.samplebar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:-8px 0 22px;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.samplebar[hidden],.samplebar .bubble[hidden],.samplebar .editlink[hidden]{display:none}
+.samplebar p{margin:0;font-size:.95rem;max-width:34em}
+.samplebar .bubble{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .calc{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:36px}
 .f{display:flex;flex-direction:column;gap:6px}
 .f.w{grid-column:1/-1}
@@ -246,12 +250,18 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 <div class="wrap">
 <header>
   <div class="bw"><a class="brand" href="/">Voklogik</a><span class="tag">Mortgage math, the way an underwriter sees it</span></div>
-  <nav><a href="/">Payment calculator</a><a href="#lenderSection" id="findLenderLink" hidden>Find a lender</a><a href="/#contact">Contact</a></nav>
+  <nav><a href="/">Payment analyzer</a><a href="#lenderSection" id="findLenderLink" hidden>Find a lender</a><a href="/#contact">Contact</a></nav>
 </header>
 
 <main>
 <h1>How much home can I afford?</h1>
-<p class="lede">See your file before the underwriter does. Built by an underwriter, this uses the same ratios lenders use: your housing ratio and total debt-to-income ratio, plus income, other properties, assets, reserves and LTV. Your monthly payment carries over from the payment calculator, so you won't need to enter it twice.</p>
+<p class="lede">See your file before the underwriter does. Built by an underwriter, this uses the same ratios lenders use: your housing ratio and total debt-to-income ratio, plus income, other properties, assets, reserves and LTV. Your monthly payment carries over from the payment analyzer, so you won't need to enter it twice.</p>
+
+<div class="samplebar" id="sampleBar">
+  <p id="sampleMsg"><strong>New here?</strong> See how it works in 10 seconds. Load a sample scenario, then change any number to try your own.</p>
+  <button type="button" class="bubble" id="sampleBtn">Try a sample scenario</button>
+  <button type="button" class="editlink" id="sampleClear" hidden>Clear the sample and start with my numbers</button>
+</div>
 
 <div class="calc">
 
@@ -417,7 +427,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
         <div class="f"><label for="pLoan2" id="pLoan2L">2nd mortgage amount ($)</label><input id="pLoan2" type="number" inputmode="decimal" min="0" step="1000" placeholder="0"></div>
         <div class="f"><label for="pRate2" id="pRate2L">2nd mortgage rate (%)</label><input id="pRate2" type="number" inputmode="decimal" min="0" step="0.05" placeholder="e.g. 8"></div>
       </div>
-      <p class="k" id="s2Hint" style="margin:8px 0 0" hidden>Changes to the amounts and rates here carry back to the payment calculator.</p>
+      <p class="k" id="s2Hint" style="margin:8px 0 0" hidden>Changes to the amounts and rates here carry back to the payment analyzer.</p>
       <div class="grid" style="margin-top:14px">
         <div class="f"><label for="propValue" id="propValueLbl">Purchase price ($)</label><input id="propValue" type="number" inputmode="decimal" min="0" step="1000" placeholder="e.g. 400000"></div>
         <div class="f" id="apprField"><label for="propAppr">Appraised value ($, optional)</label><input id="propAppr" type="number" inputmode="decimal" min="0" step="1000" placeholder="Leave blank if not appraised yet"></div>
@@ -1799,7 +1809,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   $("rowCash").addEventListener("input",function(){recompute()});
   $("rowCash").addEventListener("change",function(){recompute()});
 
-  // ---- payment (pulled from the main calculator via localStorage) ----
+  // ---- payment (pulled from the main analyzer via localStorage) ----
   var pmtExtras=0, pmtYears=30, usingSaved=false, savedTxn=false, pS2=null, extrasBase=0;
   function secondPay(){
     if(!pS2||!pS2.on)return 0;
@@ -1824,7 +1834,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       if(!(d.loan>0))return false;
       $("pLoan").value=Math.round(d.loan);
       $("pRate").value=d.ratePct;
-      if(d.price>0){$("propValue").value=Math.round(d.price);$("valSource").textContent=d.refi?"Current value carried over from your payment calculator. You can change it.":"Purchase price carried over from your payment calculator. You can change it."}
+      if(d.price>0){$("propValue").value=Math.round(d.price);$("valSource").textContent=d.refi?"Current value carried over from your payment analyzer. You can change it.":"Purchase price carried over from your payment analyzer. You can change it."}
       if(d.liens>0&&$("propLiens"))$("propLiens").value=Math.round(d.liens);
       if(d.appr>0&&!d.refi&&$("propAppr"))$("propAppr").value=Math.round(d.appr);
       pmtYears=d.years||30;
@@ -1859,10 +1869,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
   $("rowPayment").addEventListener("input",function(){recompute()});
   function updatePaymentSource(){
-    $("txnSource").textContent=savedTxn?"Carried over from your payment calculator. You can change them here.":"Choose these here, or complete the payment calculator and they will carry over.";
+    $("txnSource").textContent=savedTxn?"Carried over from your payment analyzer. You can change them here.":"Choose these here, or complete the payment analyzer and they will carry over.";
     $("paymentSource").textContent = usingSaved
-      ? "Carried over from your payment calculator ("+pmtYears+"-year term). Adjust the loan amount or rate below to see how it changes your ratios."
-      : "No payment found from the calculator yet \u2014 enter a loan amount and rate directly, or go use the payment calculator first.";
+      ? "Carried over from your payment analyzer ("+pmtYears+"-year term). Adjust the loan amount or rate below to see how it changes your ratios."
+      : "No payment found from the analyzer yet \u2014 enter a loan amount and rate directly, or go use the payment analyzer first.";
   }
 
   // ---- LTV / CLTV ----
@@ -2356,7 +2366,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   window.__vkRows=function(){var rep=buildReport("detailed"),rows=[];
     rep.sections.forEach(function(sec){rows.push(["## "+sec.head,""]);sec.items.forEach(function(it){if(it.k==="row"||it.k==="sub")rows.push([it.a,String(it.b==null?"":it.b)+(it.w?" ("+it.w+")":"")])})});return rows};
   window.addEventListener("beforeprint",fillPrint);
-  // ---- report limit: the same free reports and paid plans as the payment calculator ----
+  // ---- report limit: the same free reports and paid plans as the payment analyzer ----
   function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
   var LIMIT=5,UK="voklogik:reports",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",mem=0;
   var API="/.netlify/functions/",ent=null,VK="voklogik:vid",vid=null;
@@ -2381,7 +2391,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   function gate(){
     var tzOn=!!(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0);
     var left=Math.max(LIMIT-used(),0),ok=left>0||paid()||tzOn;
-    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?left+" of "+LIMIT+" free reports left. Reports from the payment calculator count too.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":"")));
+    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?left+" of "+LIMIT+" free reports left. Reports from the payment analyzer count too.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":"")));
     $("acts").hidden=!ok;$("keyActs").hidden=!ok;$("keyNote").hidden=!ok;$("paywall").hidden=ok;
     $("manageSub").hidden=!(ent&&ent.sub);
     $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
@@ -2602,7 +2612,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   if(!hadSaved)toggleRow("rowPayment",true);
   if(!savedTxn)toggleRow("rowTxn",true);
 
-  // ---- keep entries when moving between the Affordability Check and the payment calculator (this browser only, 12 hours) ----
+  // ---- keep entries when moving between the Affordability Check and the payment analyzer (this browser only, 12 hours) ----
   var ASK="voklogik:affState",noSaveA=false;
   function writeEdit(){
     try{localStorage.setItem("voklogik:affEdit",JSON.stringify({t:Date.now(),loan:n("pLoan"),rate:n("pRate"),s2amt:(pS2&&pS2.on)?n("pLoan2"):null,s2rate:(pS2&&pS2.on)?n("pRate2"):null}))}catch(e){}
@@ -2640,7 +2650,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       if(!o||Date.now()-o.t>12*60*60*1000){localStorage.removeItem(ASK);return false}
     }catch(e){return false}
     try{
-      // is the payment from the calculator newer than this snapshot?
+      // is the payment from the analyzer newer than this snapshot?
       var skip={};
       try{var pd=JSON.parse(localStorage.getItem("voklogik:payment")||"null");if(pd&&pd.savedAt>o.t&&pd.loan>0){PAYF.forEach(function(k){skip[k]=1})}}catch(e){}
       // borrowers
@@ -2699,8 +2709,41 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     location.replace(location.pathname+"?fresh="+Date.now());
   });
   var hadState=affRestore();
+  // ---- sample scenario (first look) ----
+  var SAMPLEK="voklogik:sampleOn";
+  function setV(id,v){var e=$(id);if(!e)return;e.value=v;e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))}
+  function sampleUi(on){
+    $("sampleBtn").hidden=on;$("sampleClear").hidden=!on;
+    $("sampleMsg").innerHTML=on?"<strong>Sample numbers loaded.</strong> Scroll down to see the ratios, then change any number to try your own. Nothing leaves your browser.":"<strong>New here?</strong> See how it works in 10 seconds. Load a sample scenario, then change any number to try your own.";
+  }
+  $("sampleBtn").addEventListener("click",function(){
+    var f=$("wageFreq");if(f){f.value="monthly";f.dispatchEvent(new Event("change",{bubbles:true}))}
+    setV("wageAmt","8200");
+    setV("pLoan","315000");setV("pRate","6.75");setV("propValue","350000");
+    while(debtLines.length<2)addDebt(true);
+    setV("debt"+debtLines[0]+"Type","card");setV("debt"+debtLines[0]+"Amt","85");
+    setV("debt"+debtLines[1]+"Type","auto");setV("debt"+debtLines[1]+"Amt","410");
+    while(assetLines.length<3)addAsset(true);
+    setV("ast"+assetLines[0]+"Type","checking");setV("ast"+assetLines[0]+"Amt","28000");
+    setV("ast"+assetLines[1]+"Type","savings");setV("ast"+assetLines[1]+"Amt","22000");
+    setV("ast"+assetLines[2]+"Type","retirement");setV("ast"+assetLines[2]+"Amt","45000");
+    setV("resMonths","6");
+    recompute();
+    try{localStorage.setItem(SAMPLEK,"1")}catch(e){}
+    sampleUi(true);track("sample_scenario_loaded");
+    var st=document.querySelector(".calc[aria-live] .stat");if(st)st.scrollIntoView({behavior:"smooth",block:"center"});
+  });
+  $("sampleClear").addEventListener("click",function(){
+    try{localStorage.removeItem(SAMPLEK)}catch(e){}
+    var c=$("clearEntries");if(c)c.click();
+  });
+  try{if(localStorage.getItem(SAMPLEK)==="1")sampleUi(true)}catch(e){}
+  var wantSample=/[?&]sample=1\b/.test(location.search);
+
   if(hadState)updatePaymentSource();
   recompute();
+  try{if(hadState&&localStorage.getItem(SAMPLEK)!=="1"&&($("wageAmt").value||$("pLoan").value))$("sampleBar").hidden=true}catch(e){}
+  if(wantSample&&!$("wageAmt").value&&!$("pLoan").value)setTimeout(function(){$("sampleBtn").click()},250);
 })();
 </script>
 <script src="/widget-aff.js"></script>

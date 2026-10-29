@@ -1,7 +1,7 @@
 {
   "name": "Voklogik Mortgage Analyzer",
   "short_name": "Voklogik",
-  "description": "Voklogik, the voice of logic in mortgage. Payment calculator and Affordability Check, built by an underwriter.",
+  "description": "Voklogik, the voice of logic in mortgage. Payment analyzer and Affordability Check, built by an underwriter.",
   "start_url": "/?source=pwa",
   "id": "/",
   "scope": "/",
