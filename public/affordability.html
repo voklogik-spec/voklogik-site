@@ -245,6 +245,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   .pr-para{font-size:8.5pt;color:#6E5240;margin-top:10px;padding-top:6px;border-top:1px solid #DCC7AA}
 }
 </style>
+<script src="/i18n.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -2167,6 +2168,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     });
     return out;
   }
+  var VT=function(o){return window.vkTrObj?vkTrObj(o):o},TX=function(t){return window.vkTr?vkTr(t):t};
   function buildReport(mode){
     recompute();
     var det=mode==="detailed",S=[];
@@ -2360,7 +2362,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
     return h;
   }
   function fillPrint(){
-    try{$("printReport").innerHTML=(window.VKTZ&&VKTZ.printing?VKTZ.printHtml():"")+renderPrint(buildReport(rptMode()))}catch(e){}
+    try{$("printReport").innerHTML=(window.VKTZ&&VKTZ.printing?VKTZ.printHtml():"")+renderPrint(VT(buildReport(rptMode())))}catch(e){}
   }
   // Used by the Opal widget page to send the member a summary of what the visitor entered.
   window.__vkRows=function(){var rep=buildReport("detailed"),rows=[];
@@ -2435,8 +2437,8 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 
   function buildPdf(){
     var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
-    var rep=buildReport(rptMode());
-    var d=new J({unit:"pt",format:"letter"}),PW=612,L=56,W=PW-2*L,y=64;
+    var rep=VT(buildReport(rptMode()));
+    var d=new J({unit:"pt",format:"letter"}),PW=612,L=56,W=PW-2*L,y=64;if(window.vkPdf)vkPdf(d);
     var OR=[196,88,28],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170];
     function T(c){d.setTextColor(c[0],c[1],c[2])}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
@@ -2530,19 +2532,19 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
   function buildKeyinPdf(){
     var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
-    var data=keyinData();
-    var d=new J({unit:"pt",format:"letter"}),PW=612,L=48,W=PW-2*L,y=60;
+    var data=VT(keyinData());
+    var d=new J({unit:"pt",format:"letter"}),PW=612,L=48,W=PW-2*L,y=60;if(window.vkPdf)vkPdf(d);
     var OR=[196,88,28],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170],CREAM=[242,230,211],CLAY=[140,74,42];
     function T(c){d.setTextColor(c[0],c[1],c[2])}function D(c){d.setDrawColor(c[0],c[1],c[2])}
     function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
     function chk(need){if(y+(need||16)>748){foot();d.addPage();y=60}}
-    function foot(){T(MU);font("italic",7.5);d.text("Borrower-entered estimate, not verified. Planning only; not a loan application, offer or approval. Voklogik, the voice of logic.",L,770)}
+    function foot(){T(MU);font("italic",7.5);d.text(TX("Borrower-entered estimate, not verified. Planning only; not a loan application, offer or approval. Voklogik, the voice of logic."),L,770)}
     d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(0,0,PW,92,"F");
     T(OR);font("bold",22);d.text("Voklogik",L,46);T(MU);font("italic",11);d.text(data.sub,L,66);d.text(data.date,L+W,66,{align:"right"});
     D(OR);d.setLineWidth(2);d.line(L,92,L+W,92);y=116;
     d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.roundedRect(L,y-14,W,44,6,6,"F");
-    T(INK);font("bold",9.5);d.text("Use this to key the scenario into your loan system.",L+10,y);
-    font("normal",8.5);T(MU);d.splitTextToSize("Everything below was entered by the borrower and is not verified. Collect documents, run credit and confirm each item as your process requires. Tick each box as you key it.",W-20).forEach(function(t,i){d.text(t,L+10,y+12+i*10)});
+    T(INK);font("bold",9.5);d.text(TX("Use this to key the scenario into your loan system."),L+10,y);
+    font("normal",8.5);T(MU);d.splitTextToSize(TX("Everything below was entered by the borrower and is not verified. Collect documents, run credit and confirm each item as your process requires. Tick each box as you key it."),W-20).forEach(function(t,i){d.text(t,L+10,y+12+i*10)});
     y+=52;
     data.sections.forEach(function(s){
       chk(46);T(CLAY);font("bold",13);d.text(s.head,L,y);T(MU);font("italic",8.5);d.text(s.urla,L+W,y,{align:"right"});y+=7;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=16;

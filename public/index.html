@@ -218,6 +218,7 @@ table.sched th{color:var(--muted);font-weight:500}
 .plansband .plans-hero{grid-column:auto;grid-row:auto;max-width:720px;margin:0 auto;padding-top:28px}
 .freeline{margin:6px 0 0}
 .sample-hero .sampcard{max-width:none}
+.sample-hero .btn{max-width:100%;white-space:normal;text-align:center}
 
 .hero-main h1{margin-top:0}
 .hero>.calc{grid-column:2;grid-row:2}
@@ -248,6 +249,7 @@ table.sched th{color:var(--muted);font-weight:500}
 .cwrap .btn{display:inline-block;text-decoration:none;padding:9px 14px;font-size:.92rem}
 @media (max-width:820px){.cwrap{width:min(100%,300px)}.circ{padding:24px}.cprice{font-size:3.1rem}.circ p{font-size:.95rem}.tiers li{font-size:1rem}.cper{font-size:.98rem}}
 </style>
+<script src="/i18n.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -588,7 +590,7 @@ table.sched th{color:var(--muted);font-weight:500}
   function sel(name){return document.querySelector('input[name="'+name+'"]:checked').parentNode.textContent.trim()}
   function buildPdf(){
     var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
-    var d=new J({unit:"pt",format:"letter"}),PW=612,PH=792,L=56,W=PW-2*L;
+    var d=new J({unit:"pt",format:"letter"}),PW=612,PH=792,L=56,W=PW-2*L;if(window.vkPdf)vkPdf(d);
     var PLUM=[126,90,135],OR=[196,88,28],OC=[226,160,63],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170],WH=[255,255,255];
     var COL={"Principal and interest":OR,"Property tax":OC,"Home insurance":[140,74,42],"Mortgage insurance":[125,123,59]},HOAC=[95,122,138];
     if(window.VKTZ&&VKTZ.opal&&VKTZ.opal()){OR=[75,63,120];OC=[214,190,138];INK=[43,40,56];MU=[106,102,120];LN=[220,216,232];PLUM=[150,120,190];COL={"Principal and interest":OR,"Property tax":[143,184,212],"Home insurance":OC,"Mortgage insurance":[168,140,200]};HOAC=[120,170,150]}
@@ -626,7 +628,7 @@ table.sched th{color:var(--muted);font-weight:500}
     var parts=[];
     document.querySelectorAll(".res .leg li:not([hidden])").forEach(function(li){
       var nm=li.querySelector("span").textContent,vt=li.querySelector("b").textContent;
-      parts.push({nm:nm,vt:vt,n:num(vt),c:COL[nm]||(/^1st/.test(nm)?OR:/^2nd/.test(nm)?PLUM:HOAC)});
+      parts.push({nm:nm,vt:vt,n:num(vt),c:COL[window.vkUntr?vkUntr(nm):nm]||(/^1st/.test(window.vkUntr?vkUntr(nm):nm)?OR:/^2nd/.test(window.vkUntr?vkUntr(nm):nm)?PLUM:HOAC)});
     });
     var sum=parts.reduce(function(a,q){return a+q.n},0)||1,x=L;
     parts.forEach(function(q){var w=W*q.n/sum;if(w>0){F(q.c);d.rect(x,y,w,12,"F");x+=w}});
@@ -695,7 +697,7 @@ table.sched th{color:var(--muted);font-weight:500}
       y+=(s0+per<st.length)?66:84;
     }
     /* selections and inputs, two columns */
-    var MM=model(),refi=MM.refi,inv=sel("occ")==="Investment";
+    var MM=model(),refi=MM.refi,inv=document.querySelector('input[name="occ"]:checked').value==="inv";
     var A=[["Transaction type",sel("type")]];
     if(MM.s2.on)A.push(["Second mortgage",(MM.s2.type==="heloc"?"HELOC":"HELOAN")+(MM.s2.cur?" (current)":(MM.heq?"":" (new)"))]);
     if(refi)A.push(["Refinance type",$("rsub").selectedOptions[0].text]);
@@ -706,14 +708,14 @@ table.sched th{color:var(--muted);font-weight:500}
     document.querySelectorAll("#inputsArea .grid .f").forEach(function(el){
       if(el.id==="rtF"||el.id==="downAmtF"||el.id==="armCapsGroup"||el.hidden||el.offsetParent===null)return;
       var lab=el.querySelector("label"),c=el.querySelector("input,select");if(!lab||!c)return;
-      var lt=lab.textContent.trim(),m=lt.match(/^(.*?)\s*\((.*)\)\s*$/),nm=m?m[1]:lt,u=m?m[2]:"",v;
+      var lt=lab.textContent.trim(),ltE=window.vkUntr?vkUntr(lt):lt,m=lt.match(/^(.*?)\s*\((.*)\)\s*$/),nm=m?m[1]:lt,u=m?m[2]:"",v;
       if(c.id==="appr"&&!c.value)v="Not entered";
       else if(c.tagName==="SELECT")v=c.selectedOptions[0].text;
       else if(u.indexOf("$")===0)v=usd.format(parseFloat(c.value)||0)+u.slice(1);
       else if(u.indexOf("%")===0)v=(c.value||0)+"%"+u.slice(1);
       else v=c.value;
       var us=el.querySelector('select[id$="U"]');if(us)v+=us.value==="m"?" per month":" per year";
-      var grp=el.closest("#rcol")?"2":(el.closest(".lcol")?"1":""),raw=nm;
+      var grp=el.closest("#rcol")?"2":(el.closest(".lcol")?"1":""),raw=(ltE.match(/^(.*?)\s*\((.*)\)\s*$/)||[0,ltE])[1];
       if(MM.s2.on){nm=(grp==="2"?"2nd: ":(grp==="1"?"1st: ":""))+nm}
       B.push([nm,v,grp,raw]);
     });
