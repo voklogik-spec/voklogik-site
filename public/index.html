@@ -308,7 +308,48 @@ table.sched th{color:var(--muted);font-weight:500}
 .moreopt>summary{cursor:pointer;font-weight:700;font-size:.92rem;color:var(--accent)}
 .moreopt[open]>summary{margin-bottom:12px}
 @media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)!important}.hero-main h1{white-space:normal;font-size:clamp(1.6rem,7vw,2.2rem)!important}.hero>.sample-hero{grid-column:1!important;grid-row:2!important;position:static}#affFrame{height:900px}.hero>.calc{grid-column:1!important;grid-row:3!important}}
-</style><style>.hero{row-gap:18px!important}.hero-eyebrow .hero-main{padding-bottom:0}</style></head>
+</style><style>.hero{row-gap:18px!important}.hero-eyebrow .hero-main{padding-bottom:0}</style><style>
+.hero>.sample-hero{grid-row:2!important;position:relative!important;top:auto!important;align-self:stretch;min-height:640px}
+#affFrame{position:absolute!important;inset:0;height:100%!important;min-height:0!important;border:0;background:transparent}
+.hero>.midband{grid-column:1 / -1;grid-row:3;border-top:2px solid var(--line);margin-top:6px;padding-top:22px}
+.midband .details{margin:0 0 18px;max-width:none}
+.midband #acts{margin:0 0 6px}
+.midband .plans3{border-top:1px solid var(--line);margin-top:26px;padding-top:26px}
+.midband .circles3{max-width:820px;margin:0 auto;gap:28px}
+.midband .circles3 .circ{padding:18px}
+.midband .circles3 .cprice{font-size:2rem}
+.midband .circles3 .ctag{font-size:.95rem}
+.midband .circles3 .cper{font-size:.9rem}
+.midband .cdesc{font-size:.85rem}
+.midband .circles3 .btn{font-size:.95rem}
+.midband .infoblock{border-top:1px solid var(--line);margin-top:30px;padding-top:22px;text-align:left}
+.midband .infoblock h2{font-size:1.3rem;margin:0 0 8px}
+.midband .infoblock .two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.midband .infoblock .k,.midband .infoblock p,.midband .infoblock li{font-size:.92rem}
+@media (max-width:820px){
+ .hero>.sample-hero{grid-row:auto!important;position:static!important;min-height:0}
+ #affFrame{position:static!important;height:900px!important}
+ .hero>.midband{grid-row:auto}
+ .midband .infoblock .two{grid-template-columns:1fr}
+}
+</style><style>
+.reportbox{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:20px 24px;margin:0 0 18px}
+.reportbox h3{margin:0 0 4px;font:800 1.15rem "Bricolage Grotesque",sans-serif}
+.reportbox .sub{margin:0 0 12px;font-size:.9rem;color:var(--muted)}
+.reportbox .mrow{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.reportbox .mrow .f{min-width:240px}
+.reportbox .btn[hidden]{display:none}
+.reportbox .small{margin-top:12px;font-size:.88rem;color:var(--muted)}
+.reportbox .small a,.reportbox .small button{color:var(--accent);text-decoration:underline;background:none;border:0;font:inherit;cursor:pointer;padding:0;margin-right:12px}
+.reportbox .payonly{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.reportbox .payonly summary{cursor:pointer;font-weight:700;font-size:.92rem}
+.reportbox .payonly .acts{margin-top:10px}
+.midband .details{max-width:none}
+.midband .details .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.midband .details .g2 .w{grid-column:1 / -1}
+.midband .details .g2 .w input{max-width:none}
+.midband .plans3 .cfine{max-width:640px;margin:12px auto 0}
+</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -1399,7 +1440,7 @@ table.sched th{color:var(--muted);font-weight:500}
 <script src="/install-tip.js"></script>
 <style>
 #affordCta{display:none!important}
-@media print{.sample-hero,.plans3,.pdfpop{display:none!important}}
+@media print{.sample-hero,.plans3,.pdfpop,.reportbox{display:none!important}}
 </style>
 <script>
 (function(){
@@ -1424,6 +1465,54 @@ table.sched th{color:var(--muted);font-weight:500}
   var link=pop.querySelector("a.btn");if(link)link.addEventListener("click",function(){try{track("topaz_prompt_click")}catch(e){}});
   pop.addEventListener("click",function(e){if(e.target===pop)pop.classList.remove("on")});
   document.addEventListener("keydown",function(e){if(e.key==="Escape")pop.classList.remove("on")});
+})();
+</script>
+<script>
+(function(){
+  function $(i){return document.getElementById(i)}
+  var hero=document.querySelector(".hero"),band=document.createElement("div");band.className="midband";band.id="midband";
+  var fr=$("affFrame");
+  // 1. details (moved)
+  var det=$("details");if(det)band.appendChild(det);
+  // 2. combined report box
+  var box=document.createElement("div");box.className="reportbox";
+  box.innerHTML='<h3>Your report</h3><p class="sub">Payment, income, debts, assets, reserves, cash to close and ratios in one report. Your details above go on it.</p>'
+   +'<div class="mrow"><div class="f"><label id="mRptLbl">Report detail</label><div class="seg" role="radiogroup" aria-labelledby="mRptLbl"><label><input type="radio" name="mRpt" value="simple" checked>Simple</label><label><input type="radio" name="mRpt" value="detailed">Detailed</label></div></div>'
+   +'<button type="button" class="btn" id="mPrint">Print</button><button type="button" class="btn" id="mPv" hidden>Preview</button><button type="button" class="btn" id="mPdf" hidden>Save as PDF</button></div>'
+   +'<p class="small"><span>For loan officers:</span> <button type="button" id="mKeyPdf" hidden>Key-in sheet (PDF)</button><button type="button" id="mKeyCsv">Key-in sheet (CSV)</button></p>'
+   +'<details class="payonly" id="payOnly"><summary>Just the payment report</summary><div id="payOnlyHost"></div></details>';
+  band.appendChild(box);
+  var acts=$("acts");if(acts)box.querySelector("#payOnlyHost").appendChild(acts);
+  var fn=$("freeNote");if(fn)box.insertBefore(fn,box.querySelector(".payonly"));
+  var plans=$("plans");if(plans)band.appendChild(plans);
+  var info=document.createElement("div");info.className="infoblock";info.id="midInfo";band.appendChild(info);
+  hero.appendChild(band);
+  function D(){try{return fr.contentDocument}catch(e){return null}}
+  function proxy(mid,inner){var m=$(mid);if(m)m.addEventListener("click",function(){var d=D();var e=d&&d.getElementById(inner);if(e)e.click()})}
+  proxy("mPrint","printBtn");proxy("mPv","pvBtn");proxy("mPdf","pdfBtn");proxy("mKeyPdf","keyPdfBtn");proxy("mKeyCsv","keyCsvBtn");
+  document.querySelectorAll('input[name="mRpt"]').forEach(function(r){r.addEventListener("change",function(){var d=D();if(!d)return;var t=d.querySelector('input[name="rptMode"][value="'+r.value+'"]');if(t){t.checked=true;t.dispatchEvent(new Event("change",{bubbles:true}));t.dispatchEvent(new Event("input",{bubbles:true}))}})});
+  function mirror(){var d=D();if(!d)return;[["mPv","pvBtn"],["mPdf","pdfBtn"],["mKeyPdf","keyPdfBtn"]].forEach(function(p){var i=d.getElementById(p[1]),m=$(p[0]);if(i&&m)m.hidden=i.hidden})}
+  setInterval(mirror,700);
+  // preview in this page (the report preview needs the full window, not the small panel)
+  var vAff=false;
+  window.vkShowPreview=function(url){vAff=true;$("pvFrame").src=url+"#toolbar=0&navpanes=0";$("pvModal").hidden=false};
+  var pvb=$("pvBtn");if(pvb)pvb.addEventListener("click",function(){vAff=false});
+  function closeAff(){$("pvModal").hidden=true;$("pvFrame").removeAttribute("src");vAff=false}
+  $("pvSave").addEventListener("click",function(e){if(!vAff)return;e.stopImmediatePropagation();closeAff();var d=D();var b=d&&d.getElementById("pdfBtn");if(b)b.click()},true);
+  $("pvPrint").addEventListener("click",function(e){if(!vAff)return;e.stopImmediatePropagation();closeAff();var d=D();var b=d&&d.getElementById("printBtn");if(b)b.click()},true);
+  $("pvClose").addEventListener("click",function(){vAff=false});
+  // free-reports line follows the shared count
+  window.addEventListener("storage",function(e){if(e.key!=="voklogik:reports"||!fn)return;var t=fn.textContent||"";if(/free reports left/.test(t)){var u=parseInt(e.newValue,10)||0;fn.textContent=Math.max(5-u,0)+" of 5 free reports left. Reports from the payment analyzer count too."}});
+  // credit + income text
+  function fill(){
+    var d=D();if(!d)return;
+    var c=d.getElementById("creditInfo"),inc=null;d.querySelectorAll("main>section").forEach(function(x){if(x!==c&&/income methods/i.test(x.textContent))inc=x});
+    info.innerHTML="";
+    [c,inc].forEach(function(x){if(x){var w=document.createElement("div");w.innerHTML=x.innerHTML;w.style.marginBottom="22px";info.appendChild(w)}});
+    try{d.defaultView.vkCollapseAll&&d.defaultView.vkCollapseAll()}catch(e){}
+  }
+  document.addEventListener("vklang",function(){setTimeout(fill,900)});
+  fr.addEventListener("load",function(){setTimeout(fill,900);setTimeout(function(){try{fr.contentWindow.vkCollapseAll&&fr.contentWindow.vkCollapseAll()}catch(e){}},2500)});
 })();
 </script>
 </body>

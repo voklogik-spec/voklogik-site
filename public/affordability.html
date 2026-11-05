@@ -55,6 +55,16 @@ html.wmode.wmode.wmode{--bg:#F5F4F8;--ink:#2B2838;--muted:#6A6678;--line:#DCD8E8
 #wLead .msg{margin:10px 0 0;font-size:14px;min-height:20px}#wLead .msg.err{color:#B3261E}#wLead .msg.ok{color:#2E7D4F;font-weight:600}
 #wLead .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 #wFine{font:12.5px/1.5 -apple-system,"Segoe UI",Arial,sans-serif;color:#6A6678;margin:0 2px 20px}#wFine a{color:#4B3F78}
+html.emb #acts,html.emb #keyActs,html.emb #keyNote,html.emb #freeNote,html.emb #manageSub,html.emb #creditInfo,html.emb main>section,html.emb .emb-hide{display:none!important}
+html.emb,html.emb body{height:100%}
+html.emb .wrap{height:100%;display:flex;flex-direction:column}
+html.emb main{flex:1;min-height:0;display:flex;flex-direction:column}
+html.emb main{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px!important;box-sizing:border-box}
+html.emb main>.calc{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin-bottom:0!important}
+html.emb main>.calc.emb-stats{border-top:1px solid var(--line)!important}
+html.emb main>.calc.emb-rows{flex:0 1 auto;min-height:0;overflow:auto}
+html.emb main>.calc.emb-stats{flex:none;margin-top:auto!important}
+html.emb main>.calc.emb-rows+.calc.emb-stats{margin-top:auto!important}
 </style>
 <script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
@@ -256,7 +266,6 @@ window.__VKEMB=E})();
 html.emb header,html.emb footer,html.emb .skip,html.emb #iosBanner,html.emb h1,html.emb main>.lede,html.emb #sampleMsg,html.emb #sampleBtn,html.emb .samplebar:has(#sampleClear[hidden]),html.emb #rowTxn,html.emb #rowSubject,html.emb #rowPayment{display:none!important}
 html.emb body{background:transparent!important}
 html.emb .wrap{max-width:none!important;padding:0!important;margin:0!important}
-html.emb main{padding:0!important;margin:0!important}
 html.emb .calc{margin-top:0!important}
 .embnote{display:none;margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;font-size:.92rem}
 html.emb .embnote:not([hidden]){display:block}
@@ -2189,6 +2198,7 @@ html.emb .embnote:not([hidden]){display:block}
   function buildReport(mode){
     recompute();
     var det=mode==="detailed",S=[];
+    try{var ctr=JSON.parse(localStorage.getItem("voklogik:contact")||"{}"),ctl=[ctr.cName,ctr.cEmail,ctr.cPhone].filter(function(x){return x&&String(x).trim()}).map(function(x){return String(x).trim()});if(ctl.length)S.push({head:"Prepared for",items:ctl.map(function(t){return {k:"small",t:t}})})}catch(e){}
     var pay=paymentTotal(),income=$("incomeSummary").textContent;
     var oc2=ownedCalc(),dt=debtTotals(),debtTotal=dt.counted+rentalLoss+oc2.debt;
     var inc0=lastIncome,p2=function(x){return (isFinite(x)?x:0).toFixed(2)+"%"};
@@ -2589,6 +2599,7 @@ html.emb .embnote:not([hidden]){display:block}
     track("click_preview");
     var doc=buildPdf();if(!doc)return;
     try{pvUrl=doc.output("bloburl")}catch(e){return}
+    if(window.__VKEMB&&parent&&parent.vkShowPreview){parent.vkShowPreview(pvUrl);return}
     $("pvFrame").src=pvUrl+"#toolbar=0&navpanes=0";$("pvModal").hidden=false;
   });
   $("pvClose").addEventListener("click",pvClose);
@@ -2629,6 +2640,9 @@ html.emb .embnote:not([hidden]){display:block}
   var hadSaved=loadSavedPayment();
   updatePaymentSource();
   if(window.__VKEMB){
+    (function(){var cs=document.querySelectorAll("main>.calc");if(cs[0])cs[0].classList.add("emb-rows");if(cs[1])cs[1].classList.add("emb-stats");var c2=cs[1];if(c2)c2.querySelectorAll("p.k").forEach(function(p){var t=p.textContent||"";if(p.querySelector("#clearEntries")||/^Simple shows/.test(t.trim())||/^If either ratio/.test(t.trim())===false&&p.id==="")p.classList.add("emb-hide")});
+      var keep=c2&&Array.prototype.find.call(c2.querySelectorAll("p.k"),function(p){return /^If either ratio/.test((p.textContent||"").trim())});if(keep)keep.classList.remove("emb-hide")})();
+    window.vkCollapseAll=function(){document.querySelectorAll(".row.open").forEach(function(r){r.classList.remove("open")})};
     window.addEventListener("storage",function(e){
       if(e.key==="voklogik:lang"&&window.vkSetLang){window.vkSetLang(e.newValue==="es"?"es":"en");return}
       if(e.key!=="voklogik:payment")return;
