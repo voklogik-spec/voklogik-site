@@ -46,7 +46,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Fraunces:ital,opsz,wght@1,9..144,600;1,9..144,700&family=Caveat:wght@500;600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F2E6D3;--ink:#3B2416;--muted:#6E5240;--line:#DCC7AA;--accent:#C4581C;--on-accent:#fff;--ochre:#E2A03F;--clay:#8C4A2A;--mi:#7D7B3B;--hoa:#5F7A8A;--s2:#7E5A87;--panel:#FBF5EA;
+:root{--bg:#F9F3E8;--ink:#3B2416;--muted:#6E5240;--line:#E3D3BA;--accent:#C4581C;--on-accent:#fff;--ochre:#E2A03F;--clay:#8C4A2A;--mi:#7D7B3B;--hoa:#5F7A8A;--s2:#7E5A87;--panel:#FFFCF6;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241610;--ink:#F2E6D3;--muted:#C2A88E;--line:#4A3226;--accent:#E8833A;--on-accent:#241610;--ochre:#E2A03F;--clay:#B9714A;--mi:#A8A552;--hoa:#8FAAB8;--s2:#B093B8;--panel:#33201A}}
 :root[data-theme="dark"]{--bg:#241610;--ink:#F2E6D3;--muted:#C2A88E;--line:#4A3226;--accent:#E8833A;--on-accent:#241610;--ochre:#E2A03F;--clay:#B9714A;--mi:#A8A552;--hoa:#8FAAB8;--s2:#B093B8;--panel:#33201A}
@@ -309,8 +309,8 @@ table.sched th{color:var(--muted);font-weight:500}
 .moreopt[open]>summary{margin-bottom:12px}
 @media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)!important}.hero-main h1{white-space:normal;font-size:clamp(1.6rem,7vw,2.2rem)!important}.hero>.sample-hero{grid-column:1!important;grid-row:2!important;position:static}#affFrame{height:900px}.hero>.calc{grid-column:1!important;grid-row:3!important}}
 </style><style>.hero{row-gap:18px!important}.hero-eyebrow .hero-main{padding-bottom:0}</style><style>
-.hero>.sample-hero{grid-row:2!important;position:relative!important;top:auto!important;align-self:stretch;min-height:640px}
-#affFrame{position:absolute!important;inset:0;height:100%!important;min-height:0!important;border:0;background:transparent}
+.hero>.sample-hero{grid-row:2!important;position:relative!important;top:auto!important;align-self:start;min-height:0}
+#affFrame{position:static!important;display:block;width:100%;height:700px;min-height:0!important;border:0;background:transparent}
 .hero>.midband{grid-column:1 / -1;grid-row:3;border-top:2px solid var(--line);margin-top:6px;padding-top:22px}
 .midband .details{margin:0 0 18px;max-width:none}
 .midband #acts{margin:0 0 6px}
@@ -349,9 +349,29 @@ table.sched th{color:var(--muted);font-weight:500}
 .midband .details .g2 .w{grid-column:1 / -1}
 .midband .details .g2 .w input{max-width:none}
 .midband .plans3 .cfine{max-width:640px;margin:12px auto 0}
-</style></head>
+</style><style>
+.hero{align-items:start!important}
+.hero>.calc{padding:8px!important}
+.hero>.calc>#prepPrint{display:none}
+.arow{border-bottom:1px solid var(--line)}
+.arowhead{width:100%;background:none;border:0;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;text-align:left;color:var(--ink)}
+.arowlabel{font:700 1.05rem "Bricolage Grotesque",sans-serif}
+.arowright{display:flex;align-items:center;gap:12px;min-width:0}
+.arowvalue{font:700 .98rem "Bricolage Grotesque",sans-serif;color:var(--accent);text-align:right;overflow-wrap:anywhere}
+.achev{color:var(--muted);transition:transform .15s;font-size:.85rem}
+.arow.open .achev{transform:rotate(180deg)}
+.arowbody{padding:0 20px 22px}#rowL .loans{display:grid!important;grid-template-columns:1fr!important;gap:16px!important}#rowL .lcol{width:auto!important}.arowsub{padding:0 20px 14px;margin-top:-10px;font:.85rem/1.4 Newsreader,Georgia,serif;color:var(--muted)}.arowsub:empty,.arow.open .arowsub{display:none}.adone{margin:14px 0 0}.adone a{color:var(--accent);font-size:.95rem}
+.arow:not(.open) .arowbody{display:none}
+.arowbody fieldset{margin-top:0}
+.leftres{padding:8px 20px 18px}
+.clearrow{grid-column:1 / -1;grid-row:3;text-align:center;padding:4px 0 2px}
+.clearrow button{background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:600 .98rem "Bricolage Grotesque",sans-serif}
+.hero>.midband{grid-row:4!important}
+@media (max-width:820px){.clearrow{grid-row:auto}.hero>.midband{grid-row:auto!important}}
+</style><style>.hero-eyebrow{text-align:center!important;display:block!important}.hero-eyebrow .hero-main{margin:0 auto!important;max-width:none!important;text-align:center!important;display:block}.hero-eyebrow h1,.hero-eyebrow .lede{margin-left:auto!important;margin-right:auto!important;text-align:center!important;max-width:none!important;width:100%}.arowlabel{flex:1 1 auto}.arowright{flex:0 1 55%;justify-content:flex-end}</style><style>.hero-eyebrow .hero-main{display:flex!important;flex-direction:column;align-items:center;justify-content:center}.hero-eyebrow h1,.hero-eyebrow .lede{width:auto!important;max-width:100%!important;text-wrap-style:balance}@media (max-width:1060px){.hero-main h1{white-space:normal!important}}</style><style>.arowsub .yn-y{color:#2F7A2E;font-weight:700}.arowsub .yn-n{color:#B3261E;font-weight:700}</style><style>:root:not([data-theme="dark"]){--accent:#B34D14}.big,.cprice{color:var(--ink)!important}</style><style>#rowR .adone{display:none}#rowR .arowvalue{font-size:1.35rem}#rowR .leftres{padding:0}#rowR .arowbody{padding:0 20px 18px}</style><style>.vtrust{background:#1C3B52;color:#F9F3E8;display:flex;justify-content:center;gap:28px;flex-wrap:wrap;padding:9px 16px;font:600 .88rem "Bricolage Grotesque",sans-serif}.hero-main h1 em{color:#1C3B52}footer{background:#1C3B52;color:#E8DCC8!important;border-top:0!important;padding:28px 24px 40px!important;margin-top:40px}footer a{color:#fff!important}</style><style>.hero.wide .lcol,.hero.wide .rcol{background:var(--panel)!important}</style></head>
 <body>
 <div class="wrap">
+<div class="vtrust"><span>Built by a mortgage underwriter with 15+ years of experience</span><span>Planning estimates only · not affiliated with any lender</span></div>
 <header>
   <div class="bw"><a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#C4581C"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
   <nav><a href="#analyzer">Pre-Underwrite</a><a href="#plans">Plans</a><a href="/topaz.html">Topaz</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
@@ -1451,7 +1471,7 @@ table.sched th{color:var(--muted);font-weight:500}
   if(/[?&]sample=1\b/.test(location.search)){fr.src="/affordability.html?embed=1&sample=1";setTimeout(function(){$("analyzer").scrollIntoView({block:"start"})},400)}
   window.addEventListener("message",function(e){
     if(e.origin!==location.origin||!e.data)return;
-    if(e.data.vk==="aff-height"&&window.matchMedia("(max-width:820px)").matches){fr.style.height=Math.min(Math.max(e.data.h,500),6000)+"px"}
+    if(e.data.vk==="aff-height"){fr.style.height=Math.min(Math.max(e.data.h,200),6000)+"px"}
     if(e.data.vk==="pdf-saved")showPdfPop();
   });
   var pop=$("pdfpop");
@@ -1513,6 +1533,85 @@ table.sched th{color:var(--muted);font-weight:500}
   }
   document.addEventListener("vklang",function(){setTimeout(fill,900)});
   fr.addEventListener("load",function(){setTimeout(fill,900);setTimeout(function(){try{fr.contentWindow.vkCollapseAll&&fr.contentWindow.vkCollapseAll()}catch(e){}},2500)});
+})();
+</script>
+<script>
+(function(){
+  function $(i){return document.getElementById(i)}
+  var area=$("inputsArea");if(!area)return;
+  function Q(sel){return area.querySelector(sel)}
+  var txnFs=Q('input[name="type"]').closest("fieldset"),secFs=$("secFs"),heq=$("heqNote"),hn=heq?heq.nextElementSibling:null,
+      pt=$("ptype").closest(".f"),occFs=Q('input[name="occ"]').closest("fieldset"),home=$("homeGrid"),loans=$("loans");
+  var host=document.createElement("div");host.id="leftRows";area.insertBefore(host,txnFs);
+  var rows=[];
+  function lab(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r&&r.parentElement?r.parentElement.textContent.trim():""}
+  function T(x){try{return window.vkTr?vkTr(x):x}catch(e){return x}}
+  function mk(id,label,nodes,sum,sub){
+    var row=document.createElement("div");row.className="arow";row.id=id;
+    row.innerHTML='<button type="button" class="arowhead" aria-expanded="false"><span class="arowlabel"></span><span class="arowright"><span class="arowvalue"></span><span class="achev">&#9662;</span></span></button><div class="arowsub"></div><div class="arowbody"></div>';
+    row.querySelector(".arowlabel").textContent=label;
+    var body=row.querySelector(".arowbody");nodes.forEach(function(n){if(n)body.appendChild(n)});
+    var dn=document.createElement("p");dn.className="adone";dn.innerHTML='<a href="#" role="button">Done &rarr;</a>';body.appendChild(dn);
+    dn.querySelector("a").addEventListener("click",function(e){e.preventDefault();next(row)});
+    row.querySelector(".arowhead").addEventListener("click",function(){toggle(row)});
+    host.appendChild(row);rows.push({el:row,sum:sum,sub:sub});return row}
+  function next(row){var i=rows.findIndex(function(r){return r.el===row});toggle(row,false);if(rows[i+1])toggle(rows[i+1].el,true)}
+  function toggle(row,force){
+    var open=force!==undefined?force:!row.classList.contains("open");
+    if(open)rows.forEach(function(r){r.el.classList.remove("open");r.el.querySelector(".arowhead").setAttribute("aria-expanded","false")});
+    row.classList.toggle("open",open);row.querySelector(".arowhead").setAttribute("aria-expanded",open?"true":"false");
+  }
+  function secOn(){var sc=document.querySelector('input[name="sec"]:checked'),t=document.querySelector('input[name="type"]:checked');return !!((sc&&sc.value!=="no")||(t&&t.value==="heq"))}
+  function secOn(){var sc=document.querySelector('input[name="sec"]:checked'),t=document.querySelector('input[name="type"]:checked');return !!((sc&&sc.value!=="no")||(t&&t.value==="heq"))}
+  var r1=mk("rowT","Transaction",[txnFs,secFs,heq,hn],function(){return lab("type")},function(){return secOn()?T("2nd mortgage")+": "+T("Yes"):""});
+  var r2=mk("rowP","Property",[pt,occFs],function(){var o=document.querySelector('input[name="occ"]:checked'),p=$("ptype"),pn=p.options[p.selectedIndex].text.replace(/\s*\(.*\)/,"").replace(/ Residence$/,"");return pn+" \u00b7 "+(o&&o.value==="inv"?lab("occ"):lab("own"))});
+  function yn(id){var e=$(id);return T(e&&parseFloat(String(e.value).replace(/,/g,""))>0?"Yes":"No")}
+  function num(id){var e=$(id);return e?(parseFloat(String(e.value).replace(/[^0-9.\-]/g,""))||0):0}
+  function fm(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}
+  function txnV(){var t=document.querySelector('input[name="type"]:checked');return t?t.value:"purchase"}
+  function loan1(){var t=txnV();if(t==="purchase")return Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0);if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
+  var af=document.createElement("div");af.innerHTML='<div class="f w"><label for="mLoan1" id="mLoan1L">1st mortgage loan amount ($)</label><input id="mLoan1" type="text" inputmode="decimal" autocomplete="off"></div><div class="f w" id="mLoan2F" hidden style="margin-top:14px"><label for="mLoan2">2nd mortgage amount ($)</label><input id="mLoan2" type="text" inputmode="decimal" autocomplete="off"></div><div class="grid" id="mDownG" style="margin-top:14px"></div>';
+  var dg=af.querySelector("#mDownG");[ $("downF"),$("downAmtF") ].forEach(function(n){if(n)dg.appendChild(n)});
+  var rA=mk("rowA","Loan amount",[af],function(){var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");return x},function(){return secOn()?T("2nd mortgage")+": $"+fm(num("s2Amt")):""});
+  var m1=$("mLoan1"),m2=$("mLoan2");
+  function syncA(){
+    var t=txnV();m1.readOnly=(t!=="purchase");
+    $("mLoan2F").hidden=!secOn();
+    $("mLoan1L").textContent=secOn()?"1st mortgage loan amount ($)":"Loan amount ($)";
+    if(document.activeElement!==m1)m1.value=fm(loan1());
+    if(document.activeElement!==m2)m2.value=fm(num("s2Amt"));
+  }
+  function fire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
+  m1.addEventListener("input",function(){if(txnV()!=="purchase")return;var v=parseFloat(m1.value.replace(/[^0-9.]/g,""))||0,d=Math.max(num("price")-v-(secOn()?num("s2Amt"):0),0);var da=$("downAmt");da.value=Math.round(d);fire(da)});
+  m2.addEventListener("input",function(){var v=parseFloat(m2.value.replace(/[^0-9.]/g,""))||0,e=$("s2Amt");e.value=Math.round(v);fire(e)});
+  [m1,m2].forEach(function(m){m.addEventListener("blur",function(){syncA()})});
+  var r3=mk("rowC","Price and monthly housing overhead",[home],function(){
+    var t=txnV(),p=num("price"),a=num("appr");
+    if(t!=="purchase")return (a>0?T("Appraised value"):T("Home value"))+" $"+fm(a>0?a:p);
+    if(a>0&&p>0&&a<p)return T("Appraised value")+" $"+fm(a);
+    return T("Purchase price")+" $"+fm(p)},function(){var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
+  var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:""),x=lab("rtype")+" "+($("rate").value||"0")+"% \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x:x},function(){return secOn()?T("2nd mortgage")+": "+lab("s2type"):""});
+  function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}r.el.querySelector(".arowvalue").textContent=v;var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
+  upd();setInterval(upd,500);area.addEventListener("input",upd);area.addEventListener("change",upd);
+  // choosing a transaction (or second mortgage option) shows it on the right of the row, collapses it, and opens the next step
+  r1.addEventListener("change",function(e){if(e.target&&e.target.type==="radio"){upd();setTimeout(function(){toggle(r1,false);toggle(r2,true)},350)}});
+  r2.addEventListener("change",function(e){if(e.target&&e.target.type==="radio"&&(e.target.name==="occ"||e.target.name==="own")){upd();setTimeout(function(){next(r2)},350)}});
+  document.addEventListener("vklang",function(){setTimeout(upd,300)});
+  // left results block gets the same inner spacing as the right-hand ratio block, LTV is dropped (it is in the ratios)
+  var res=document.querySelector(".hero>.calc .res");if(res){var w=document.createElement("div");w.className="leftres";res.parentNode.insertBefore(w,res);
+    var nx=res;var nodes=[];while(nx){nodes.push(nx);nx=nx.nextElementSibling;if(nx&&(nx.id==="details"||nx.id==="acts"||nx.id==="plans"||nx.id==="affordCta"||nx.id==="freeNote"))break}
+    nodes.forEach(function(n){w.appendChild(n)})}
+  var rR=mk("rowR","Estimated monthly payment",[w],function(){return $("total").textContent},function(){var a=[];document.querySelectorAll("#legMain li").forEach(function(li){if(!li.hidden&&li.offsetParent!==null||(!li.hidden&&true)){var sp=li.querySelector("span");if(sp)a.push(sp.textContent.trim())}});return a.length?T("Includes")+": "+a.join(", "):""});
+  rR.classList.add("arow-pay");
+  var lt=$("ltv");if(lt&&lt.parentElement)lt.parentElement.style.display="none";
+  // clear everything, both panels, from one place under them
+  var oldClr=$("clearEntries");if(oldClr&&oldClr.parentElement)oldClr.parentElement.style.display="none";
+  var cr=document.createElement("div");cr.className="clearrow";cr.innerHTML='<button type="button" id="clearAll">Clear all entries and start over</button>';
+  var hero=document.querySelector(".hero");hero.insertBefore(cr,$("midband")||null);
+  $("clearAll").addEventListener("click",function(){
+    try{var d=$("affFrame").contentDocument;var c=d&&d.getElementById("clearEntries");if(c)c.click()}catch(e){}
+    setTimeout(function(){if(oldClr)oldClr.click()},60);
+  });
 })();
 </script>
 </body>

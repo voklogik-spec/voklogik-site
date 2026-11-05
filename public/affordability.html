@@ -56,21 +56,21 @@ html.wmode.wmode.wmode{--bg:#F5F4F8;--ink:#2B2838;--muted:#6A6678;--line:#DCD8E8
 #wLead .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 #wFine{font:12.5px/1.5 -apple-system,"Segoe UI",Arial,sans-serif;color:#6A6678;margin:0 2px 20px}#wFine a{color:#4B3F78}
 html.emb #acts,html.emb #keyActs,html.emb #keyNote,html.emb #freeNote,html.emb #manageSub,html.emb #creditInfo,html.emb main>section,html.emb .emb-hide{display:none!important}
-html.emb,html.emb body{height:100%}
-html.emb .wrap{height:100%;display:flex;flex-direction:column}
-html.emb main{flex:1;min-height:0;display:flex;flex-direction:column}
+html.emb,html.emb body{height:auto}
+html.emb .wrap{height:auto;display:block}
+html.emb main{display:block}
 html.emb main{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px!important;box-sizing:border-box}
 html.emb main>.calc{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin-bottom:0!important}
 html.emb main>.calc.emb-stats{border-top:1px solid var(--line)!important}
-html.emb main>.calc.emb-rows{flex:0 1 auto;min-height:0;overflow:auto}
-html.emb main>.calc.emb-stats{flex:none;margin-top:auto!important}
-html.emb main>.calc.emb-rows+.calc.emb-stats{margin-top:auto!important}
+html.emb main>.calc.emb-rows{overflow:visible}
+html.emb main>.calc.emb-stats{margin-top:0!important}
+html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 </style>
 <script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
 <script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <style>
-:root{--bg:#F2E6D3;--ink:#3B2416;--muted:#6E5240;--line:#DCC7AA;--accent:#C4581C;--on-accent:#fff;--ochre:#E2A03F;--clay:#8C4A2A;--panel:#FBF5EA;--good:#4B7A3D;--warn:#9C3B2E;
+:root{--bg:#F9F3E8;--ink:#3B2416;--muted:#6E5240;--line:#E3D3BA;--accent:#C4581C;--on-accent:#fff;--ochre:#E2A03F;--clay:#8C4A2A;--panel:#FFFCF6;--good:#4B7A3D;--warn:#9C3B2E;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241610;--ink:#F2E6D3;--muted:#C2A88E;--line:#4A3226;--accent:#E8833A;--on-accent:#241610;--ochre:#E2A03F;--clay:#B9714A;--panel:#33201A;--good:#8FBF7A;--warn:#E8917E}}
 :root[data-theme="dark"]{--bg:#241610;--ink:#F2E6D3;--muted:#C2A88E;--line:#4A3226;--accent:#E8833A;--on-accent:#241610;--ochre:#E2A03F;--clay:#B9714A;--panel:#33201A;--good:#8FBF7A;--warn:#E8917E}
@@ -270,7 +270,7 @@ html.emb .calc{margin-top:0!important}
 .embnote{display:none;margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;font-size:.92rem}
 html.emb .embnote:not([hidden]){display:block}
 </style>
-</head>
+<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -292,7 +292,7 @@ html.emb .embnote:not([hidden]){display:block}
 <div class="calc">
 
   <!-- Gross Monthly Income -->
-  <div class="row open" id="rowIncome">
+  <div class="row" id="rowIncome">
     <button type="button" class="rowhead" data-row="rowIncome">
       <span class="rowlabel">Gross Monthly Income<span class="cnt" id="incomeCount"></span></span>
       <span class="rowright"><span class="rowvalue" id="incomeSummary">$0</span><span class="chev">&#9662;</span></span>
@@ -2209,6 +2209,28 @@ html.emb .embnote:not([hidden]){display:block}
     var Sm=function(t){return {k:"small",t:t}};
     var rate=n("pRate")+"%", loanTxt=usd.format(n("pLoan"));
     ltvStats();var lv=ltvInfo,ltvV=p2(lv.ltv),cltvV=p2(lv.cltv);
+    // payment report section: included in every report (simple and detailed)
+    (function(){
+      var pm=[];
+      var N=Math.max(pmtYears,1)*12;
+      pm.push(R("Loan amount",loanTxt));pm.push(R("Interest rate",rate));pm.push(R("Loan term",pmtYears+" years"));
+      if(n("propValue")>0)pm.push(R(subjTxn()==="refi"?"Current home value":"Home price",usd.format(n("propValue"))));
+      if(!(pS2&&pS2.on)&&n("pLoan")>0&&n("pRate")>0){var ti=pay.pi*N-n("pLoan");if(ti>0)pm.push(R("Total interest over the loan",usd.format(ti)))}
+      pm.push(R("Principal & interest",usd.format(pay.pi)+"/mo"));
+      var parts=pmtParts;
+      var psum=parts?(parts.tax+parts.ins+parts.mi+parts.hoa+(parts.second||0)):0;
+      if(parts&&Math.abs(psum-pmtExtras)<1.5){
+        if(parts.second>0)pm.push(R("2nd mortgage payment (HELOC/HELOAN)",usd.format(parts.second)+"/mo"));
+        pm.push(R("Property tax",usd.format(parts.tax)+"/mo"));
+        pm.push(R("Home insurance",usd.format(parts.ins)+"/mo"));
+        if(parts.mi>0)pm.push(R("Mortgage insurance",usd.format(parts.mi)+"/mo"));
+        if(parts.hoa>0)pm.push(R(parts.hoaLabel||"HOA / association dues",usd.format(parts.hoa)+"/mo"));
+      }else if(pmtExtras>0){
+        pm.push(R("Taxes, insurance & fees carried over",usd.format(pmtExtras)+"/mo"));
+      }
+      pm.push(R("Total monthly payment",$("paymentSummary").textContent,1));
+      S.push({head:"Monthly payment",items:pm});
+    })();
     if(!det){
       var s=[R("Gross monthly income",income,1),R("Total monthly payment",$("paymentSummary").textContent,1),
         R("Other monthly debts",usd.format(debtTotal)+"/mo"),
@@ -2238,21 +2260,6 @@ html.emb .embnote:not([hidden]){display:block}
       inc.push(R("Gross monthly income",income,1));
       if(borrowers.length>1&&incomeBorrowers>0)inc.push(Sm("Income of "+incomeBorrowers+" borrower"+(incomeBorrowers===1?"":"s")+" is included."));
       S.push({head:"Gross monthly income",items:inc});
-      // payment
-      var pm=[R("Principal & interest",usd.format(pay.pi)+"/mo")];
-      var parts=pmtParts;
-      var psum=parts?(parts.tax+parts.ins+parts.mi+parts.hoa+(parts.second||0)):0;
-      if(parts&&Math.abs(psum-pmtExtras)<1.5){
-        if(parts.second>0)pm.push(R("2nd mortgage payment (HELOC/HELOAN)",usd.format(parts.second)+"/mo"));
-        pm.push(R("Property tax",usd.format(parts.tax)+"/mo"));
-        pm.push(R("Home insurance",usd.format(parts.ins)+"/mo"));
-        if(parts.mi>0)pm.push(R("Mortgage insurance",usd.format(parts.mi)+"/mo"));
-        if(parts.hoa>0)pm.push(R(parts.hoaLabel||"HOA / association dues",usd.format(parts.hoa)+"/mo"));
-      }else if(pmtExtras>0){
-        pm.push(R("Taxes, insurance & fees carried over",usd.format(pmtExtras)+"/mo"));
-      }
-      pm.push(R("Total monthly payment",$("paymentSummary").textContent,1));
-      S.push({head:"Monthly payment",items:pm});
       // debts
       var db=[];
       debtLines.forEach(function(id){
@@ -2648,7 +2655,7 @@ html.emb .embnote:not([hidden]){display:block}
       if(e.key!=="voklogik:payment")return;
       if(loadSavedPayment()){updatePaymentSource();["pLoan","pRate","propValue"].forEach(function(id){var el=$(id);if(el)el.dispatchEvent(new Event("input",{bubbles:true}))});$("rowPayment").dispatchEvent(new Event("input",{bubbles:true}))}
     });
-    var lastH=0;function postH(){var h=document.documentElement.scrollHeight;if(h!==lastH){lastH=h;try{parent.postMessage({vk:"aff-height",h:h},location.origin)}catch(e){}}}
+    var lastH=0;function postH(){var h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(h!==lastH){lastH=h;try{parent.postMessage({vk:"aff-height",h:h},location.origin)}catch(e){}}}
     if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);setInterval(postH,800);postH();
   }
   if(!hadSaved)toggleRow("rowPayment",true);
@@ -2748,7 +2755,7 @@ html.emb .embnote:not([hidden]){display:block}
   if(clrA)clrA.addEventListener("click",function(){
     noSaveA=true;
     try{localStorage.removeItem(ASK);localStorage.removeItem("voklogik:calcState");localStorage.removeItem("voklogik:payment");localStorage.removeItem("voklogik:affEdit")}catch(e){}
-    location.replace(location.pathname+"?fresh="+Date.now());
+    location.replace(location.pathname+(window.__VKEMB?"?embed=1&fresh=":"?fresh=")+Date.now());
   });
   var hadState=affRestore();
   // ---- sample scenario (first look) ----
