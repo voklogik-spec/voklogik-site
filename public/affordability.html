@@ -271,7 +271,7 @@ html.emb .calc{margin-top:0!important}
 .embnote{display:none;margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;font-size:.92rem}
 html.emb .embnote:not([hidden]){display:block}
 </style>
-<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style><style>html.emb main>.calc.emb-stats{display:none!important}.pr-wm{display:none}@media print{.pr-wm{display:block!important}}</style></head>
+<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style><style>html.emb main>.calc.emb-stats{display:none!important}html.emb main{display:flex!important;flex-direction:column}html.emb main>.emb-rows{flex:1;display:flex;flex-direction:column}html.emb main>.emb-rows>.row{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center}.pr-wm{display:none}@media print{.pr-wm{display:block!important}}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -2669,7 +2669,10 @@ html.emb .embnote:not([hidden]){display:block}
       if(e.key!=="voklogik:payment")return;
       if(loadSavedPayment()){updatePaymentSource();["pLoan","pRate","propValue"].forEach(function(id){var el=$(id);if(el)el.dispatchEvent(new Event("input",{bubbles:true}))});$("rowPayment").dispatchEvent(new Event("input",{bubbles:true}))}
     });
-    var lastH=0;function postH(){var h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(h!==lastH){lastH=h;try{parent.postMessage({vk:"aff-height",h:h},location.origin)}catch(e){}}}
+    var lastH=0,fillH=0;
+    function measure(){var m=document.querySelector("main");if(m)m.style.minHeight="";var h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(m&&fillH>h)m.style.minHeight=(m.getBoundingClientRect().height+fillH-h)+"px";return h}
+    function postH(){var h=measure();if(h!==lastH){lastH=h;try{parent.postMessage({vk:"aff-height",h:h},location.origin)}catch(e){}}}
+    window.addEventListener("message",function(e){if(e.origin===location.origin&&e.data&&e.data.vk==="fill"&&e.data.h!==fillH){fillH=e.data.h;measure()}});
     if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);setInterval(postH,800);postH();
   }
   if(!hadSaved)toggleRow("rowPayment",true);

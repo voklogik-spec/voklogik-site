@@ -375,6 +375,7 @@ table.sched th{color:var(--muted);font-weight:500}
 .hero>.clearrow{grid-row:4!important}
 .hero>.midband{grid-row:5!important;border-top:0!important;margin-top:0!important}
 @media (max-width:820px){.hero>.ratioband,.hero>.clearrow,.hero>.midband{grid-row:auto!important}.hero>.calc{min-height:0!important}}
+.hero.wide>.ratioband,.hero.wide>.clearrow,.hero.wide>.midband{grid-column:1 / -1!important}.hero.wide>.ratioband{grid-row:3!important}.hero.wide>.clearrow{grid-row:4!important}.hero.wide>.midband{grid-row:5!important}@media (max-width:820px){.hero.wide>.ratioband,.hero.wide>.clearrow,.hero.wide>.midband{grid-row:auto!important}}@media (max-width:820px){.hero>.hero-eyebrow{grid-row:1!important}.hero>.sample-hero{grid-row:2!important}.hero>.calc{grid-row:3!important}.hero>.ratioband,.hero.wide>.ratioband{grid-row:4!important}.hero>.clearrow,.hero.wide>.clearrow{grid-row:5!important}.hero>.midband,.hero.wide>.midband{grid-row:6!important}}
 .ratioband [hidden]{display:none!important}
 .ratioband .stat{padding:16px 18px;border-right:1px solid var(--line)}
 .ratioband .stat:last-of-type{border-right:0}
@@ -1659,7 +1660,7 @@ table.sched th{color:var(--muted);font-weight:500}
   window.addEventListener("message",function(e){if(e.data&&e.data.vk==="aff-height"){Rh=e.data.h;eq()}});
   function eq(){if(!leftP||!fr2)return;if(window.innerWidth<=820){leftP.style.minHeight="";return}
     leftP.style.minHeight="";var L=leftP.offsetHeight;if(!Rh)Rh=fr2.offsetHeight;var H=Math.max(L,Math.min(Rh,6000));
-    fr2.style.height=H+"px";leftP.style.minHeight=H+"px"}
+    fr2.style.height=H+"px";leftP.style.minHeight=H+"px";try{fr2.contentWindow.postMessage({vk:"fill",h:H},location.origin)}catch(e){}}
   setInterval(eq,400);window.addEventListener("resize",eq);
   // Topaz prompt after every PDF save or print
   document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#mPrint,#mPdf,#mKeyPdf,#printBtn,#pdfBtn");if(b)setTimeout(function(){var p=$("pdfpop");if(p&&!p.classList.contains("on")&&window.showPdfPop){var h=p.querySelector("h3");if(h)h.textContent=/Print/.test(b.id)?"Your report is printing.":"Your PDF is saved.";window.showPdfPop()}},1500)});
