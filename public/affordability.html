@@ -9,7 +9,7 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-DMN78R5ESY');
+  gtag('config', 'G-DMN78R5ESY',{send_page_view:!(/[?&]embed=1\b/.test(location.search)&&!/[?&]w=/.test(location.search))});
 </script>
 <meta name="description" content="Mortgage math, the way an underwriter sees it. Check your housing ratio, DTI, income (including self-employed and rental), other properties, assets, reserves and LTV before the file goes in.">
 <link rel="canonical" href="https://voklogik.com/affordability.html">
@@ -246,6 +246,21 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 }
 </style>
 <script src="/i18n.js"></script>
+<script>
+(function(){var q=location.search,W=/[?&]w=/.test(q),E=/[?&]embed=1\b/.test(q)&&!W;
+if(E)document.documentElement.classList.add("emb");
+else if(!W&&window.top===window.self){location.replace("/"+(/[?&]sample=1\b/.test(q)?"?sample=1":"")+"#analyzer")}
+window.__VKEMB=E})();
+</script>
+<style>
+html.emb header,html.emb footer,html.emb .skip,html.emb #iosBanner,html.emb h1,html.emb main>.lede,html.emb #sampleMsg,html.emb #sampleBtn,html.emb .samplebar:has(#sampleClear[hidden]),html.emb #rowTxn,html.emb #rowSubject,html.emb #rowPayment{display:none!important}
+html.emb body{background:transparent!important}
+html.emb .wrap{max-width:none!important;padding:0!important;margin:0!important}
+html.emb main{padding:0!important;margin:0!important}
+html.emb .calc{margin-top:0!important}
+.embnote{display:none;margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;font-size:.92rem}
+html.emb .embnote:not([hidden]){display:block}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -264,6 +279,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   <button type="button" class="editlink" id="sampleClear" hidden>Clear the sample and start with my numbers</button>
 </div>
 
+<p class="k embnote" id="embNote" hidden>Enter your home price, down payment and rate in the form on the left. Your ratios, reserves and cash to close appear here.</p>
 <div class="calc">
 
   <!-- Gross Monthly Income -->
@@ -1870,6 +1886,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   }
   $("rowPayment").addEventListener("input",function(){recompute()});
   function updatePaymentSource(){
+    var en=$("embNote");if(en)en.hidden=!(window.__VKEMB&&!usingSaved);
     $("txnSource").textContent=savedTxn?"Carried over from your payment analyzer. You can change them here.":"Choose these here, or complete the payment analyzer and they will carry over.";
     $("paymentSource").textContent = usingSaved
       ? "Carried over from your payment analyzer ("+pmtYears+"-year term). Adjust the loan amount or rate below to see how it changes your ratios."
@@ -2482,7 +2499,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
       track("click_save_pdf");
       allow(function(free){
         var doc=buildPdf();if(!doc)return;
-        try{doc.save("voklogik-affordability.pdf");if(free)bump()}catch(e){}
+        try{doc.save("voklogik-affordability.pdf");if(free)bump();if(window.__VKEMB){try{parent.postMessage({vk:"pdf-saved"},location.origin)}catch(e){}}}catch(e){}
       });
     });
   }
@@ -2611,6 +2628,15 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   addAsset(true);
   var hadSaved=loadSavedPayment();
   updatePaymentSource();
+  if(window.__VKEMB){
+    window.addEventListener("storage",function(e){
+      if(e.key==="voklogik:lang"&&window.vkSetLang){window.vkSetLang(e.newValue==="es"?"es":"en");return}
+      if(e.key!=="voklogik:payment")return;
+      if(loadSavedPayment()){updatePaymentSource();["pLoan","pRate","propValue"].forEach(function(id){var el=$(id);if(el)el.dispatchEvent(new Event("input",{bubbles:true}))});$("rowPayment").dispatchEvent(new Event("input",{bubbles:true}))}
+    });
+    var lastH=0;function postH(){var h=document.documentElement.scrollHeight;if(h!==lastH){lastH=h;try{parent.postMessage({vk:"aff-height",h:h},location.origin)}catch(e){}}}
+    if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);setInterval(postH,800);postH();
+  }
   if(!hadSaved)toggleRow("rowPayment",true);
   if(!savedTxn)toggleRow("rowTxn",true);
 
@@ -2745,7 +2771,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   if(hadState)updatePaymentSource();
   recompute();
   try{if(hadState&&localStorage.getItem(SAMPLEK)!=="1"&&($("wageAmt").value||$("pLoan").value))$("sampleBar").hidden=true}catch(e){}
-  if(wantSample&&!$("wageAmt").value&&!$("pLoan").value)setTimeout(function(){$("sampleBtn").click()},250);
+  if(wantSample&&!$("wageAmt").value)setTimeout(function(){$("sampleBtn").click()},250);
 })();
 </script>
 <script src="/widget-aff.js"></script>

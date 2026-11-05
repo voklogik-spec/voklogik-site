@@ -250,42 +250,82 @@ table.sched th{color:var(--muted);font-weight:500}
 @media (max-width:820px){.cwrap{width:min(100%,300px)}.circ{padding:24px}.cprice{font-size:3.1rem}.circ p{font-size:.95rem}.tiers li{font-size:1rem}.cper{font-size:.98rem}}
 </style>
 <script src="/i18n.js"></script>
-</head>
+<style>
+.hero{grid-template-columns:1.15fr 1fr!important}
+.hero-eyebrow{grid-column:1!important;grid-row:1!important}
+.hero-main h1{font-size:clamp(2rem,3.4vw,2.9rem)!important;line-height:1.05!important}
+.hero-eyebrow .hero-main{padding-top:10px!important}
+.hero>.calc{grid-column:1!important;grid-row:2!important}
+.hero>.sample-hero{grid-column:2!important;grid-row:1 / span 2!important;position:sticky;top:16px;align-self:start;padding-top:18px}
+.uvh{margin:0 0 6px;font:800 1.5rem "Bricolage Grotesque",sans-serif;color:var(--accent)}
+.sample-hero .sampcard{border:2px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,.08)}
+@media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)!important}.hero>*{min-width:0}.hero-eyebrow{display:block!important;grid-column:1!important}.hero>.sample-hero{grid-column:1!important;grid-row:2!important;position:static}.hero>.calc{grid-column:1!important;grid-row:3!important}}
+.plans3{margin:22px 0 6px;padding-top:18px;border-top:1px solid var(--line);text-align:center}
+.plans3 h2{margin:0 0 2px;font-size:1.3rem}
+.plans3 .lede{margin:0 auto 8px;font-size:.92rem}
+.circles3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.circles3 .cwrap{width:auto}
+.circles3 .circ{padding:8px;gap:0}.circles3 .cper{font-size:.78rem}.cdesc{margin:0;font-size:.74rem;line-height:1.25;color:var(--muted);text-align:center}
+.circles3 .cprice{font-size:1.35rem}
+.circles3 .circ p{font-size:.7rem;line-height:1.2;margin:3px 0 0}
+.circles3 .btn{font-size:.82rem;padding:8px 10px;text-align:center}
+.circles3 .ctag{letter-spacing:.06em;font-size:.82rem;display:inline-flex;align-items:center;gap:5px}
+.topazc{position:relative;border-color:var(--accent)!important}
+.brandedtag{white-space:nowrap;margin-top:4px;background:var(--accent);color:#fff;border:0;border-radius:99px;padding:3px 9px;font:700 .66rem "Bricolage Grotesque",sans-serif;cursor:pointer}
+.brandedtag .i{display:inline-block;vertical-align:middle;width:13px;height:13px;line-height:13px;border-radius:50%;background:#fff;color:var(--accent);font-size:.65rem;margin-left:3px}
+.sampop{display:none;position:absolute;z-index:5;left:50%;top:calc(100% - 8px);transform:translateX(-50%);width:270px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,.25);padding:10px;text-align:left}
+.topazc:hover .sampop,.sampop.on{display:block}
+.rep{font:.68rem/1.35 Arial,sans-serif;color:#222}
+.rep-h{display:flex;gap:8px;align-items:center;border-bottom:2px solid #C4581C;padding-bottom:6px;margin-bottom:6px}
+.rep-logo{flex:none;width:44px;height:44px;border:1px dashed #999;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:.6rem;color:#888}
+.rep-t{font-weight:800;margin:4px 0;font-size:.74rem}
+.rep-r{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:2px 0}
+.rep-f{margin-top:6px;color:#888;font-size:.6rem;text-align:center}
+.circles3 .cwrap{min-width:0}
+@media (max-width:520px){.circles3{grid-template-columns:1fr;justify-items:center}.circles3 .cwrap{width:min(100%,185px)}.circles3 .cprice{font-size:1.5rem}.sampop{width:250px}}
+.cfine{font-size:.74rem;color:var(--muted);margin:10px 0 0}
+.pdfpop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.pdfpop.on{display:flex}
+.pdfpop .box{background:#fff;border-radius:14px;max-width:380px;padding:24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.pdfpop h3{margin:0 0 6px;font:800 1.2rem "Bricolage Grotesque",sans-serif}
+.pdfpop p{margin:0 0 14px;font-size:.92rem}
+.pdfpop .row{display:flex;gap:10px;justify-content:center}
+.pdfpop .btn.pri{background:var(--accent);color:#fff}
+</style>
+<div class="pdfpop" id="pdfpop"><div class="box"><h3>Your PDF is saved.</h3><p>Choose <strong>Topaz</strong> to add your name and branded logo to your reports.</p><div class="row"><a class="btn pri" href="/topaz.html">See Topaz</a><button type="button" class="btn" onclick="document.getElementById('pdfpop').classList.remove('on')">Not now</button></div></div></div>
+<script>document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#brTag");if(b){document.getElementById("sampop").classList.toggle("on")}})</script>
+<style>
+.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:32px}
+.hero-eyebrow{grid-column:1 / -1!important;grid-row:1!important;text-align:center}
+.hero-eyebrow .hero-main{padding-top:6px!important}
+.hero-main h1{white-space:nowrap;font-size:clamp(1.5rem,3.6vw,2.9rem)!important;margin:0 0 6px}
+.hero-main .lede{margin:0 auto 6px!important}
+.startline{font-size:.95rem}
+.hero>.calc{grid-column:1!important;grid-row:2!important}
+.hero>.sample-hero{grid-column:2!important;grid-row:2!important;position:sticky;top:12px;align-self:start;padding-top:0}
+#affFrame{width:100%;height:calc(100vh - 24px);min-height:640px;border:1px solid var(--line,#e3d3bd);border-radius:16px;background:#fcf5ea;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.XX{margin:0 0 16px;border:1px solid var(--line,#e3d3bd);border-radius:12px;padding:10px 14px;background:rgba(255,255,255,.4)}
+.moreopt>summary{cursor:pointer;font-weight:700;font-size:.92rem;color:var(--accent)}
+.moreopt[open]>summary{margin-bottom:12px}
+@media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)!important}.hero-main h1{white-space:normal;font-size:clamp(1.6rem,7vw,2.2rem)!important}.hero>.sample-hero{grid-column:1!important;grid-row:2!important;position:static}#affFrame{height:900px}.hero>.calc{grid-column:1!important;grid-row:3!important}}
+</style><style>.hero{row-gap:18px!important}.hero-eyebrow .hero-main{padding-bottom:0}</style></head>
 <body>
 <div class="wrap">
 <header>
   <div class="bw"><a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#C4581C"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
-  <nav><a href="/affordability.html">Affordability</a><a href="#plans">Plans</a><a href="/topaz.html">Topaz</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
+  <nav><a href="#analyzer">Pre-Underwrite</a><a href="#plans">Plans</a><a href="/topaz.html">Topaz</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
 </header>
 
 <main id="top">
 <div id="iosBanner"><span>On iPhone: tap the Share icon, then "Add to Home Screen" to install Voklogik.</span><button type="button" id="iosBannerClose" aria-label="Dismiss">&times;</button></div>
 <div class="hero">
-  <div class="hero-eyebrow"><p class="eyebrow">Look inside the file review, before it happens.</p>
-  <p class="lede freeline"><strong>Free to start.</strong> Your first 5 reports are free. <a href="#plans" onclick="track('click_see_plans')">See plans</a></p>
-  <div class="hero-main">
+  <div class="hero-eyebrow"><div class="hero-main">
     <h1>Mortgage math, <em>the way an underwriter sees it.</em></h1>
-    <p class="lede" style="margin-bottom:10px">For borrowers, realtors, loan officers, processors and underwriters.</p>
-    <ul class="lede" style="margin:0 0 14px;padding-left:22px;display:flex;flex-direction:column;gap:6px">
-      <li>Built by an underwriter with 15+ years of experience.</li>
-      <li>See your file before the underwriter does.</li>
-    </ul>
+    <p class="lede" style="margin-bottom:10px"><strong>Not a calculator. An analyzer.</strong></p>
+    <p class="lede startline">Start with your numbers below, or <a href="#analyzer" id="sampleLink">see a sample analysis</a>.</p>
+    </div>
   </div>
-  </div>
-  <div class="sample-hero">
-    <p class="lede">Your payment, plus everything underwriting looks at: ratios, assets and reserves.</p>
-    <p style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="btn" href="/affordability.html?sample=1" style="display:inline-block;text-decoration:none" onclick="track('click_hero_sample')">See a sample analysis in 10 seconds</a><a href="/affordability.html" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" onclick="track('click_hero_affordability')">Or start with your numbers</a></p>
-    <a class="sampcard" href="/affordability.html?sample=1" onclick="track('click_hero_samplecard')" aria-label="Open the sample analysis">
-      <span class="sc-tag">Sample result</span>
-      <span class="sc-grid">
-        <span><b>Housing ratio</b><em>24.9%</em><i class="ok">Comfortable</i></span>
-        <span><b>Debt-to-income</b><em>31.0%</em><i class="ok">Comfortable</i></span>
-        <span><b>Reserves</b><em>6 months</em><i class="ok">Covered</i></span>
-        <span><b>Cash to close</b><em>$44,450</em><i class="ok">Covered</i></span>
-      </span>
-      <span class="sc-note">Made-up numbers. Tap to see how it works, then try your own.</span>
-    </a>
-  </div>
+  <div class="sample-hero" id="analyzer"><iframe id="affFrame" src="/affordability.html?embed=1" title="Affordability analyzer" loading="eager"></iframe></div>
 
   <div class="calc" role="group" aria-label="Mortgage analyzer">
     <p class="k" id="prepPrint"></p>
@@ -460,6 +500,53 @@ table.sched th{color:var(--muted);font-weight:500}
         <button type="button" class="btn" id="pvBtn" hidden>Preview</button>
         <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
       </div>
+            <div class="plans3" id="plans">
+        <h2>Choose your plan to stay connected</h2>
+        <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
+        <div class="circles3">
+          <div class="cwrap">
+            <div class="circ">
+              <span class="ctag">Individual</span>
+              <span class="cprice">$4.99</span>
+              <span class="cper">25-report pack</span>
+            </div>
+            <p class="cdesc">One pack per month. 5 free before you purchase.</p>
+            <a class="btn" href="#inputsArea">Start with 5 free reports</a>
+          </div>
+          <div class="cwrap">
+            <div class="circ topazc">
+              <span class="ctag"><span class="gem topaz"></span>Topaz</span>
+              <span class="cprice">$29.99</span>
+              <span class="cper">per month</span>
+              <button type="button" class="brandedtag" id="brTag" aria-expanded="false" onclick="track('click_plan_info',{plan:'topaz'})">Branded reports <span class="i">i</span></button>
+              <div class="sampop" id="sampop" role="tooltip">
+                <div class="rep">
+                  <div class="rep-h"><span class="rep-logo">YOUR<br>LOGO</span><span><b>Jordan Rivera</b><br>Loan Officer · NMLS# 000000<br>jordan@yourco.com · (555) 010-0100</span></div>
+                  <div class="rep-t">Mortgage Analysis for Alex &amp; Sam Carter</div>
+                  <div class="rep-r"><span>Housing ratio</span><b>24.9%</b></div>
+                  <div class="rep-r"><span>Debt-to-income</span><b>31.0%</b></div>
+                  <div class="rep-r"><span>Reserves</span><b>6 months</b></div>
+                  <div class="rep-r"><span>Cash to close</span><b>$44,450</b></div>
+                  <div class="rep-f">Sample with made-up numbers</div>
+                </div>
+              </div>
+            </div>
+            <p class="cdesc">Your name, logo and contact info on every report.</p>
+            <a class="btn" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
+          </div>
+          <div class="cwrap">
+            <div class="circ opalc">
+              <span class="ctag"><span class="gem opal"></span>Opal</span>
+              <span class="cprice">$79</span>
+              <span class="cper">per month</span>
+            </div>
+            <p class="cdesc">Coming soon. Founding offer for the first 20 businesses: $49.99 for the first year.</p>
+            <a class="btn" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist">Join the Opal waitlist</a>
+          </div>
+        </div>
+        <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Opal is coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
+      </div>
+
       <p class="k" id="freeNote" style="margin:12px 0 0"></p>
       <p class="k" style="margin:6px 0 0"><button type="button" id="clearEntries" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Clear all entries and start over</button></p>
       <p class="k" id="manageSub" hidden style="margin:4px 0 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
@@ -474,39 +561,6 @@ table.sched th{color:var(--muted);font-weight:500}
         <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
       </div>
     </div>
-  </div>
-</div>
-
-<div class="plansband">
-  <div class="plans-hero" id="plans">
-    <h2>Plans, when you are ready</h2>
-    <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
-    <div class="circles">
-      <div class="cwrap">
-        <div class="circ" id="circInd">
-          <span class="ctag">Individual</span>
-          <span class="cprice">$4.99</span>
-          <span class="cper">per month</span>
-          <p>25 reports a month. No worries: 5 free before you purchase.</p>
-        </div>
-        <a class="btn" href="#inputsArea" onclick="track('click_plans_individual')">Start with 5 free reports</a>
-      </div>
-      <div class="cwrap">
-        <div class="circ" id="circBiz">
-          <span class="ctag">Business</span>
-          <span class="cper">Mortgage professionals and realtors</span>
-          <ul class="tiers">
-            <li><span class="gem topaz" aria-hidden="true"></span>Topaz Tier <span class="pr">$29.99</span><button type="button" class="info" data-t="topaz" aria-expanded="false" aria-describedby="tierTip" aria-label="About Topaz Tier">i</button></li>
-            <li><span class="gem opal" aria-hidden="true"></span>Opal Tier <span class="pr">$79</span><button type="button" class="info" data-t="opal" aria-expanded="false" aria-describedby="tierTip" aria-label="About Opal Tier">i</button></li>
-          </ul>
-          <p class="k" style="margin-top:6px;font-size:.78rem">Per month. Opal coming soon.</p>
-        </div>
-        <div class="tipbox" id="tierTip" role="tooltip" hidden></div>
-        <a class="btn" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
-        <p class="k" style="margin:8px 0 0;font-size:.8rem"><a href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Join the Opal waitlist</a> &middot; <a href="/topaz.html">Topaz sign in</a></p>
-      </div>
-    </div>
-    <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Founding offer: the first 20 businesses get Opal for $49.99 per month for their first year, then $79. Opal is coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
   </div>
 </div>
 
@@ -1343,5 +1397,34 @@ table.sched th{color:var(--muted);font-weight:500}
 })();
 </script>
 <script src="/install-tip.js"></script>
+<style>
+#affordCta{display:none!important}
+@media print{.sample-hero,.plans3,.pdfpop{display:none!important}}
+</style>
+<script>
+(function(){
+  function $(i){return document.getElementById(i)}
+  var fr=$("affFrame");if(!fr)return;
+  function loadSample(){fr.src="/affordability.html?embed=1&sample=1&t="+Date.now();$("analyzer").scrollIntoView({behavior:"smooth",block:"start"})}
+  var sl=$("sampleLink");if(sl)sl.addEventListener("click",function(e){e.preventDefault();try{track("click_hero_sample")}catch(x){}loadSample()});
+  if(/[?&]sample=1\b/.test(location.search)){fr.src="/affordability.html?embed=1&sample=1";setTimeout(function(){$("analyzer").scrollIntoView({block:"start"})},400)}
+  window.addEventListener("message",function(e){
+    if(e.origin!==location.origin||!e.data)return;
+    if(e.data.vk==="aff-height"&&window.matchMedia("(max-width:820px)").matches){fr.style.height=Math.min(Math.max(e.data.h,500),6000)+"px"}
+    if(e.data.vk==="pdf-saved")showPdfPop();
+  });
+  var pop=$("pdfpop");
+  function isTopaz(){try{return !!(window.VKTZ&&VKTZ.active&&VKTZ.active())}catch(e){return false}}
+  function showPdfPop(){
+    if(isTopaz())return;
+    try{if(sessionStorage.getItem("vk:pdfpop")==="1")return;sessionStorage.setItem("vk:pdfpop","1")}catch(e){}
+    pop.classList.add("on");try{track("topaz_prompt_shown")}catch(e){}
+  }
+  var pb=$("pdfBtn");if(pb)pb.addEventListener("click",function(){setTimeout(showPdfPop,1200)});
+  var link=pop.querySelector("a.btn");if(link)link.addEventListener("click",function(){try{track("topaz_prompt_click")}catch(e){}});
+  pop.addEventListener("click",function(e){if(e.target===pop)pop.classList.remove("on")});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")pop.classList.remove("on")});
+})();
+</script>
 </body>
 </html>
