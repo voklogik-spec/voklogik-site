@@ -236,9 +236,10 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
   html,body{background:#fff!important}
   .wrap{display:none!important}
   #printReport{display:block;color:#3B2416;font:11pt/1.4 "Helvetica Neue",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .pr-top{display:flex;justify-content:space-between;align-items:flex-end;background:#F2E6D3;border-bottom:3px solid #C4581C;padding:14px 16px 10px;margin-bottom:18px}
-  .pr-brand{font:700 24pt "Helvetica Neue",Arial,sans-serif;color:#C4581C}
-  .pr-meta{display:flex;flex-direction:column;align-items:flex-end;font-style:italic;font-size:10pt;color:#6E5240}
+  .pr-top{display:flex;justify-content:space-between;align-items:flex-end;background:#C4581C;border-bottom:3px solid #E2A03F;padding:18px 16px 12px;margin-bottom:18px}
+  .pr-brand{font:700 26pt "Times New Roman",Times,serif;color:#fff}
+  .pr-wm{display:block;position:fixed;top:44%;left:50%;transform:translate(-50%,-50%) rotate(-32deg);font:700 110pt "Times New Roman",Times,serif;color:#C4581C;opacity:.07;z-index:-1;white-space:nowrap}
+  .pr-meta{display:flex;flex-direction:column;align-items:flex-end;font-style:italic;font-size:10pt;color:#fff}
   .pr-sec{margin:0 0 16px}
   .pr-sec h2{font:700 13pt "Helvetica Neue",Arial,sans-serif;margin:0 0 8px;padding-bottom:3px;border-bottom:1px solid #DCC7AA;color:#8C4A2A;break-after:avoid}
   .pr-row{display:flex;justify-content:space-between;gap:16px;padding:2px 0;break-inside:avoid}
@@ -270,7 +271,7 @@ html.emb .calc{margin-top:0!important}
 .embnote{display:none;margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;font-size:.92rem}
 html.emb .embnote:not([hidden]){display:block}
 </style>
-<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style></head>
+<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style><style>html.emb main>.calc.emb-stats{display:none!important}.pr-wm{display:none}@media print{.pr-wm{display:block!important}}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -2213,7 +2214,13 @@ html.emb .embnote:not([hidden]){display:block}
     (function(){
       var pm=[];
       var N=Math.max(pmtYears,1)*12;
-      pm.push(R("Loan amount",loanTxt));pm.push(R("Interest rate",rate));pm.push(R("Loan term",pmtYears+" years"));
+      var s2on=!!(pS2&&pS2.on);
+      pm.push(R(s2on?"1st mortgage loan amount":"Loan amount",loanTxt));pm.push(R(s2on?"1st mortgage interest rate":"Interest rate",rate));pm.push(R(s2on?"1st mortgage term":"Loan term",pmtYears+" years"));
+      if(s2on){var hl2=pS2.type==="heloc",a2=n("pLoan2");
+        pm.push(R(hl2?"2nd mortgage (HELOC) credit limit":"2nd mortgage (HELOAN) amount",usd.format(a2)));
+        pm.push(R("2nd mortgage interest rate",n("pRate2")+"%"));
+        if(!hl2&&pS2.years>0)pm.push(R("2nd mortgage term",pS2.years+" years"));
+        pm.push(R("Total of both loans",usd.format(n("pLoan")+a2)))}
       if(n("propValue")>0)pm.push(R(subjTxn()==="refi"?"Current home value":"Home price",usd.format(n("propValue"))));
       if(!(pS2&&pS2.on)&&n("pLoan")>0&&n("pRate")>0){var ti=pay.pi*N-n("pLoan");if(ti>0)pm.push(R("Total interest over the loan",usd.format(ti)))}
       pm.push(R("Principal & interest",usd.format(pay.pi)+"/mo"));
@@ -2379,8 +2386,9 @@ html.emb .embnote:not([hidden]){display:block}
       disclaimer:"This is an estimate for planning only and is not a loan offer, pre-approval, or guarantee of approval. Actual qualifying income and ratios are determined by your lender's underwriting guidelines."
     };
   }
+  function showWM(){var tz=false,op=false;try{tz=!!(window.VKTZ&&VKTZ.branded&&VKTZ.branded());op=!!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())}catch(e){}var pd=false;try{pd=paid()}catch(e){}return !tz&&!op&&!pd}
   function renderPrint(rep){
-    var h='<div class="pr-top"><div class="pr-brand">Voklogik</div><div class="pr-meta"><span>'+esc(rep.sub)+'</span><span>'+esc(rep.date)+'</span></div></div>';
+    var h=(showWM()?'<div class="pr-wm" aria-hidden="true">Voklogik</div>':'')+'<div class="pr-top"><div class="pr-brand">Voklogik</div><div class="pr-meta"><span>'+esc(rep.sub)+'</span><span>'+esc(rep.date)+'</span></div></div>';
     rep.sections.forEach(function(sec){
       h+='<div class="pr-sec"><h2>'+esc(sec.head)+'</h2>';
       sec.items.forEach(function(it){
@@ -2477,7 +2485,13 @@ html.emb .embnote:not([hidden]){display:block}
     function T(c){d.setTextColor(c[0],c[1],c[2])}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
     function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
-    function chk(need){if(y+ (need||18) >758){d.addPage();y=64}}
+    function chk(need){if(y+ (need||18) >758){d.addPage();y=64;wmark()}}
+    function wmark(){if(!showWM())return;try{
+      d.saveGraphicsState();d.setGState(new d.GState({opacity:0.07}));T(OR);d.setFont("times","bold");d.setFontSize(120);
+      var ww=d.getTextWidth("Voklogik"),ar=32*Math.PI/180;
+      d.text("Voklogik",PW/2-(ww/2)*Math.cos(ar),792/2+50+(ww/2)*Math.sin(ar),{angle:32});
+      d.restoreGraphicsState();
+    }catch(e){}}
     var CLAY=[140,74,42],CREAM=[242,230,211],OP=!!(window.VKTZ&&VKTZ.opal&&VKTZ.opal());
     if(OP){OR=[75,63,120];INK=[43,40,56];MU=[106,102,120];LN=[220,216,232];CLAY=[58,48,95];CREAM=[243,240,250]}
     function head(t){chk(40);T(CLAY);font("bold",14);d.text(t,L,y);y+=8;D(LN);d.setLineWidth(1);d.line(L,y,L+W,y);y+=20}
@@ -2486,15 +2500,15 @@ html.emb .embnote:not([hidden]){display:block}
     function para(t){T(MU);font("normal",9);d.splitTextToSize(t,W).forEach(function(x){chk();d.text(x,L,y);y+=12})}
     function small(t){T(MU);font("normal",8);d.splitTextToSize(t,W-16).forEach(function(x){chk(12);d.text(x,L+16,y);y+=11});y+=6}
 
-    d.setFillColor(CREAM[0],CREAM[1],CREAM[2]);d.rect(0,0,PW,104,"F");
-    var TZ=window.VKTZ&&VKTZ.branded();
-    if(TZ){VKTZ.drawBrand(d,{PW:PW,L:L,y:8,boxW:170,boxH:46,fg:OR,fontName:"helvetica",nameSize:22,nameBase:40});
-      VKTZ.drawLines(d,L,66,MU,PW-2*L-70,"helvetica")}
-    else{T(OR);font("bold",22);d.text("Voklogik",L,y)}
-    y+=6;
-    var sy=TZ?26:16;T(MU);font("italic",11);d.text(rep.sub,L,y+sy);
-    d.text(rep.date,L+W,y+sy,{align:"right"});
-    y+=34;D(OP?[214,190,138]:OR);d.setLineWidth(2);d.line(L,y,L+W,y);y+=26;
+    var TZ=window.VKTZ&&VKTZ.branded(),WH=[255,255,255],OC=OP?[214,190,138]:[226,160,63];
+    wmark();
+    d.setFillColor(OR[0],OR[1],OR[2]);d.rect(0,0,PW,96,"F");d.setFillColor(OC[0],OC[1],OC[2]);d.rect(0,96,PW,3,"F");
+    var RX=PW-L;
+    if(TZ){RX=VKTZ.drawBrand(d,{PW:PW,L:L,y:10,boxW:170,boxH:50,fg:WH,fontName:"times",nameSize:28,nameBase:48});VKTZ.drawLines(d,L,76,WH,PW-2*L,"times")}
+    else{T(WH);d.setFont("times","bold");d.setFontSize(32);d.text("Voklogik",L,58)}
+    T(WH);d.setFont("times","italic");d.setFontSize(13);d.text(rep.sub,RX,TZ?36:50,{align:"right"});
+    d.setFontSize(10.5);d.text(rep.date,RX,TZ?54:68,{align:"right"});
+    y=134;
 
     rep.sections.forEach(function(sec){
       head(sec.head);
