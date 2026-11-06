@@ -14,7 +14,7 @@
 <meta name="description" content="Voklogik, the voice of logic in mortgage. A mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.">
 <link rel="canonical" href="https://voklogik.com/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#C4581C">
+<meta name="theme-color" content="#030712">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Voklogik">
 <meta property="og:title" content="Voklogik Mortgage Analyzer | DTI, Assets and Reserves">
@@ -393,15 +393,156 @@ table.sched th{color:var(--muted);font-weight:500}
 #leftRows{flex:1;display:flex;flex-direction:column}
 #leftRows>.arow{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center}
 .prwm{display:none}@media print{.hero>.calc{break-inside:auto!important;display:block!important;background:transparent!important}body{background:transparent!important}.hero{display:block!important}body.vkwm .prwm{display:block;position:fixed;top:44%;left:50%;transform:translate(-50%,-50%) rotate(-32deg);font:700 110pt "Times New Roman",Times,serif;color:#C4581C;opacity:.07;z-index:-1;white-space:nowrap}.hero .hero-eyebrow{display:none!important}footer{margin-top:6px!important}.vtrust,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}.ratioband,.clearrow,.midband{display:none!important}.arow:not(.open) .arowbody{display:block!important}.adone{display:none!important}}
+</style><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="vkfont">
+:root{--ui:Inter,"Helvetica Neue",Arial,sans-serif;--mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{font-family:var(--ui);font-weight:400;-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
+/* headers: Inter Bold / Semi-Bold */
+h1,h2,h3,h4,.brand,.mission .mlabel,.paywall b,.ptcircle b,.reportbox h3{font-family:var(--ui)!important;font-weight:700;letter-spacing:-.025em}
+.hero-main h1{font-weight:700!important;letter-spacing:-.035em!important}
+.arowlabel,.rowlabel,.stathead .rowlabel,.row>.rowhead .rowlabel,button.rowhead>span:first-child{font-family:var(--ui)!important;font-weight:600;letter-spacing:-.01em}
+/* labels: Inter Regular */
+label,.k,.small,.arowsub,.arowsub *,.ratnote,.infobtn,.statword{font-family:var(--ui)}
+label{font-weight:400}
+.statword{font-weight:600}
+/* numbers: Geist Mono, only in inputs, calculated outputs and amortization grids */
+input,select,textarea,.arowvalue,.rowvalue,.big,#total,.statpct,.cprice,.sum b,.sum strong,ul.leg li b,table.sched th,table.sched td,#armRange,.mono{font-family:var(--mono)!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1,"zero" 0;letter-spacing:-.02em}
+.arowvalue,.rowvalue{font-weight:600;font-size:.9rem}
+.rowvalue{font-size:1.1rem}
+.big{font-weight:600}.statpct{font-weight:600;letter-spacing:-.04em}
+input,select,textarea{font-weight:500}
+table.sched th{font-family:var(--ui)!important;font-weight:600}
+#rowT .arowvalue,#rowP .arowvalue{font-family:var(--ui)!important;font-weight:600;font-size:.98rem;letter-spacing:-.01em}
+.statpct{letter-spacing:-.06em!important}
+</style><style id="vkpalette">
+:root:not([data-theme="dark"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#030712;--mi:#64748B;--hoa:#94A3B8;--s2:#334155;--good:#0369A1;--warn:#DC2626;--sky:#0EA5E9;--orange:#FF5500}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#030712;--mi:#64748B;--hoa:#94A3B8;--s2:#334155}}
+html,body{background:#fff!important;color:#030712}
+/* crisp 1px technical containers, small radius, no shadows */
+.hero>.calc,.hero>.sample-hero,#affFrame,.ratioband,.reportbox,.card,.plan,#midband .box,details.payonly,.mission,.paywall{border:1px solid #E2E8F0!important;border-radius:8px!important;box-shadow:none!important;background:#fff!important}
+.hero>.sample-hero{border:0!important}
+#affFrame{border:0!important;background:#fff!important}
+.arow,.row,.arowhead{border-color:#E2E8F0!important}
+.ratioband .stat{border-right:1px solid #E2E8F0}
+input,select,textarea{background:#fff!important;border:1px solid #E2E8F0!important;border-radius:6px!important;color:#030712}
+input:focus,select:focus,textarea:focus{outline:0!important;border-color:#0EA5E9!important;box-shadow:0 0 0 3px rgba(14,165,233,.22)!important}
+:focus-visible{outline:2px solid #0EA5E9!important}
+/* data = deep navy; accent orange only for brand + triggers */
+.arowvalue,.rowvalue,.big,#total,.cprice,.statpct{color:#030712!important}
+.arowsub .yn-y,.yn-y{color:#0369A1!important}.arowsub .yn-n,.yn-n{color:#DC2626!important}
+.statword.good{background:rgba(14,165,233,.12)!important;color:#0369A1!important}
+.statword.warn{background:rgba(220,38,38,.10)!important;color:#B91C1C!important}
+.statword.info{background:#F1F5F9!important;color:#334155!important}
+.bar b:first-child{background:#0EA5E9!important}.leg li:first-child span::before{background:#0EA5E9!important}
+.hero-main h1 em,.hero-main h1 span{color:#FF5500}
+/* top rails */
+.vtrust{background:#030712!important;box-shadow:0 0 0 100vmax #030712!important;color:#E2E8F0}
+header{background:transparent}
+.brand{color:#FF5500!important}
+nav a{color:#030712!important;font-weight:500}nav a:hover{color:#FF5500!important}
+footer{background:#030712!important;box-shadow:0 0 0 100vmax #030712!important;color:#CBD5E1!important}footer a{color:#fff!important}
+/* conversion engine: orange buttons */
+.btn,button.btn,#mPrint,#mPv,#mPdf,.cta,.primary,button.primary{background:#FF5500!important;border-color:#FF5500!important;color:#fff!important}
+.ratioband .infobtn,.adone,.adone a,#clearAll,.clearrow a,a.link{color:#FF5500!important}
+.ratioband .ratnote,.arowsub{color:#475569}
+</style><style id="vkrazor">
+/* 1. razor-edge: no shadows anywhere */
+*,*::before,*::after{text-shadow:none!important}
+:root:not([data-theme="dark"]) *:not(.vtrust):not(footer):not(.prwm){box-shadow:none!important}
+input:focus,select:focus,textarea:focus{box-shadow:none!important;border-color:#0EA5E9!important;outline:1px solid #0EA5E9!important;outline-offset:0}
+/* 2. orange 4px rule over navy header block */
+header{background:transparent!important;border:0!important;position:relative;isolation:isolate}header::before{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:50%;width:100vw;margin-left:-50vw;background:#030712;border-top:4px solid #FF5500}
+header .brand{color:#FF5500!important}
+header .brand small,header .brand .tag,header .tagline{color:#94A3B8!important}
+header nav a{color:#F8FAFC!important}header nav a:hover{color:#FF5500!important}
+header nav button,header .lang,header .lang *{color:#CBD5E1}
+header .lang .on,header [data-l].on,header [aria-pressed=true]{color:#FF5500!important}
+.vtrust{border-top:1px solid #1E293B;border-bottom:0;background:#030712!important}
+/* 3. reactive row highlight */
+.arow,.row,.arowhead,table.sched tbody tr,table.sched td,.ratioband .stat,#midband .stat,ul.leg li,.plan,.card{transition:background-color .12s ease}
+.arow:hover,.row:hover,table.sched tbody tr:hover,table.sched tbody tr:hover td,.ratioband .stat:hover,.stat:hover,ul.leg li:hover{background-color:#F0F9FF!important}
+</style><style id="vksq">
+.circ{aspect-ratio:auto!important;border-radius:8px!important;border:1px solid #E2E8F0!important;padding:22px 16px!important;min-height:0}
+.circ:hover{background:#F0F9FF!important}
+.cwrap:nth-child(2) .circ{border:1px solid #030712!important;border-top:4px solid #FF5500!important}
+.ctag{letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:#475569}
+header .tag{color:#94A3B8!important}
+.hero-main h1,.hero h1{color:#030712}
+.hero-main h1 em,.hero h1 em{color:#030712!important;font-style:normal;text-decoration:underline;text-decoration-color:#FF5500;text-decoration-thickness:5px;text-underline-offset:8px;text-decoration-skip-ink:none}.cprice{letter-spacing:-.07em}
+</style><style id="vkws">
+.wsbar{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid #E2E8F0}
+.wsin{max-width:1180px;margin:0 auto;padding:8px 20px;display:flex;align-items:center;gap:12px}
+.wslab{font:600 .68rem var(--mono,monospace);letter-spacing:.14em;color:#64748B}
+.wsseg{display:inline-flex;border:1px solid #CBD5E1;border-radius:6px;overflow:hidden;background:#F8FAFC}
+.wsseg button{font:600 .85rem Inter,sans-serif;padding:7px 16px;border:0;background:transparent;color:#64748B;cursor:pointer;min-height:34px}
+.wsseg button+button{border-left:1px solid #CBD5E1}
+.wsseg button[aria-checked=true]{background:#030712;color:#fff}
+.wsseg button:not([aria-checked=true]):hover{background:#F0F9FF;color:#030712}
+.wshint{font:500 .78rem var(--mono,monospace);color:#64748B}
+.wscta{margin-left:auto;background:#FF5500;color:#fff;border:1px solid #FF5500;border-radius:6px;font:700 .88rem Inter,sans-serif;padding:8px 18px;min-height:34px;cursor:pointer}
+.wscta:hover{background:#E64D00}
+@media (max-width:560px){.wshint,.wslab{display:none}.wsin{padding:8px 12px;gap:8px}.wsseg button{padding:7px 10px;font-size:.8rem}.wscta{padding:8px 12px;font-size:.82rem}}
+/* Homebuyer view: fold away advanced rows and fields (values still count) */
+@media screen{html.vk-simple #rowT,html.vk-simple #rowP,html.vk-simple #apprF,html.vk-simple #hoaF,html.vk-simple #miF,html.vk-simple #qrF,html.vk-simple #armCapsGroup,html.vk-simple #rcol,html.vk-simple #lh2{display:none!important}}
+.arow{transition:opacity .15s}
+@media print{.wsbar{display:none!important}}.vtrust{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 28px;padding:8px 12px!important;font-size:.8rem!important;line-height:1.35}.vtrust span{display:inline!important;margin:0!important}
+</style><style id="vklogic">
+.logicbtn{display:inline-block;margin:8px 0 0;padding:4px 8px;background:#fff;border:1px solid #CBD5E1;border-radius:4px;font:500 .68rem var(--mono,monospace);color:#030712;cursor:pointer;letter-spacing:-.02em;white-space:nowrap}
+.logicbtn:hover{border-color:#0EA5E9;background:#F0F9FF}
+.logicbtn[aria-expanded=true]{background:#030712;color:#fff;border-color:#030712}
+.lgd{grid-column:1/-1;max-height:0;overflow:hidden;transition:max-height .28s ease;background:#0F172A;border-radius:8px;margin-top:0}
+.lgd.on{max-height:900px;margin-top:14px;border:1px solid #1E293B}
+.lgtabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid #1E293B;background:#0B1220}
+.lgtabs button{font:500 .76rem var(--mono,monospace);color:#94A3B8;background:transparent;border:0;border-right:1px solid #1E293B;padding:9px 14px;cursor:pointer}
+.lgtabs button[aria-selected=true]{color:#fff;background:#0F172A;box-shadow:inset 0 -2px 0 #0EA5E9}
+.lgtabs .lgx{margin-left:auto;border-right:0;border-left:1px solid #1E293B}
+.lgcode{margin:0;padding:18px 20px;font:400 .84rem/1.75 var(--mono,"Geist Mono",monospace);color:#E2E8F0;white-space:pre-wrap;overflow-x:auto;tab-size:2}
+.lgcode .c{color:#64748B}.lgcode .k{color:#94A3B8}.lgcode .v{color:#38BDF8}.lgcode .r{color:#fff;font-weight:600}.lgcode .ok{color:#38BDF8;font-weight:600}.lgcode .no{color:#F87171;font-weight:600}.lgcode .o{color:#FF5500;font-weight:600}
+.lgfoot{padding:10px 20px 14px;border-top:1px solid #1E293B;font:400 .72rem/1.5 var(--mono,monospace);color:#64748B}
+@media (max-width:560px){.lgcode{font-size:.74rem;padding:14px}.lgtabs button{padding:8px 10px;font-size:.7rem}}
+@media print{.logicbtn,.lgd{display:none!important}}
+</style><style id="vktiers">
+.pilot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;background:#030712;color:#E2E8F0;border-radius:8px;padding:12px 16px;margin:14px 0 14px;text-align:left}
+.pilot .pl{font:600 .7rem var(--mono,monospace);letter-spacing:.14em;color:#FF5500}
+.pilot .pt{flex:1;min-width:220px;font-size:.9rem;line-height:1.4}
+.pilot .pb{font:600 .8rem var(--mono,monospace);background:#FF5500;color:#fff;border-radius:6px;padding:8px 14px;text-decoration:none;white-space:nowrap}
+.tiers3{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;text-align:left;margin:0 0 6px}
+.tier{padding:22px 20px;display:flex;flex-direction:column;gap:12px;background:#fff}
+.tier+.tier{border-left:1px solid #E2E8F0}
+.tier.feat{border-top:4px solid #FF5500;padding-top:19px}
+.th{display:flex;flex-direction:column;gap:3px}
+.tn{font:700 1.1rem Inter,sans-serif;color:#030712;display:flex;align-items:center;gap:6px}
+.ts{font:500 .66rem var(--mono,monospace);letter-spacing:.12em;color:#64748B}
+.tp{display:flex;align-items:baseline;gap:8px;font-family:var(--mono,monospace)}
+.tp b{font-size:2rem;font-weight:600;color:#030712;letter-spacing:-.06em}
+.tp span{font-size:.76rem;color:#64748B}
+.tier ul{list-style:none;margin:0;padding:12px 0 0;border-top:1px solid #E2E8F0;display:flex;flex-direction:column;gap:9px;flex:1}
+.tier li{font-size:.88rem;line-height:1.4;color:#030712;padding-left:16px;position:relative}
+.tier li::before{content:"";position:absolute;left:0;top:.55em;width:7px;height:2px;background:#0EA5E9}
+.tier li.mut{color:#475569;font-size:.82rem}
+.tier li.mut::before{background:#CBD5E1}
+.tb{display:block;text-align:center;font:700 .9rem Inter,sans-serif;background:#FF5500;color:#fff!important;border:1px solid #FF5500;border-radius:6px;padding:11px 14px;text-decoration:none}
+.tb.ghost{background:#fff;color:#030712!important;border-color:#030712}
+.tb.ghost:hover{background:#F0F9FF}
+.brwrap{display:inline-block;position:relative}
+@media (max-width:820px){.tiers3{grid-template-columns:1fr}.tier+.tier{border-left:0;border-top:1px solid #E2E8F0}}
 </style></head>
 <body>
 <div class="prwm" aria-hidden="true">Voklogik</div>
 <div class="wrap">
-<div class="vtrust"><span>Built by a mortgage underwriter with 15+ years of experience</span><span>Planning estimates only · not affiliated with any lender</span></div>
 <header>
   <div class="bw"><a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#C4581C"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
   <nav><a href="#analyzer">Pre-Underwrite</a><a href="#plans">Plans</a><a href="/topaz.html">Topaz</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
 </header>
+<div class="wsbar" id="wsbar" role="toolbar" aria-label="Workspace controls"><div class="wsin">
+<span class="wslab">VIEW</span>
+<div class="wsseg" role="radiogroup" aria-label="Workspace mode"><button type="button" role="radio" id="modeS" data-mode="simple" aria-checked="true">Homebuyer</button><button type="button" role="radio" id="modeU" data-mode="pro" aria-checked="false">Underwriter</button></div>
+<span class="wshint" id="wshint">5 core inputs</span>
+<button type="button" class="wscta" id="wsGen">Generate report</button>
+</div></div>
+
+<div class="vtrust"><span>Built by Voka Mankenda, former Senior Jumbo Underwriter · 15+ years in mortgage underwriting</span><span>Planning estimates only · not affiliated with any lender</span></div>
+
 
 <main id="top">
 <div id="iosBanner"><span>On iPhone: tap the Share icon, then "Add to Home Screen" to install Voklogik.</span><button type="button" id="iosBannerClose" aria-label="Dismiss">&times;</button></div>
@@ -590,22 +731,18 @@ table.sched th{color:var(--muted);font-weight:500}
             <div class="plans3" id="plans">
         <h2>Choose your plan to stay connected</h2>
         <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
-        <div class="circles3">
-          <div class="cwrap">
-            <div class="circ">
-              <span class="ctag">Individual</span>
-              <span class="cprice">$4.99</span>
-              <span class="cper">25-report pack</span>
-            </div>
-            <p class="cdesc">One pack per month. 5 free before you purchase.</p>
-            <a class="btn" href="#inputsArea">Start with 5 free reports</a>
+        <div class="pilot" role="note"><span class="pl">PILOT PROGRAM</span><span class="pt">Topaz checkout is not switched on yet. Join the pilot list and we will contact you the day it opens.</span><a class="pb" href="/topaz.html" onclick="track('click_pilot_join')">[ Join the Topaz pilot ]</a></div>
+        <div class="tiers3">
+          <div class="tier">
+            <div class="th"><span class="tn">Baseline Engine</span><span class="ts">FOR HOMEBUYERS</span></div>
+            <div class="tp"><b>$0</b><span>/ forever</span></div>
+            <ul><li>Full payment, affordability and ratio calculations</li><li>Underwriting logic drawer with live numbers</li><li>5 free reports to print or save as PDF</li><li class="mut">More reports: $4.99 for 25, one pack per month</li></ul>
+            <a class="tb ghost" href="#inputsArea">Start free</a>
           </div>
-          <div class="cwrap">
-            <div class="circ topazc">
-              <span class="ctag"><span class="gem topaz"></span>Topaz</span>
-              <span class="cprice">$29.99</span>
-              <span class="cper">per month</span>
-              <button type="button" class="brandedtag" id="brTag" aria-expanded="false" onclick="track('click_plan_info',{plan:'topaz'})">Branded reports <span class="i">i</span></button>
+          <div class="tier feat">
+            <div class="th"><span class="tn"><span class="gem topaz"></span>Topaz</span><span class="ts">FOR LOAN OFFICERS AND REALTORS</span></div>
+            <div class="tp"><b>$29.99</b><span>/ month</span></div>
+            <ul><li>Your name, logo, contact info, NMLS# and headshot on every report</li><li>200 branded reports a month</li><li>Shareable scenario links and an embeddable calculator</li><li class="mut">Sample report: <span class="brwrap"><button type="button" class="brandedtag" id="brTag" aria-expanded="false" onclick="track('click_plan_info',{plan:'topaz'})">Branded reports <span class="i">i</span></button>
               <div class="sampop" id="sampop" role="tooltip">
                 <div class="rep">
                   <div class="rep-h"><span class="rep-logo">YOUR<br>LOGO</span><span><b>Jordan Rivera</b><br>Loan Officer · NMLS# 000000<br>jordan@yourco.com · (555) 010-0100</span></div>
@@ -616,19 +753,14 @@ table.sched th{color:var(--muted);font-weight:500}
                   <div class="rep-r"><span>Cash to close</span><b>$44,450</b></div>
                   <div class="rep-f">Sample with made-up numbers</div>
                 </div>
-              </div>
-            </div>
-            <p class="cdesc">Your name, logo and contact info on every report.</p>
-            <a class="btn" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
+              </div></span></li></ul>
+            <a class="tb" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a>
           </div>
-          <div class="cwrap">
-            <div class="circ opalc">
-              <span class="ctag"><span class="gem opal"></span>Opal</span>
-              <span class="cprice">$79</span>
-              <span class="cper">per month</span>
-            </div>
-            <p class="cdesc">Coming soon. Founding offer for the first 20 businesses: $49.99 for the first year.</p>
-            <a class="btn" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist">Join the Opal waitlist</a>
+          <div class="tier">
+            <div class="th"><span class="tn"><span class="gem opal"></span>Opal</span><span class="ts">FOR BRANCHES AND BROKERAGES</span></div>
+            <div class="tp"><b>$79</b><span>/ month &middot; coming soon</span></div>
+            <ul><li>Unlimited branded reports</li><li>Co-branded page with the Affordability check</li><li>Dashboard with lead alerts and saved scenarios</li><li class="mut">Founding offer: first 20 businesses, $49.99 per month for the first year</li></ul>
+            <a class="tb ghost" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist">Join the Opal waitlist</a>
           </div>
         </div>
         <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Opal is coming soon; prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
@@ -726,7 +858,7 @@ table.sched th{color:var(--muted);font-weight:500}
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
-  var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
   function n(id){var v=parseFloat($(id).value);return isFinite(v)&&v>0?v:0}
   function sel(name){return document.querySelector('input[name="'+name+'"]:checked').parentNode.textContent.trim()}
   function buildPdf(){
@@ -1493,9 +1625,10 @@ table.sched th{color:var(--muted);font-weight:500}
 (function(){
   function $(i){return document.getElementById(i)}
   var fr=$("affFrame");if(!fr)return;
-  function loadSample(){fr.src="/affordability.html?embed=1&sample=1&t="+Date.now();$("analyzer").scrollIntoView({behavior:"smooth",block:"start"})}
+  function setSampleHome(){var m={price:"350000",down:"10",rate:"6.75"};Object.keys(m).forEach(function(k){var e=$(k);if(!e)return;e.value=m[k];e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})}
+  function loadSample(){setSampleHome();setTimeout(function(){fr.src="/affordability.html?embed=1&sample=1&t="+Date.now()},250);$("analyzer").scrollIntoView({behavior:"smooth",block:"start"})}
   var sl=$("sampleLink");if(sl)sl.addEventListener("click",function(e){e.preventDefault();try{track("click_hero_sample")}catch(x){}loadSample()});
-  if(/[?&]sample=1\b/.test(location.search)){fr.src="/affordability.html?embed=1&sample=1";setTimeout(function(){$("analyzer").scrollIntoView({block:"start"})},400)}
+  if(/[?&]sample=1\b/.test(location.search)){setSampleHome();fr.src="/affordability.html?embed=1&sample=1";setTimeout(function(){$("analyzer").scrollIntoView({block:"start"})},400)}
   window.addEventListener("message",function(e){
     if(e.origin!==location.origin||!e.data)return;
     if(e.data.vk==="aff-height"){fr.style.height=Math.min(Math.max(e.data.h,200),6000)+"px"}
@@ -1666,5 +1799,100 @@ table.sched th{color:var(--muted);font-weight:500}
   document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#mPrint,#mPdf,#mKeyPdf,#printBtn,#pdfBtn");if(b)setTimeout(function(){var p=$("pdfpop");if(p&&!p.classList.contains("on")&&window.showPdfPop){var h=p.querySelector("h3");if(h)h.textContent=/Print/.test(b.id)?"Your report is printing.":"Your PDF is saved.";window.showPdfPop()}},1500)});
 })();
 </script>
-</body>
+<script>
+(function(){
+  var root=document.documentElement,S=document.getElementById("modeS"),U=document.getElementById("modeU"),H=document.getElementById("wshint");
+  function frameDoc(){try{return document.getElementById("affFrame").contentDocument}catch(e){return null}}
+  function apply(m){
+    var simple=m!=="pro";root.classList.toggle("vk-simple",simple);
+    S.setAttribute("aria-checked",simple);U.setAttribute("aria-checked",!simple);
+    H.textContent=simple?"5 core inputs":"Full underwriting detail";
+    var d=frameDoc();if(d&&d.documentElement)d.documentElement.classList.toggle("vk-simple",simple);
+    try{localStorage.setItem("vkMode",simple?"simple":"pro")}catch(e){}
+    setTimeout(function(){window.dispatchEvent(new Event("resize"))},60);
+  }
+  var m="simple";try{m=localStorage.getItem("vkMode")||"simple"}catch(e){}
+  [S,U].forEach(function(b){b.addEventListener("click",function(){apply(b.dataset.mode)})});
+  apply(m);
+  var fr=document.getElementById("affFrame");if(fr)fr.addEventListener("load",function(){apply(root.classList.contains("vk-simple")?"simple":"pro")});
+  setInterval(function(){var d=frameDoc();if(d&&d.documentElement&&d.documentElement.classList.contains("vk-simple")!==root.classList.contains("vk-simple"))d.documentElement.classList.toggle("vk-simple",root.classList.contains("vk-simple"))},700);
+  document.getElementById("wsGen").addEventListener("click",function(){
+    var b=document.querySelector(".reportbox");if(!b)return;
+    var y=b.getBoundingClientRect().top+scrollY-60;scrollTo({top:y,behavior:"smooth"});
+    b.style.outline="2px solid #0EA5E9";setTimeout(function(){b.style.outline=""},1400);
+  });
+})();
+</script><script>
+(function(){
+  var band=document.getElementById("ratioband");if(!band)return;
+  var open=-1,tabs=["Payment","Housing ratio","DTI","LTV","CLTV"];
+  function $(i){return document.getElementById(i)}
+  function T(x){try{return window.vkTr?vkTr(x):x}catch(e){return x}}
+  function f2(n){return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function nums(t){return (String(t).match(/\$[\d,]+(?:\.\d+)?/g)||[]).map(function(x){return parseFloat(x.replace(/[$,]/g,""))})}
+  function sp(c,t){return '<span class="'+c+'">'+t+'</span>'}
+  function stat(i){var st=band.querySelectorAll(".stat")[i];if(!st)return null;var k=st.querySelector(".k");return {n:nums(k?k.textContent:""),w:(st.querySelector(".statword")||{}).textContent||""}}
+  function verdict(v,g,w){return v<=g?["Comfortable","ok"]:v<=w?["Manageable","ok"]:["High","no"]}
+  function body(t){
+    var o="";
+    if(t===0){
+      var P=parseFloat(String(($("mLoan1")||{}).value||"0").replace(/[^0-9.]/g,""))||0,rate=parseFloat(($("rate")||{}).value)||0,yrs=parseFloat(($("term")||{}).value)||30,n=yrs*12,r=rate/100/12,M=0;
+      if(P>0){M=r>0?P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1):P/n}
+      o+=sp("c","// principal &amp; interest, fixed-rate amortization")+"\n"+sp("k","M")+" = "+sp("k","P")+" &times; [ r(1+r)^n ] / [ (1+r)^n &minus; 1 ]\n\n";
+      o+=sp("k","P")+" = "+sp("v",f2(P))+sp("c","        // 1st mortgage loan amount")+"\n";
+      o+=sp("k","r")+" = "+sp("v",f2(rate)+"%")+" / 12 = "+sp("v",r.toFixed(6))+sp("c","   // monthly rate")+"\n";
+      o+=sp("k","n")+" = "+sp("v",yrs)+" &times; 12 = "+sp("v",n)+sp("c","      // number of payments")+"\n\n";
+      o+=sp("k","M")+" = "+sp("r",f2(M))+sp("c"," /mo  // principal &amp; interest only")+"\n\n";
+      o+=sp("c","// monthly payment shown above = P&amp;I + property tax + insurance + HOA + mortgage insurance + 2nd mortgage (if entered)")+"\n"+"total = "+sp("o",(($("total")||{}).textContent||""))+"\n";
+      return o;
+    }
+    var s=stat(t-1);if(!s||!s.n.length)return sp("c","// enter your numbers to compute this metric")+"\n";
+    if(t===1){var p=s.n[0],inc=s.n[1],v=inc>0?p/inc*100:0,vd=verdict(v,28,36);
+      o+=sp("c","// front-end ratio")+"\nhousing_ratio = monthly_payment / gross_monthly_income\n";
+      o+="              = "+sp("v","$"+f2(p))+" / "+sp("v","$"+f2(inc))+"\n              = "+sp("r",v.toFixed(2)+"%")+"\n\n";
+      o+=sp("c","// thresholds applied")+"\n  &lt;= 28.00%  Comfortable\n  &lt;= 36.00%  Manageable\n  &gt;  36.00%  High\n\nstatus = "+sp(vd[1],vd[0])+"\n";}
+    if(t===2){var p2=s.n[0],d=s.n[1],inc2=s.n[2],v2=inc2>0?(p2+d)/inc2*100:0,vd2=verdict(v2,36,43);
+      o+=sp("c","// back-end ratio")+"\ndti = (monthly_payment + other_monthly_debts) / gross_monthly_income\n";
+      o+="    = ("+sp("v","$"+f2(p2))+" + "+sp("v","$"+f2(d))+") / "+sp("v","$"+f2(inc2))+"\n    = "+sp("r",v2.toFixed(2)+"%")+"\n\n";
+      o+=sp("c","// thresholds applied")+"\n  &lt;= 36.00%  Comfortable\n  &lt;= 43.00%  Manageable\n  &gt;  43.00%  High\n\nstatus = "+sp(vd2[1],vd2[0])+"\n";}
+    if(t===3){var L=s.n[0],V=s.n[1],v3=V>0?L/V*100:0;
+      o+=sp("c","// loan-to-value")+"\nltv = loan_amount / property_value\n    = "+sp("v","$"+f2(L))+" / "+sp("v","$"+f2(V))+"\n    = "+sp("r",v3.toFixed(2)+"%")+"\n\n";
+      o+=sp("c","// property_value = lower of purchase price and appraised value (purchase)")+"\n"+sp("c","// 80.00% is the common mortgage-insurance line on conventional loans")+"\n\nstatus = "+sp(v3<=80?"ok":"no",v3<=80?"80% or under":"Over 80%")+"\n";}
+    if(t===4){var L4=s.n[0],o2=s.n[1],V4=s.n[2],v4=V4>0?(L4+o2)/V4*100:0;
+      o+=sp("c","// combined loan-to-value")+"\ncltv = (first_loan + other_liens) / property_value\n     = ("+sp("v","$"+f2(L4))+" + "+sp("v","$"+f2(o2))+") / "+sp("v","$"+f2(V4))+"\n     = "+sp("r",v4.toFixed(2)+"%")+"\n\n";
+      o+=sp("c","// other_liens = second mortgage or HELOC amount entered")+"\n";}
+    return o;
+  }
+  function drawerHTML(){
+    var h='<div class="lgtabs" role="tablist">';
+    tabs.forEach(function(n,i){h+='<button type="button" role="tab" data-lt="'+i+'" aria-selected="'+(open===i)+'">'+T(n)+'</button>'});
+    h+='<button type="button" class="lgx" data-lc="1" aria-label="Close">&times; '+T("Close")+'</button></div><pre class="lgcode" id="lgcode"></pre>';
+    h+='<div class="lgfoot">'+T("Live values from the numbers you entered. Thresholds are Voklogik planning guides, not any lender’s rules. Estimates only.")+'</div>';
+    return h}
+  var lg=document.createElement("div");lg.className="lgd";lg.id="lgd";lg.innerHTML=drawerHTML();
+  function place(){
+    if(!band.contains(lg))band.appendChild(lg);
+    band.querySelectorAll(".stat").forEach(function(st,i){
+      if(st.querySelector(".logicbtn"))return;
+      var b=document.createElement("button");b.type="button";b.className="logicbtn";b.dataset.lg=i+1;b.textContent="["+T("View Underwriting Logic")+"]";b.setAttribute("aria-expanded",open===i+1);
+      var ib=st.querySelector(".infobtn");if(ib)ib.insertAdjacentElement("afterend",b);else st.appendChild(b)});
+  }
+  function render(){
+    lg.classList.toggle("on",open>=0);
+    lg.querySelectorAll("[data-lt]").forEach(function(b){b.setAttribute("aria-selected",open===+b.dataset.lt)});
+    band.querySelectorAll(".logicbtn").forEach(function(b){b.setAttribute("aria-expanded",open===+b.dataset.lg)});
+    var c=$("lgcode");if(open>=0&&c){var h=body(open);if(c.dataset.h!==h){c.innerHTML=h;c.dataset.h=h}}
+  }
+  function openAt(i,scroll){open=i;render();if(scroll)setTimeout(function(){lg.scrollIntoView({behavior:"smooth",block:"nearest"})},120)}
+  band.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-lg],[data-lt],[data-lc]");if(!b)return;
+    if(b.dataset.lc){open=-1;render();return}
+    if(b.dataset.lt){openAt(+b.dataset.lt);return}
+    var i=+b.dataset.lg;openAt(open===i?-1:i,open!==i)});
+  document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#lgPay");if(!b)return;e.preventDefault();openAt(0,true)});
+  function addPayBtn(){var row=$("rowR");if(!row||row.querySelector("#lgPay"))return;var b=document.createElement("button");b.type="button";b.id="lgPay";b.className="logicbtn";b.textContent="["+T("View Underwriting Logic")+"]";var body=row.querySelector(".arowbody");if(body)body.insertBefore(b,body.firstChild)}
+  setInterval(function(){place();addPayBtn();render()},500);
+  document.addEventListener("vklang",function(){lg.innerHTML=drawerHTML();band.querySelectorAll(".logicbtn").forEach(function(b){b.remove()});place();addPayBtn()});
+})();
+</script></body>
 </html>

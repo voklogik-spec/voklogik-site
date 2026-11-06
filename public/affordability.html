@@ -18,7 +18,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Voklogik">
-<meta name="theme-color" content="#C4581C">
+<meta name="theme-color" content="#030712">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Voklogik">
 <meta property="og:title" content="Voklogik Affordability Check: see your file before the underwriter does">
@@ -271,7 +271,63 @@ html.emb .calc{margin-top:0!important}
 .embnote{display:none;margin:0 0 12px;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;font-size:.92rem}
 html.emb .embnote:not([hidden]){display:block}
 </style>
-<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style><style>html.emb main>.calc.emb-stats{display:none!important}html.emb main{display:flex!important;flex-direction:column}html.emb main>.emb-rows{flex:1;display:flex;flex-direction:column}html.emb main>.emb-rows>.row{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center}.pr-wm{display:none}@media print{.pr-wm{display:block!important}}</style></head>
+<style>:root:not([data-theme="dark"]){--accent:#B34D14}.statpct{color:var(--ink)!important}</style><style>html.emb main>.calc.emb-stats{display:none!important}html.emb main{display:flex!important;flex-direction:column}html.emb main>.emb-rows{flex:1;display:flex;flex-direction:column}html.emb main>.emb-rows>.row{flex:0 0 auto}.pr-wm{display:none}@media print{.pr-wm{display:block!important}}</style><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="vkfont">
+:root{--ui:Inter,"Helvetica Neue",Arial,sans-serif;--mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{font-family:var(--ui);font-weight:400;-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
+/* headers: Inter Bold / Semi-Bold */
+h1,h2,h3,h4,.brand,.mission .mlabel,.paywall b,.ptcircle b,.reportbox h3{font-family:var(--ui)!important;font-weight:700;letter-spacing:-.025em}
+.hero-main h1{font-weight:700!important;letter-spacing:-.035em!important}
+.arowlabel,.rowlabel,.stathead .rowlabel,.row>.rowhead .rowlabel,button.rowhead>span:first-child{font-family:var(--ui)!important;font-weight:600;letter-spacing:-.01em}
+/* labels: Inter Regular */
+label,.k,.small,.arowsub,.arowsub *,.ratnote,.infobtn,.statword{font-family:var(--ui)}
+label{font-weight:400}
+.statword{font-weight:600}
+/* numbers: Geist Mono, only in inputs, calculated outputs and amortization grids */
+input,select,textarea,.arowvalue,.rowvalue,.big,#total,.statpct,.cprice,.sum b,.sum strong,ul.leg li b,table.sched th,table.sched td,#armRange,.mono{font-family:var(--mono)!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1,"zero" 0;letter-spacing:-.02em}
+.arowvalue,.rowvalue{font-weight:600;font-size:.9rem}
+.rowvalue{font-size:1.1rem}
+.big{font-weight:600}.statpct{font-weight:600;letter-spacing:-.04em}
+input,select,textarea{font-weight:500}
+table.sched th{font-family:var(--ui)!important;font-weight:600}
+.statpct{letter-spacing:-.06em!important}
+</style><style id="vkpalette">
+:root:not([data-theme="dark"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#030712;--mi:#64748B;--hoa:#94A3B8;--s2:#334155;--good:#0369A1;--warn:#DC2626;--sky:#0EA5E9;--orange:#FF5500}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#030712;--mi:#64748B;--hoa:#94A3B8;--s2:#334155}}
+html,body{background:#fff!important;color:#030712}
+/* crisp 1px technical containers, small radius, no shadows */
+.hero>.calc,.hero>.sample-hero,#affFrame,.ratioband,.reportbox,.card,.plan,#midband .box,details.payonly,.mission,.paywall{border:1px solid #E2E8F0!important;border-radius:8px!important;box-shadow:none!important;background:#fff!important}
+.hero>.sample-hero{border:0!important}
+#affFrame{border:1px solid #E2E8F0!important;background:#fff!important}
+.arow,.row,.arowhead{border-color:#E2E8F0!important}
+.ratioband .stat{border-right:1px solid #E2E8F0}
+input,select,textarea{background:#fff!important;border:1px solid #E2E8F0!important;border-radius:6px!important;color:#030712}
+input:focus,select:focus,textarea:focus{outline:0!important;border-color:#0EA5E9!important;box-shadow:0 0 0 3px rgba(14,165,233,.22)!important}
+:focus-visible{outline:2px solid #0EA5E9!important}
+/* data = deep navy; accent orange only for brand + triggers */
+.arowvalue,.rowvalue,.big,#total,.cprice,.statpct{color:#030712!important}
+.arowsub .yn-y,.yn-y{color:#0369A1!important}.arowsub .yn-n,.yn-n{color:#DC2626!important}
+.statword.good{background:rgba(14,165,233,.12)!important;color:#0369A1!important}
+.statword.warn{background:rgba(220,38,38,.10)!important;color:#B91C1C!important}
+.statword.info{background:#F1F5F9!important;color:#334155!important}
+.bar b:first-child{background:#0EA5E9!important}.leg li:first-child span::before{background:#0EA5E9!important}
+.hero-main h1 em,.hero-main h1 span{color:#FF5500}
+/* top rails */
+.vtrust{background:#030712!important;box-shadow:0 0 0 100vmax #030712!important;color:#E2E8F0}
+header{background:transparent}
+.brand{color:#FF5500!important}
+nav a{color:#030712!important;font-weight:500}nav a:hover{color:#FF5500!important}
+footer{background:#030712!important;box-shadow:0 0 0 100vmax #030712!important;color:#CBD5E1!important}footer a{color:#fff!important}
+/* conversion engine: orange buttons */
+.btn,button.btn,#mPrint,#mPv,#mPdf,.cta,.primary,button.primary{background:#FF5500!important;border-color:#FF5500!important;color:#fff!important}
+.ratioband .infobtn,.adone,.adone a,#clearAll,.clearrow a,a.link{color:#FF5500!important}
+.ratioband .ratnote,.arowsub{color:#475569}
+</style><style id="vkpal2">:root:not([data-theme="dark"]) .yn-y,:root:not([data-theme="dark"]) [class*="yes"],.arowsub b{color:#0369A1!important}</style><style id="vkrazor">
+:root:not([data-theme="dark"]) *{box-shadow:none!important;text-shadow:none!important}
+input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1px solid #0EA5E9!important;outline-offset:0}
+.arow,.row,.arowhead,table.sched tbody tr,table.sched td,.stat{transition:background-color .12s ease}
+.arow:hover,.row:hover,table.sched tbody tr:hover,table.sched tbody tr:hover td,.stat:hover{background-color:#F0F9FF!important}
+</style><style>.rowflags b.no,.arowsub b.no,.arowsub .no{color:#0369A1!important}</style><style>@media screen{html.vk-simple #rowOwned,html.vk-simple #rowAssets,html.vk-simple #rowReserves,html.vk-simple #rowCash,html.vk-simple #rowLiq{display:none!important}}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -787,7 +843,7 @@ html.emb .embnote:not([hidden]){display:block}
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
-  var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  var usd=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
   function n(id){var v=parseFloat($(id).value);return isFinite(v)&&v>0?v:0}
   function pmt(P,r,N){return r===0?P/N:P*r/(1-Math.pow(1+r,-N))}
   function sel(name){return document.querySelector('input[name="'+name+'"]:checked').value}
