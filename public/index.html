@@ -193,7 +193,7 @@ table.sched th{color:var(--muted);font-weight:500}
 @media (max-width:820px){.hero,.two{grid-template-columns:1fr}.hero{gap:28px;padding-top:16px}}
 @media (max-width:420px){.grid,.g2,.sum{grid-template-columns:1fr}nav a{margin-left:14px}}
 @media print{
-  :root:root:root{--bg:#fff;--ink:#000;--muted:#333;--line:#bbb;--panel:#fff;--accent:#C4581C;--on-accent:#fff;padding:0}
+  :root:root:root{--bg:#fff;--ink:#030712;--muted:#475569;--line:#E2E8F0;--panel:#fff;--accent:#030712;--on-accent:#fff;padding:0}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{font-size:11pt}
   header nav,.acts,.hero-eyebrow,.hero-main,.plans-hero,section{display:none!important}
@@ -415,7 +415,7 @@ table.sched th{font-family:var(--ui)!important;font-weight:600}
 #rowT .arowvalue,#rowP .arowvalue{font-family:var(--ui)!important;font-weight:600;font-size:.98rem;letter-spacing:-.01em}
 .statpct{letter-spacing:-.06em!important}
 </style><style id="vkpalette">
-:root:not([data-theme="dark"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#030712;--mi:#64748B;--hoa:#94A3B8;--s2:#334155;--good:#0369A1;--warn:#DC2626;--sky:#0EA5E9;--orange:#FF5500}
+:root:not([data-theme="dark"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#64748B;--mi:#94A3B8;--hoa:#CBD5E1;--s2:#7DD3FC;--good:#0369A1;--warn:#DC2626;--sky:#0EA5E9;--orange:#FF5500}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--on-accent:#fff;--ochre:#0EA5E9;--clay:#030712;--mi:#64748B;--hoa:#94A3B8;--s2:#334155}}
 html,body{background:#fff!important;color:#030712}
 /* crisp 1px technical containers, small radius, no shadows */
@@ -433,7 +433,7 @@ input:focus,select:focus,textarea:focus{outline:0!important;border-color:#0EA5E9
 .statword.good{background:rgba(14,165,233,.12)!important;color:#0369A1!important}
 .statword.warn{background:rgba(220,38,38,.10)!important;color:#B91C1C!important}
 .statword.info{background:#F1F5F9!important;color:#334155!important}
-.bar b:first-child{background:#0EA5E9!important}.leg li:first-child span::before{background:#0EA5E9!important}
+#b1{background:#030712!important}.leg li:first-child span::before{background:#030712!important}
 .hero-main h1 em,.hero-main h1 span{color:#FF5500}
 /* top rails */
 .vtrust{background:#030712!important;box-shadow:0 0 0 100vmax #030712!important;color:#E2E8F0}
@@ -526,12 +526,12 @@ header .tag{color:#94A3B8!important}
 .tb.ghost:hover{background:#F0F9FF}
 .brwrap{display:inline-block;position:relative}
 @media (max-width:820px){.tiers3{grid-template-columns:1fr}.tier+.tier{border-left:0;border-top:1px solid #E2E8F0}}
-</style></head>
+</style><style id="vkhide">#ratioband .stat>.k{display:none}</style></head>
 <body>
 <div class="prwm" aria-hidden="true">Voklogik</div>
 <div class="wrap">
 <header>
-  <div class="bw"><a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#C4581C"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
+  <div class="bw"><a class="brand" href="#top" style="display:inline-flex;align-items:center;gap:10px"><svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#FF5500"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#030712"/></svg><span>Voklogik</span></a><span class="tag">Mortgage Analyzer &middot; the voice of logic</span></div>
   <nav><a href="#analyzer">Pre-Underwrite</a><a href="#plans">Plans</a><a href="/topaz.html">Topaz</a><a href="#how">How it works</a><a href="#about">About</a><a href="#contact">Contact</a><button type="button" id="installBtn">Install app</button></nav>
 </header>
 <div class="wsbar" id="wsbar" role="toolbar" aria-label="Workspace controls"><div class="wsin">
@@ -731,7 +731,7 @@ header .tag{color:#94A3B8!important}
             <div class="plans3" id="plans">
         <h2>Choose your plan to stay connected</h2>
         <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
-        <div class="pilot" role="note"><span class="pl">PILOT PROGRAM</span><span class="pt">Topaz checkout is not switched on yet. Join the pilot list and we will contact you the day it opens.</span><a class="pb" href="/topaz.html" onclick="track('click_pilot_join')">[ Join the Topaz pilot ]</a></div>
+        <div class="pilot" role="note"><span class="pl">PILOT PROGRAM</span><span class="pt">Opal is not switched on yet. Join the pilot list and we will contact you the day it opens.</span><a class="pb" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20pilot" onclick="track('click_pilot_join')">[ Join the Opal pilot ]</a></div>
         <div class="tiers3">
           <div class="tier">
             <div class="th"><span class="tn">Baseline Engine</span><span class="ts">FOR HOMEBUYERS</span></div>
@@ -867,26 +867,29 @@ header .tag{color:#94A3B8!important}
     var PLUM=[126,90,135],OR=[196,88,28],OC=[226,160,63],INK=[59,36,22],MU=[110,82,64],LN=[220,199,170],WH=[255,255,255];
     var COL={"Principal and interest":OR,"Property tax":OC,"Home insurance":[140,74,42],"Mortgage insurance":[125,123,59]},HOAC=[95,122,138];
     if(window.VKTZ&&VKTZ.opal&&VKTZ.opal()){OR=[75,63,120];OC=[214,190,138];INK=[43,40,56];MU=[106,102,120];LN=[220,216,232];PLUM=[150,120,190];COL={"Principal and interest":OR,"Property tax":[143,184,212],"Home insurance":OC,"Mortgage insurance":[168,140,200]};HOAC=[120,170,150]}
+    var OPL=!!(window.VKTZ&&VKTZ.opal&&VKTZ.opal()),ORG=[255,85,0],NV=[3,7,18];
+    if(!OPL){OR=NV;OC=ORG;INK=NV;MU=[71,85,105];LN=[226,232,240];PLUM=[125,211,252];COL={"Principal and interest":NV,"Property tax":[14,165,233],"Home insurance":[100,116,139],"Mortgage insurance":[148,163,184]};HOAC=[203,213,225]}
     function T(c){d.setTextColor(c[0],c[1],c[2])}
     function F(c){d.setFillColor(c[0],c[1],c[2])}
     function D(c){d.setDrawColor(c[0],c[1],c[2])}
+    function mark(x,y,sz){var k=sz/64;F(ORG);d.roundedRect(x,y,sz,sz,sz*.22,sz*.22,"F");F([255,255,255]);d.lines([[10*k,0],[7*k,21*k],[7*k,-21*k],[10*k,0],[-13*k,30*k],[-8*k,0]],x+15*k,y+17*k,[1,1],"F",true);F(NV);d.rect(x+17*k,y+51*k,30*k,4*k,"F")}
     function num(t){return parseFloat(String(t).replace(/[^0-9.\-]/g,""))||0}
     function font(st,sz){d.setFont("times",st);d.setFontSize(sz)}
     /* watermark behind everything */
     var TZ=window.VKTZ&&VKTZ.branded();
     if(!TZ&&!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())&&!paid())try{
-      d.saveGraphicsState();d.setGState(new d.GState({opacity:0.07}));T(OR);font("bold",120);
+      d.saveGraphicsState();d.setGState(new d.GState({opacity:0.07}));T(OPL?OR:ORG);font("bold",120);
       var ww=d.getTextWidth("Voklogik"),ar=32*Math.PI/180;
       d.text("Voklogik",PW/2-(ww/2)*Math.cos(ar),PH/2+50+(ww/2)*Math.sin(ar),{angle:32});
       d.restoreGraphicsState();
     }catch(e){}
     /* header band */
-    F(OR);d.rect(0,0,PW,96,"F");F(OC);d.rect(0,96,PW,3,"F");
+    if(OPL){F(OR);d.rect(0,0,PW,96,"F");F(OC);d.rect(0,96,PW,3,"F")}else{F(NV);d.rect(0,0,PW,96,"F");F(ORG);d.rect(0,0,PW,4,"F");F([30,41,59]);d.rect(0,96,PW,1,"F")}
     var RX=PW-L;
     if(TZ){
       RX=VKTZ.drawBrand(d,{PW:PW,L:L,y:10,boxW:170,boxH:50,fg:WH,fontName:"times",nameSize:28,nameBase:48});
       VKTZ.drawLines(d,L,76,WH,PW-2*L,"times");
-    }else{T(WH);font("bold",32);d.text("Voklogik",L,58)}
+    }else if(OPL){T(WH);font("bold",32);d.text("Voklogik",L,58)}else{mark(L,30,34);T(ORG);d.setFont("helvetica","bold");d.setFontSize(26);d.text("Voklogik",L+44,56)}
     T(WH);font("italic",13);d.text("Mortgage estimate",RX,TZ?36:50,{align:"right"});
     font("italic",10.5);d.text(new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),RX,TZ?54:68,{align:"right"});
     /* hero payment */
@@ -1006,7 +1009,7 @@ header .tag{color:#94A3B8!important}
     D(OC);d.setLineWidth(1.2);d.line(L,730,L+W,730);
     T(MU);font("italic",8.5);
     d.splitTextToSize("This is an estimate for planning only and is not a loan offer. Lender fees and other costs are not included, and your lender's quote may differ.",W-90).forEach(function(t,i){d.text(t,L,746+i*11)});
-    T(OR);font("bold",11);d.text("Voklogik",L+W,746,{align:"right"});
+    T(OPL?OR:ORG);font("bold",11);d.text("Voklogik",L+W,746,{align:"right"});
     }
     if(MM.s2.on){
       var SH=B.filter(function(r){return r[2]===""}),P1=B.filter(function(r){return r[2]==="1"}),P2=B.filter(function(r){return r[2]==="2"});

@@ -1046,6 +1046,8 @@ window.VK_ES={
 "Co-branded page with the Affordability check": "Página con marca compartida y la Verificación de Capacidad",
 "Dashboard with lead alerts and saved scenarios": "Panel con alertas de clientes potenciales y escenarios guardados",
 "Founding offer: first {1} businesses, {2} per month for the first year": "Oferta fundadora: primeras {1} empresas, {2} al mes el primer año",
+"Opal is not switched on yet. Join the pilot list and we will contact you the day it opens.": "Opal aún no está activado. Únase a la lista piloto y le contactaremos el día que abra.",
+"[ Join the Opal pilot ]": "[ Únase al piloto de Opal ]",
 "English": "English",
 "Español": "Español",
 "Language": "Idioma",
