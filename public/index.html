@@ -526,6 +526,13 @@ header .tag{color:#94A3B8!important}
 .tb.ghost:hover{background:#F0F9FF}
 .brwrap{display:inline-block;position:relative}
 @media (max-width:820px){.tiers3{grid-template-columns:1fr}.tier+.tier{border-left:0;border-top:1px solid #E2E8F0}}
+</style><style id="vkalign">
+.ratioband .stat{display:flex;flex-direction:column}
+.ratioband .stactions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:12px}
+.ratioband .stactions .infobtn,.ratioband .stactions .logicbtn{margin:0;height:28px;box-sizing:border-box;display:inline-flex;align-items:center;font:500 .72rem var(--mono,"Geist Mono",monospace);letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.ratioband .stactions .infobtn{padding:0 2px;text-decoration:underline;text-underline-offset:3px;background:none;border:0}
+.ratioband .stactions .logicbtn{padding:0 10px}
+.ratioband .stathead{flex-direction:column;align-items:flex-start;gap:8px;flex-wrap:nowrap}.ratioband .stathead .rowlabel{min-height:2.5em;line-height:1.25}.ratioband .stathead .statword{min-height:28px;box-sizing:border-box;display:inline-flex;align-items:center}.ratioband .stactions{flex-direction:column;align-items:flex-start;gap:8px}.ratioband .statpct{line-height:1.1;margin-top:6px}
 </style><style id="vkhide">#ratioband .stat>.k{display:none}</style></head>
 <body>
 <div class="prwm" aria-hidden="true">Voklogik</div>
@@ -1878,7 +1885,7 @@ header .tag{color:#94A3B8!important}
     band.querySelectorAll(".stat").forEach(function(st,i){
       if(st.querySelector(".logicbtn"))return;
       var b=document.createElement("button");b.type="button";b.className="logicbtn";b.dataset.lg=i+1;b.textContent="["+T("View Underwriting Logic")+"]";b.setAttribute("aria-expanded",open===i+1);
-      var ib=st.querySelector(".infobtn");if(ib)ib.insertAdjacentElement("afterend",b);else st.appendChild(b)});
+      var ib=st.querySelector(".infobtn");var w=document.createElement("div");w.className="stactions";if(ib){ib.insertAdjacentElement("beforebegin",w);w.appendChild(ib)}else st.appendChild(w);w.appendChild(b)});
   }
   function render(){
     lg.classList.toggle("on",open>=0);
