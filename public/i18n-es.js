@@ -1,5 +1,12 @@
 /* Spanish dictionary for /i18n.js. Keys are the English text with numbers replaced by {1},{2}... */
 window.VK_ES={
+"FOR TOP PRODUCERS": "PARA PRODUCTORES DESTACADOS",
+"NOW OPEN": "YA ABIERTO",
+"Opal is open. The first {1} businesses to join directly get {2} per month for their first year.": "Opal ya está abierto. Las primeras {1} empresas que se unan directamente pagan {2} por mes durante su primer año.",
+"[ Start Opal ]": "[ Comenzar con Opal ]",
+"Start Opal": "Comenzar con Opal",
+"Individual is a {1}-report pack, one per month, not a subscription. Prices may change. Full tier descriptions are in the": "Individual es un paquete de {1} reportes, uno por mes, no una suscripción. Los precios pueden cambiar. Las descripciones completas de cada nivel están en los",
+"Topaz Tier, {1} per month: {2} branded reports with your logo, contact info, MLS# and headshot. Opal Tier, {3} per month: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first {4} businesses to join Opal directly get it for {5} per month for their first year.": "Nivel Topaz, {1} por mes: {2} reportes con su marca, con su logotipo, datos de contacto, número MLS y foto. Nivel Opal, {3} por mes: ilimitado, más una página con su marca que incluye la Verificación de asequibilidad y un panel con alertas de clientes potenciales y escenarios guardados. Oferta fundadora: los primeros {4} negocios que se unan directamente a Opal lo obtienen por {5} por mes durante su primer año.",
 "Voklogik": "Voklogik",
 "Mortgage Analyzer · the voice of logic": "Analizador hipotecario · la voz de la lógica",
 "Affordability": "Asequibilidad",

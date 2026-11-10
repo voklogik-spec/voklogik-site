@@ -54,9 +54,40 @@ body.opal .btn,body.opal .mini.go,body.opal .range button[aria-pressed=true],bod
 .scn{border-top:1px solid var(--line);padding:12px 0}.scn .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.scn .nm{font-weight:700;flex:1;min-width:160px}.scn .nm input{width:100%;padding:7px 10px}
 .mini{background:none;border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:5px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.mini:hover{border-color:var(--accent)}.mini.go{background:var(--accent);border-color:var(--accent);color:#fff}
 [hidden]{display:none!important}
-</style></head><body>
+</style><style id="vkpalette">
+/* Voklogik palette: white, navy #030712, orange #FF5500, sky #0EA5E9, 1px #E2E8F0 borders, no shadows */
+:root{--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--slate:#030712;--slate2:#0EA5E9;--accent:#FF5500;--accent2:#E04A00;--soft:#F0F9FF;--ok:#15803D;--bad:#B91C1C;color-scheme:light}
+body{background:#fff;font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-variant-numeric:lining-nums tabular-nums}
+*{box-shadow:none!important}
+header.top{background:#030712;border-top:4px solid #FF5500;border-bottom:0;border-image:none}
+.brand small{color:#94A3B8;font-family:"Geist Mono",ui-monospace,monospace;letter-spacing:.12em}
+.tier{color:#E2E8F0}.linkbtn{color:#fff;border:1px solid #334155;border-radius:6px}.linkbtn:hover{background:#0F172A}
+.card{border:1px solid #E2E8F0;border-radius:6px;background:#fff}
+.btn{background:#FF5500;border-radius:6px}.btn:hover{background:#E04A00}.btn.ghost{background:#fff;color:#030712;border:1px solid #E2E8F0}.btn.ghost:hover{background:#F0F9FF}
+input[type=text],input[type=email],input[type=password],input[type=tel]{background:#fff;border:1px solid #E2E8F0;border-radius:6px}
+input:focus{border-color:#0EA5E9}
+.meter{background:#F1F5F9;border:1px solid #E2E8F0;border-radius:4px}.meter i{background:#FF5500}
+.banner{background:#F0F9FF;border:1px solid #0EA5E9;border-radius:6px}
+.drop{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:6px}
+.pill{background:#0EA5E9;border-radius:4px}
+.up{background:#fff;border-left:4px solid #0EA5E9}
+.tabs button{border-radius:6px;background:#fff}
+.perks li:before{background:#FF5500}
+a{color:#E04A00}
+/* Opal keeps a small violet accent: badge, usage bar, upgrade box edge */
+body.opal{--bg:#FFFFFF;--panel:#FFFFFF;--ink:#030712;--muted:#475569;--line:#E2E8F0;--accent:#FF5500;--accent2:#E04A00;--soft:#F0F9FF;--slate:#030712;--slate2:#4B3F78}
+body.opal header.top{background:#030712;color:#fff;border-top:4px solid #FF5500;border-bottom:0;border-image:none}
+body.opal .brand small{color:#94A3B8}body.opal .tier{color:#E2E8F0}body.opal .linkbtn{color:#fff;border-color:#334155}
+body.opal .card,body.opal .up{box-shadow:none}
+body.opal .up{background:#fff;border-left:4px solid #B9A9E0}
+body.opal .pill{background:#4B3F78}
+body.opal .banner{border-color:#B9A9E0;background:#F5F3FA}
+body.opal .meter i{background:linear-gradient(90deg,#9CC9D8,#B9A9E0,#E8B5D0,#E6D3A8)}
+body.opal .btn,body.opal .mini.go{background:#FF5500;color:#fff}body.opal .btn.ghost{background:#fff;color:#030712}
+</style>
+</head><body>
 <header class="top"><div class="bar">
- <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#E8681A"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#E2A03F"/></svg>
+ <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#FF5500"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#030712"/></svg>
  <div class="brand" id="brandLine">Voklogik<small id="brandSub">Topaz</small></div>
  <div class="tier" id="tierBox" hidden><span class="gem" id="gemEl"></span><span id="who"></span><button class="linkbtn" id="out" type="button">Sign out</button></div>
 </div></header>
