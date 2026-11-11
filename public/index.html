@@ -28,19 +28,83 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Voklogik Mortgage Analyzer",
-  "alternateName": ["Voklogik", "Voklogik Mortgage Analyzer"],
-  "url": "https://voklogik.com/",
-  "publisher": {"@type": "Organization", "name": "Voklogik", "url": "https://voklogik.com/", "logo": "https://voklogik.com/icon-512.png"},
-  "description": "Voklogik, the voice of logic in mortgage. A mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.",
-  "applicationCategory": "FinanceApplication",
-  "operatingSystem": "Any",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  }
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://voklogik.com/#app",
+      "name": "Voklogik Mortgage Analyzer",
+      "alternateName": [
+        "Voklogik"
+      ],
+      "url": "https://voklogik.com/",
+      "description": "Voklogik, the voice of logic in mortgage. A free mortgage analyzer built by an underwriter: payment, DTI, assets, reserves, HELOC and HELOAN.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires a modern web browser with JavaScript",
+      "inLanguage": [
+        "en",
+        "es"
+      ],
+      "isAccessibleForFree": true,
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Mortgage loan officers, brokers and homebuyers"
+      },
+      "featureList": [
+        "Monthly payment estimate",
+        "Debt-to-income (DTI) ratio",
+        "Housing ratio, LTV and CLTV",
+        "Assets and reserves",
+        "HELOC and HELOAN analysis",
+        "Underwriting logic explained",
+        "Branded underwriting reports (Topaz and Opal)"
+      ],
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free analyzer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "Free to use: payment estimate, DTI, assets, reserves, HELOC and HELOAN."
+        },
+        {
+          "@type": "Offer",
+          "name": "Topaz",
+          "price": "29.99",
+          "priceCurrency": "USD",
+          "description": "Branded underwriting reports, 200 per month. Billed monthly."
+        },
+        {
+          "@type": "Offer",
+          "name": "Opal",
+          "price": "79",
+          "priceCurrency": "USD",
+          "description": "Unlimited branded reports, co-branded Affordability Check page, dashboard with saved scenarios and lead alerts. Founding offer: first 20 businesses pay $49.99/mo for the first year."
+        }
+      ],
+      "publisher": {
+        "@id": "https://voklogik.com/#org"
+      }
+    },
+    {
+      "@type": "Organization",
+      "name": "Voklogik",
+      "url": "https://voklogik.com/",
+      "logo": "https://voklogik.com/icon-512.png",
+      "founder": {
+        "@type": "Person",
+        "name": "Voka Mankenda",
+        "sameAs": [
+          "https://www.linkedin.com/in/voka"
+        ]
+      },
+      "email": "voka@voklogik.com",
+      "@id": "https://voklogik.com/#org",
+      "sameAs": [
+        "https://www.instagram.com/vokanator/"
+      ]
+    }
+  ]
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
