@@ -264,7 +264,7 @@ else if(!W&&window.top===window.self){location.replace("/"+(/[?&]sample=1\b/.tes
 window.__VKEMB=E})();
 </script>
 <style>
-html.emb header,html.emb footer,html.emb .skip,html.emb #iosBanner,html.emb h1,html.emb main>.lede,html.emb #sampleMsg,html.emb #sampleBtn,html.emb .samplebar:has(#sampleClear[hidden]),html.emb #rowTxn,html.emb #rowSubject,html.emb #rowPayment{display:none!important}
+html.emb header,html.emb footer,html.emb .skip,html.emb #iosBanner,html.emb h1,html.emb main>.lede,html.emb #sampleMsg,html.emb #sampleBtn,html.emb .samplebar:has(#sampleClear[hidden]),html.emb #rowTxn,html.emb #rowPayment{display:none!important}
 html.emb body{background:transparent!important}
 html.emb .wrap{max-width:none!important;padding:0!important;margin:0!important}
 html.emb .calc{margin-top:0!important}
@@ -490,38 +490,6 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     </div>
   </div>
 
-  <!-- Subject property -->
-  <div class="row" id="rowSubject">
-    <button type="button" class="rowhead" data-row="rowSubject">
-      <span class="rowlabel">Subject Property</span>
-      <span class="rowright"><span class="rowvalue" id="subjSummary">Not set</span><span class="chev">&#9662;</span></span>
-    </button>
-    <div class="rowbody">
-      <div id="primaryArea" hidden style="margin-bottom:18px">
-        <h4 class="subtitle" style="margin:0 0 6px">Primary residence</h4>
-        <p class="k" style="margin:0 0 4px">Because the property you are buying or refinancing is not your primary residence, tell us about the home you live in. Its payment counts as a monthly debt, and it is listed under Additional Properties Owned.</p>
-        <div id="primaryHost"></div>
-        <button type="button" class="bubble" id="addPrimaryBtn" style="margin-top:10px">+ Add your primary residence</button>
-      </div>
-      <h4 class="subtitle" style="margin:0 0 8px" id="subjTitle">Subject property</h4>
-      <div class="f" id="subjFoundWrap" style="margin-bottom:14px">
-        <label>Have you found the property?</label>
-        <div class="seg">
-          <label><input type="radio" name="subjFound" value="yes" checked>Yes</label>
-          <label><input type="radio" name="subjFound" value="no">No, still looking</label>
-        </div>
-      </div>
-      <div class="f" id="subjAddrWrap">
-        <label for="subjAddr">Subject property address</label>
-        <input id="subjAddr" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP">
-        <span class="k">Stays in your browser. Used for your PDF. The new payment is under Monthly Payment, so it is not counted as a debt here.</span>
-      </div>
-      <p class="k" id="subjLooking" hidden style="margin:0">No problem. Use Monthly Payment to try loan amounts and rates while you search.</p>
-      <div class="note" id="subjNote" hidden style="margin-top:12px"></div>
-      <button type="button" class="editlink" id="subjDone" style="margin-top:14px">Done &#8594;</button>
-    </div>
-  </div>
-
   <!-- Monthly Payment -->
   <div class="row" id="rowPayment">
     <button type="button" class="rowhead" data-row="rowPayment">
@@ -642,6 +610,39 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         <button type="button" class="bubble" id="derogAdd" style="margin-top:12px">+ Add another event</button>
       </div>
       <button type="button" class="editlink" id="debtsDone" style="margin-top:14px">Done &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Subject property -->
+  <div class="row" id="rowSubject">
+    <button type="button" class="rowhead" data-row="rowSubject">
+      <span class="rowlabel">Subject Property</span>
+      <span class="rowright"><span class="rowvalue" id="subjSummary">Not set</span><span class="chev">&#9662;</span></span>
+    </button>
+    <div class="rowbody">
+      <div id="primaryArea" hidden style="margin-bottom:18px">
+        <h4 class="subtitle" style="margin:0 0 6px">Primary residence</h4>
+        <p class="k" style="margin:0 0 4px">Because the property you are buying or refinancing is not your primary residence, tell us about the home you live in. Its payment counts as a monthly debt, and it is listed under Additional Properties Owned.</p>
+        <div id="primaryHost"></div>
+        <button type="button" class="bubble" id="addPrimaryBtn" style="margin-top:10px">+ Add your primary residence</button>
+      </div>
+      <h4 class="subtitle" style="margin:0 0 8px" id="subjTitle">Subject property</h4>
+      <div class="f" id="subjFoundWrap" style="margin-bottom:14px">
+        <label>Have you found the property?</label>
+        <div class="seg">
+          <label><input type="radio" name="subjFound" value="yes" checked>Yes</label>
+          <label><input type="radio" name="subjFound" value="no">No, still looking</label>
+        </div>
+      </div>
+      <div class="f" id="subjAddrWrap">
+        <label for="subjAddr">Subject property address <span id="subjReq" hidden>(required for a refinance)</span></label>
+        <input id="subjAddr" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP">
+        <div class="note" id="subjMissing" hidden style="margin-top:8px">Address missing. A refinance needs the subject property address for a complete report. Your numbers still calculate.</div>
+        <span class="k">Stays in your browser. Used for your PDF and to sort the lender directory by ZIP. The new payment is under Monthly Payment, so it is not counted as a debt here.</span>
+      </div>
+      <p class="k" id="subjLooking" hidden style="margin:0">No problem. Use Monthly Payment to try loan amounts and rates while you search.</p>
+      <div class="note" id="subjNote" hidden style="margin-top:12px"></div>
+      <button type="button" class="editlink" id="subjDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
 
@@ -1725,7 +1726,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       :("Subject property: "+lbl+(refi?" (refinance)":" (purchase)"));
     $("txnSummary").textContent=(refi?"Refinance":"Purchase")+" \u00b7 "+OCC[so];
     var a2=$("subjAddr").value.trim();
-    $("subjSummary").textContent=!found?"Still looking":(a2?(a2.length>28?a2.slice(0,26)+"\u2026":a2):"Add address");
+    $("subjSummary").textContent=!found?"Still looking":(a2?(a2.length>28?a2.slice(0,26)+"\u2026":a2):(refi?"Address required":"Add address"));
+    $("subjReq").hidden=!refi;$("subjMissing").hidden=!(refi&&!a2);
+    try{var zm=a2.match(/(?:^|[\s,])(\d{5})(?:-\d{4})?\s*$/),sv=(found&&a2)?JSON.stringify({addr:a2,zip:zm?zm[1]:"",t:Date.now()}):"",old=localStorage.getItem("voklogik:subject")||"";
+      if(!sv){if(old)localStorage.removeItem("voklogik:subject")}else{var po={};try{po=JSON.parse(old||"{}")}catch(e){}if(po.addr!==a2)localStorage.setItem("voklogik:subject",sv)}}catch(e){}
   }
   ["rowTxn","rowSubject"].forEach(function(id){
     $(id).addEventListener("input",function(){recompute()});
@@ -2402,7 +2406,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       S.push({head:"Subject property",items:[
         R("Transaction",subjTxn()==="refi"?"Refinance":"Purchase"),
         R("Occupancy",OCC[sO]),
-        (subjTxn()!=="refi"&&sel("subjFound")==="no")?Sm("Still looking for a property."):(sA?{k:"text",t:"Address: "+sA}:Sm("No address entered.")),
+        (subjTxn()!=="refi"&&sel("subjFound")==="no")?Sm("Still looking for a property."):(sA?{k:"text",t:"Address: "+sA}:Sm(subjTxn()==="refi"?"Address missing. Required for a refinance.":"No address entered.")),
         Sm("The payment on the subject property is in Monthly Payment, not in other monthly debts.")]});
       if(oc2.items.length){
         var ow=[];
@@ -2630,7 +2634,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var R=function(a,b){return {k:"row",a:a,b:b}},Sm=function(t){return {k:"small",t:t}};
     var price=n("propValue"),appr=refi?0:n("propAppr"),loan=n("pLoan"),sec=(pS2&&pS2.on)?n("pLoan2"):n("propLiens");
     var addr=$("subjAddr").value.trim();
-    var loanItems=[R("Loan purpose",refi?"Refinance":"Purchase"),R("Occupancy",occ),R("Property address",addr||"Not entered"),
+    var loanItems=[R("Loan purpose",refi?"Refinance":"Purchase"),R("Occupancy",occ),R("Property address",addr||(refi?"Missing (required for a refinance)":"Not entered")),
       R(refi?"Current value":"Purchase price",price>0?usd.format(price):"Not entered")];
     if(!refi)loanItems.push(R("Appraised value",appr>0?usd.format(appr):"Not entered"));
     loanItems.push(R("Loan amount",loan>0?usd.format(loan):"Not entered"));
