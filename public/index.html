@@ -421,8 +421,10 @@ table.sched th{color:var(--muted);font-weight:500}
 .arowhead{width:100%;background:none;border:0;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;text-align:left;color:var(--ink)}
 .arowlabel{font:700 1.05rem "Bricolage Grotesque",sans-serif}
 .arowright{display:flex;align-items:center;gap:12px;min-width:0}
-#rowA .arowvalue,#rowL .arowvalue{white-space:pre-line;text-align:left}
+#rowA .arowvalue,#rowL .arowvalue{white-space:pre;text-align:left;font-size:.9rem;letter-spacing:-.02em}
 .arowvalue .s2line{color:#64748B}
+@media(max-width:560px){#rowA .arowvalue,#rowL .arowvalue{white-space:pre-line}}
+#rowC .arowsub b.yn-y{color:#15803D!important}#rowC .arowsub b.yn-n{color:#DC2626!important}
 .arowvalue{font:700 .98rem "Bricolage Grotesque",sans-serif;color:var(--accent);text-align:right;overflow-wrap:anywhere}
 .achev{color:var(--muted);transition:transform .15s;font-size:.85rem}
 .arow.open .achev{transform:rotate(180deg)}
@@ -688,7 +690,7 @@ header .tag{color:#94A3B8!important}
       <div class="f" id="downAmtF"><label for="downAmt">Down payment ($)</label><input id="downAmt" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 80,000"></div>
       <div class="f w"><label for="tax">Property tax ($)</label><div class="ur"><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="" placeholder="e.g. 4,800"><select id="taxU" aria-label="Property tax period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
       <div class="f w"><label for="ins">Home insurance ($)</label><div class="ur"><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="" placeholder="e.g. 1,500"><select id="insU" aria-label="Home insurance period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
-      <div class="f w" id="hoaF" hidden><label for="hoaIn" id="hoaL">HOA / association dues ($)</label><div class="ur"><input id="hoaIn" type="number" inputmode="decimal" min="0" step="10" value="300"><select id="hoaU" aria-label="HOA period"><option value="y">Yearly</option><option value="m" selected>Monthly</option></select></div></div>
+      <div class="f w" id="hoaF" hidden><label for="hoaIn" id="hoaL">HOA / association dues ($)</label><div class="ur"><input id="hoaIn" type="number" inputmode="decimal" min="0" step="10" value="" placeholder="e.g. 300"><select id="hoaU" aria-label="HOA period"><option value="y">Yearly</option><option value="m" selected>Monthly</option></select></div></div>
       <div class="f w" id="miF" hidden><label for="miRate">Mortgage insurance (% of loan per year)</label><input id="miRate" type="number" inputmode="decimal" min="0" step="0.05" value="0.7"><span class="k">Usually required with less than 20% down or equity, and typically ends once you reach about 20% equity. The rate varies by credit score and loan.</span></div>
       <input type="hidden" id="loanTyped" value="">
       <p class="k f w" id="refiNote" hidden style="margin:0"></p>
@@ -1877,7 +1879,7 @@ header .tag{color:#94A3B8!important}
   [m1,m2].forEach(function(m){m.addEventListener("blur",function(){syncA()})});
   var r3=mk("rowC","Monthly housing overhead",[home],function(){
     function moN(id,u){var v=num(id);return $(u).value==="m"?v:v/12}var t=moN("tax","taxU")+moN("ins","insU"),h=$("hoaF");if(h&&!h.hidden)t+=moN("hoaIn","hoaU");
-    return t>0?"$"+fm(t)+T("/mo"):T("Add amount")},function(){if($("tax").value===""&&$("ins").value==="")return T("Add property tax and insurance when known");var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
+    return t>0?"$"+fm(t)+T("/mo"):T("Add amount")},function(){if($("tax").value===""&&$("ins").value==="")return T("Add property tax and insurance when known");var h=$("hoaF");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+((h&&h.hidden)?"":" \u00b7 HOA: "+yn("hoaIn"))});
   var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:"").replace(/\s*years?$/i," yrs"),x=($("rate").value===""?T("Add rate"):lab("rtype")+" "+$("rate").value+"%")+" \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x+"\n"+T("2nd mortgage")+": "+lab("s2type"):x},function(){return ""});
   function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}var ve=r.el.querySelector(".arowvalue"),vp=String(v).split("\n");ve.textContent=vp[0];if(vp.length>1){var s2e=document.createElement("span");s2e.className="s2line";s2e.textContent="\n"+vp.slice(1).join("\n");ve.appendChild(s2e)}r.el.querySelector(".arowvalue").classList.toggle("emp",/^(Add |\u2014$)/.test(v));var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
   upd();setInterval(upd,500);area.addEventListener("input",upd);area.addEventListener("change",upd);
