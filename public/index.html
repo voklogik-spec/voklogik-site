@@ -597,6 +597,8 @@ header .tag{color:#94A3B8!important}
 .ratioband .stactions .infobtn{padding:0 2px;text-decoration:underline;text-underline-offset:3px;background:none;border:0}
 .ratioband .stactions .logicbtn{padding:0 10px}
 .ratioband .stathead{flex-direction:column;align-items:flex-start;gap:8px;flex-wrap:nowrap}.ratioband .stathead .rowlabel{min-height:2.5em;line-height:1.25}.ratioband .stathead .statword{min-height:28px;box-sizing:border-box;display:inline-flex;align-items:center}.ratioband .stactions{flex-direction:column;align-items:flex-start;gap:8px}.ratioband .statpct{line-height:1.1;margin-top:6px}
+.arowvalue.emp{color:#94A3B8!important;font-weight:500}.arowsub .emp{color:#94A3B8}
+.ratioband .stat.waiting .statpct{color:#CBD5E1!important}.ratioband .statword.wait{background:#F1F5F9;color:#64748B;font-weight:600}
 </style><style id="vkhide">#ratioband .stat>.k{display:none}</style><style id="vkratio2">
 .hero>.ratioband{display:flex!important;flex-wrap:wrap}
 .ratioband .stat{flex:1 1 220px;align-items:center;text-align:center}
@@ -678,12 +680,12 @@ header .tag{color:#94A3B8!important}
     </fieldset>
     <div class="grid" id="homeGrid">
       <div class="f w" id="rtF" hidden><label for="rsub">Refinance type</label><select id="rsub"><option value="rate" selected>Rate and term</option><option value="cash">Cash-out</option><option value="delay">Technical / delayed financing</option></select></div>
-      <div class="f w"><label for="price" id="priceL">Home price ($)</label><input id="price" type="number" inputmode="decimal" min="0" step="1000" value="400000"></div>
+      <div class="f w"><label for="price" id="priceL">Home price ($)</label><input id="price" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 400,000"></div>
       <div class="f w" id="apprF"><label for="appr">Appraised or current value ($)</label><input id="appr" type="number" inputmode="decimal" min="0" step="1000" placeholder="Leave blank to use the home price"><span class="k">If the appraised value is not known yet, the home price is used. LTV is based on the lower of the two.</span></div>
-      <div class="f" id="downF"><label for="down">Down payment (%)</label><input id="down" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="20"></div>
-      <div class="f" id="downAmtF"><label for="downAmt">Down payment ($)</label><input id="downAmt" type="number" inputmode="decimal" min="0" step="1000" value="80000"></div>
-      <div class="f w"><label for="tax">Property tax ($)</label><div class="ur"><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="4800"><select id="taxU" aria-label="Property tax period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
-      <div class="f w"><label for="ins">Home insurance ($)</label><div class="ur"><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="1500"><select id="insU" aria-label="Home insurance period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
+      <div class="f" id="downF"><label for="down">Down payment (%)</label><input id="down" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="" placeholder="e.g. 20"></div>
+      <div class="f" id="downAmtF"><label for="downAmt">Down payment ($)</label><input id="downAmt" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 80,000"></div>
+      <div class="f w"><label for="tax">Property tax ($)</label><div class="ur"><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="" placeholder="e.g. 4,800"><select id="taxU" aria-label="Property tax period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
+      <div class="f w"><label for="ins">Home insurance ($)</label><div class="ur"><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="" placeholder="e.g. 1,500"><select id="insU" aria-label="Home insurance period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
       <div class="f w" id="hoaF" hidden><label for="hoaIn" id="hoaL">HOA / association dues ($)</label><div class="ur"><input id="hoaIn" type="number" inputmode="decimal" min="0" step="10" value="300"><select id="hoaU" aria-label="HOA period"><option value="y">Yearly</option><option value="m" selected>Monthly</option></select></div></div>
       <div class="f w" id="miF" hidden><label for="miRate">Mortgage insurance (% of loan per year)</label><input id="miRate" type="number" inputmode="decimal" min="0" step="0.05" value="0.7"><span class="k">Usually required with less than 20% down or equity, and typically ends once you reach about 20% equity. The rate varies by credit score and loan.</span></div>
       <p class="k f w" id="refiNote" hidden style="margin:0"></p>
@@ -702,7 +704,7 @@ header .tag{color:#94A3B8!important}
           <div class="f w" id="l1AmtF" hidden><label for="l1Amt">Loan amount ($)</label><input id="l1Amt" type="number" readonly tabindex="-1"></div>
           <div class="f w" id="balF" hidden><label for="bal" id="balL">Current loan balance ($)</label><input id="bal" type="number" inputmode="decimal" min="0" step="1000" value="280000"></div>
           <div class="f w" id="delF" hidden><label for="delAmt">Amount to borrow ($)</label><input id="delAmt" type="number" inputmode="decimal" min="0" step="1000" value="240000"></div>
-          <div class="f"><label for="rate" id="rateL">Interest rate (%)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.05" value="6.5"></div>
+          <div class="f"><label for="rate" id="rateL">Interest rate (%)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.05" value="" placeholder="e.g. 6.5"></div>
           <div class="f"><label for="term" id="termL">Loan term</label><select id="term"><option value="30" selected>30 years</option><option value="20">20 years</option><option value="15">15 years</option><option value="10">10 years</option></select></div>
           <div class="f" id="cashF" hidden><label for="cash">Cash out ($)</label><input id="cash" type="number" inputmode="decimal" min="0" step="1000" value="50000"></div>
           <div class="f" id="qrF" hidden><label for="qr">Qualifying rate (%)</label><input id="qr" type="number" inputmode="decimal" min="0" step="0.05" placeholder="Same as starting rate"></div>
@@ -1723,7 +1725,7 @@ header .tag{color:#94A3B8!important}
 (function(){
   function $(i){return document.getElementById(i)}
   var fr=$("affFrame");if(!fr)return;
-  function setSampleHome(){var m={price:"350000",down:"10",rate:"6.75"};Object.keys(m).forEach(function(k){var e=$(k);if(!e)return;e.value=m[k];e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})}
+  function setSampleHome(){var m={price:"350000",down:"10",rate:"6.75",tax:"4800",ins:"1500"};Object.keys(m).forEach(function(k){var e=$(k);if(!e)return;e.value=m[k];e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})}
   function loadSample(){setSampleHome();setTimeout(function(){fr.src="/affordability.html?embed=1&sample=1&t="+Date.now()},250);$("analyzer").scrollIntoView({behavior:"smooth",block:"start"})}
   var sl=$("sampleLink");if(sl)sl.addEventListener("click",function(e){e.preventDefault();try{track("click_hero_sample")}catch(x){}loadSample()});
   if(/[?&]sample=1\b/.test(location.search)){setSampleHome();fr.src="/affordability.html?embed=1&sample=1";setTimeout(function(){$("analyzer").scrollIntoView({block:"start"})},400)}
@@ -1831,7 +1833,8 @@ header .tag{color:#94A3B8!important}
   function loan1(){var t=txnV();if(t==="purchase")return Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0);if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
   var af=document.createElement("div");af.innerHTML='<div class="f w"><label for="mLoan1" id="mLoan1L">1st mortgage loan amount ($)</label><input id="mLoan1" type="text" inputmode="decimal" autocomplete="off"></div><div class="f w" id="mLoan2F" hidden style="margin-top:14px"><label for="mLoan2">2nd mortgage amount ($)</label><input id="mLoan2" type="text" inputmode="decimal" autocomplete="off"></div><div class="grid" id="mDownG" style="margin-top:14px"></div>';
   var dg=af.querySelector("#mDownG");[ $("downF"),$("downAmtF") ].forEach(function(n){if(n)dg.appendChild(n)});
-  var rA=mk("rowA","Loan amount",[af],function(){var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");return x},function(){return secOn()?T("2nd mortgage")+": $"+fm(num("s2Amt")):""});
+  function loanReady(){var t=txnV();if(t==="purchase")return num("price")>0&&($("down").value!==""||$("downAmt").value!=="")&&loan1()>0;return loan1()>0}
+  var rA=mk("rowA","Loan amount",[af],function(){if(!loanReady())return T("Add amount");var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");return x},function(){return secOn()?T("2nd mortgage")+": $"+fm(num("s2Amt")):""});
   var m1=$("mLoan1"),m2=$("mLoan2");
   function syncA(){
     var t=txnV();m1.readOnly=(t!=="purchase");
@@ -1846,11 +1849,12 @@ header .tag{color:#94A3B8!important}
   [m1,m2].forEach(function(m){m.addEventListener("blur",function(){syncA()})});
   var r3=mk("rowC","Price and monthly housing overhead",[home],function(){
     var t=txnV(),p=num("price"),a=num("appr");
+    if(t==="purchase"&&!p)return T("Add price");if(t!=="purchase"&&!(a>0?a:p))return T("Add value");
     if(t!=="purchase")return (a>0?T("Appraised value"):T("Home value"))+" $"+fm(a>0?a:p);
     if(a>0&&p>0&&a<p)return T("Appraised value")+" $"+fm(a);
-    return T("Purchase price")+" $"+fm(p)},function(){var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
-  var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:""),x=lab("rtype")+" "+($("rate").value||"0")+"% \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x:x},function(){return secOn()?T("2nd mortgage")+": "+lab("s2type"):""});
-  function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}r.el.querySelector(".arowvalue").textContent=v;var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
+    return T("Purchase price")+" $"+fm(p)},function(){if($("tax").value===""&&$("ins").value==="")return T("Add property tax and insurance when known");var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
+  var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:""),x=($("rate").value===""?T("Add rate"):lab("rtype")+" "+$("rate").value+"%")+" \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x:x},function(){return secOn()?T("2nd mortgage")+": "+lab("s2type"):""});
+  function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}r.el.querySelector(".arowvalue").textContent=v;r.el.querySelector(".arowvalue").classList.toggle("emp",/^(Add |\u2014$)/.test(v));var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
   upd();setInterval(upd,500);area.addEventListener("input",upd);area.addEventListener("change",upd);
   // choosing a transaction (or second mortgage option) shows it on the right of the row, collapses it, and opens the next step
   r1.addEventListener("change",function(e){if(e.target&&e.target.type==="radio"){upd();setTimeout(function(){toggle(r1,false);toggle(r2,true)},350)}});
@@ -1860,7 +1864,7 @@ header .tag{color:#94A3B8!important}
   var res=document.querySelector(".hero>.calc .res");if(res){var w=document.createElement("div");w.className="leftres";res.parentNode.insertBefore(w,res);
     var nx=res;var nodes=[];while(nx){nodes.push(nx);nx=nx.nextElementSibling;if(nx&&(nx.id==="details"||nx.id==="acts"||nx.id==="plans"||nx.id==="affordCta"||nx.id==="freeNote"))break}
     nodes.forEach(function(n){w.appendChild(n)})}
-  var rR=mk("rowR","Estimated monthly payment",[w],function(){return $("total").textContent},function(){var a=[];document.querySelectorAll("#legMain li").forEach(function(li){if(!li.hidden&&li.offsetParent!==null||(!li.hidden&&true)){var sp=li.querySelector("span");if(sp)a.push(sp.textContent.trim())}});return a.length?T("Includes")+": "+a.join(", "):""});
+  var rR=mk("rowR","Estimated monthly payment",[w],function(){return (loanReady()&&$("rate").value!=="")?$("total").textContent:"\u2014"},function(){if(!(loanReady()&&$("rate").value!==""))return T("Add loan amount, price and rate to see your payment");var a=[];document.querySelectorAll("#legMain li").forEach(function(li){var bb=li.querySelector("b");if(bb&&/^\$0(\.0+)?$/.test(bb.textContent.trim()))return;if(!li.hidden&&li.offsetParent!==null||(!li.hidden&&true)){var sp=li.querySelector("span");if(sp)a.push(sp.textContent.trim())}});return a.length?T("Includes")+": "+a.join(", "):""});
   rR.classList.add("arow-pay");
   var lt=$("ltv");if(lt&&lt.parentElement)lt.parentElement.style.display="none";
   // clear everything, both panels, from one place under them
@@ -1868,19 +1872,28 @@ header .tag{color:#94A3B8!important}
   var cr=document.createElement("div");cr.className="clearrow";cr.innerHTML='<button type="button" id="clearAll">Clear all entries and start over</button>';
   var hero=document.querySelector(".hero");hero.insertBefore(cr,$("midband")||null);
   $("clearAll").addEventListener("click",function(){
-    try{var d=$("affFrame").contentDocument;var c=d&&d.getElementById("clearEntries");if(c)c.click()}catch(e){}
-    setTimeout(function(){if(oldClr)oldClr.click()},60);
+    // unload the analyzer first so it cannot re-save its old numbers, then wipe both columns and reload fresh
+    try{$("affFrame").src="about:blank"}catch(e){}
+    setTimeout(function(){
+      try{["voklogik:calcState","voklogik:payment","voklogik:affState","voklogik:affEdit","voklogik:subject","voklogik:sampleOn"].forEach(function(k){localStorage.removeItem(k)})}catch(e){}
+      if(oldClr)oldClr.click();else location.replace(location.pathname+"?fresh="+Date.now());
+    },200);
   });
 
   // ratios: shown once, across both panels (read from the analyzer frame)
   var band=document.createElement("div");band.id="ratioband";band.className="ratioband";
   hero.insertBefore(band,cr);
   var rOpen={},rLast="";
+  var rSig="";
   function syncR(){var d;try{d=$("affFrame").contentDocument}catch(e){return}if(!d)return;
     var st=d.querySelectorAll("main>.calc.emb-stats>.stat");if(!st.length)return;
     var h="";st.forEach(function(x){h+=x.outerHTML.replace(/ id="[^"]*"/g,"")});
-    if(h===rLast)return;rLast=h;
+    var inc=0;try{inc=parseFloat(String((d.getElementById("incomeSummary")||{}).textContent||"").replace(/[^0-9.]/g,""))||0}catch(e){}
+    var payOk=loanReady()&&$("rate").value!=="",wait=[!(payOk&&inc>0),!(payOk&&inc>0),!loanReady(),!loanReady()],sig=wait.join();
+    if(h===rLast&&sig===rSig)return;rLast=h;rSig=sig;
     band.innerHTML=h+'<p class="k ratnote">If either ratio looks high, try a smaller loan amount or a lower rate.</p>';
+    var ss=band.querySelectorAll(".stat");
+    if(ss.length===4)ss.forEach(function(s,i){if(!wait[i])return;s.hidden=false;s.classList.add("waiting");var p=s.querySelector(".statpct"),w=s.querySelector(".statword");if(p)p.textContent="\u2014";if(w){w.textContent=T("Waiting for your numbers");w.className="statword wait"}});
     band.querySelectorAll(".stat").forEach(function(s,i){if(rOpen[i]){var ib=s.querySelector(".infobox");if(ib)ib.hidden=false}});
   }
   band.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".infobtn");if(!b)return;
