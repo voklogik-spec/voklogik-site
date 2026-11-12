@@ -186,12 +186,12 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 .rlg .rbar span{font:500 .76rem "Geist Mono",ui-monospace,monospace;color:#fff;background:#0F172A;padding:9px 14px;box-shadow:inset 0 -2px 0 #0EA5E9}
 .rlg .rbar button{margin-left:auto;font:500 .76rem "Geist Mono",ui-monospace,monospace;color:#94A3B8;background:transparent;border:0;border-left:1px solid #1E293B;padding:9px 14px;cursor:pointer}
 .rlg pre{margin:0;padding:18px 20px;font:400 .84rem/1.75 "Geist Mono",ui-monospace,monospace;color:#E2E8F0;white-space:pre-wrap;overflow-x:auto;tab-size:2}
-.rlg .c{color:#64748B}.rlg .k{color:#94A3B8}.rlg .v{color:#38BDF8}.rlg .r{color:#fff;font-weight:600}.rlg .o{color:#FF5500;font-weight:600}
+.rlg .rnotes{padding:0 20px 14px}.rlg .rnotes p{margin:0 0 8px;font:400 .8rem/1.6 "Geist Mono",ui-monospace,monospace;color:#64748B}.rlg .c{color:#64748B}.rlg .k{color:#94A3B8}.rlg .v{color:#38BDF8}.rlg .r{color:#fff;font-weight:600}.rlg .o{color:#FF5500;font-weight:600}
 .rlg table{width:calc(100% - 40px);margin:0 20px 16px;border-collapse:collapse;font:400 .8rem/1.5 "Geist Mono",ui-monospace,monospace;color:#E2E8F0}
 .rlg th,.rlg td{padding:7px 6px;border-bottom:1px solid #1E293B;text-align:right}.rlg th:first-child,.rlg td:first-child{text-align:left}
 .rlg th{font-weight:500;color:#94A3B8}.rlg td.v{color:#38BDF8}.rlg .tot td{color:#fff;font-weight:600;border-bottom:0}
 .rlg .lgfoot{padding:10px 20px 14px;border-top:1px solid #1E293B;font:400 .72rem/1.5 "Geist Mono",ui-monospace,monospace;color:#64748B}
-@media (max-width:560px){.rlg pre{font-size:.74rem;padding:14px}.rlg table{font-size:.72rem;width:calc(100% - 28px);margin:0 14px 14px}}
+@media (max-width:560px){.rlg .rnotes{padding:0 14px 14px}.rlg .rnotes p{font-size:.72rem}.rlg pre{font-size:.74rem;padding:14px}.rlg table{font-size:.72rem;width:calc(100% - 28px);margin:0 14px 14px}}
 @media print{.rlgwrap{display:none!important}}
 .astline{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;align-items:end}
 .astline>.f:first-child{grid-column:1/-1}
@@ -701,9 +701,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       <p class="srctotal" id="assetsTotalLine"></p>
       <p class="k" id="assetsUseLine" style="margin:4px 0 0;font-size:.8rem"></p><div class="rlgwrap" id="rlgWrapA" hidden></div>
       <div class="f" style="margin-top:16px"><label>Do you have any large deposits?</label>
-        <p class="srctotal" style="margin:0 0 8px;font-style:italic">Usually a deposit larger than 50% of your total monthly income. Deposits from an employer, the IRS or Social Security may not need verification, at the lender's discretion.</p>
         <div class="plainradio" role="radiogroup"><label><input type="radio" name="largeDep" value="no" checked>No</label><label><input type="radio" name="largeDep" value="yes">Yes</label></div>
-        <p class="k" id="largeDepNote" hidden style="margin:8px 0 0;font-size:.8rem"></p></div>
+        <p class="k" id="largeDepNote" hidden style="margin:8px 0 0;font-size:.8rem"></p><div class="rlgwrap" id="rlgWrapD"></div></div>
       <button type="button" class="editlink" id="assetsDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -715,7 +714,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       <span class="rowright"><span class="rowvalue" id="reservesSummary">Not set</span><span class="chev">&#9662;</span></span>
     </button>
     <div class="rowbody">
-      <p class="k" style="margin:0 0 14px">Reserves are the months of housing payments you would still have in the bank after closing. Choose what to base them on and how many months.</p>
+      <div class="rlgwrap" id="rlgWrapR" style="margin:0 0 14px"></div>
       <div class="grid">
         <div class="f"><label for="resBasis">Based on</label>
           <select id="resBasis"><option value="subject">PITIA of the subject property</option><option value="all">PITIA of the subject property plus other properties owned</option></select></div>
@@ -729,8 +728,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       <div id="resUpbList"></div>
       <p class="k" id="resUpbEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p>
       <div class="grid" style="margin-top:10px"><div class="f"><label for="resUpbPct">Default percentage of UPB (%), used when a property has none of its own</label><input id="resUpbPct" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 2"></div></div>
-      <div id="resOut" style="margin-top:14px"></div><div class="rlgwrap" id="rlgWrapR" hidden></div>
-      <p class="k" style="margin:10px 0 0">We use your non-liquid assets (retirement, mutual funds, stocks) first, so your checking and savings stay available for the down payment and closing costs. That may mean liquidating them, so check the taxes and penalties first.</p>
+      <div id="resOut" style="margin-top:14px"></div>
       <button type="button" class="editlink" id="reservesDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -1866,7 +1864,6 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     items.forEach(function(x){
       if(x.earnest||x.gift)return;
       var t="ast"+x.id,note=x.liquid?"Liquid: available right away.":(x.lqOwn>0?("You counted "+usd.format(x.lqOwn)+" of this as liquid (after selling or withdrawing). The other "+usd.format(x.nl)+" stays non-liquid."):"Non-liquid: may need to be liquidated to use for cash to close or a down payment. Use the options above to count the part you would sell or withdraw.");
-      if(x.used>0)note+=" "+usd.format(x.used)+" set aside for reserves, "+usd.format(x.amt-x.used)+" remaining.";
       $(t+"Note").textContent=note;
       $(t+"After").textContent=usd.format(x.amt-x.used);
     });
@@ -1874,9 +1871,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     $("assetsSummary").textContent=usd.format(tot-covered);
     var eTxt=earn>0?" Earnest money already paid, credited at closing: "+usd.format(earn)+".":"";
     if(giftC>0)eTxt+=" Gift to be received at closing, credited at closing: "+usd.format(giftC)+".";
-    $("assetsTotalLine").textContent=(tot>0?(covered>0?("Total assets after reserves: "+usd.format(tot-covered)+" (total assets "+usd.format(tot)+" minus "+usd.format(covered)+" set aside for reserves)"):("Total assets: Liquid "+usd.format(liq)+" + Non-liquid "+usd.format(non)+" = "+usd.format(tot))):"")+eTxt;
+    $("assetsTotalLine").textContent="";
     var usedList=items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)});
-    $("assetsUseLine").textContent=covered>0?("Set aside for reserves: "+usedList.join(", ")+". Available after reserves: "+usd.format(tot-covered)+"."):"";
+    $("assetsUseLine").textContent="";
     resInfo={months:months,base:base,subj:subj,other:all?other:0,all:all,picked:pickedNames,monthsReq:months*base,upbItems:upbItems,upbTotal:upbTotal,upbPct:upbPct,upbReq:upbReq,req:req,usedN:usedN,usedL:usedL,short:short,left:left,haveMonths:base>0?(tot/base):0};
     renderResLogic();
     var out=$("resOut");
@@ -1892,8 +1889,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         +row("Covered by liquid assets",usd.format(usedL))
         +row(short>0?"Short by":"Reserves covered",short>0?usd.format(short):"Yes",1)
         +row("Liquid left for down payment and closing costs",usd.format(left))
-        +(usedList.length?'<p class="k" style="margin:8px 0 0;font-size:.8rem">Accounts used: '+usedList.map(esc).join(", ")+'.</p>':'')
-        +'<p class="k" style="margin:8px 0 0">All of your assets together equal about '+(Math.round(resInfo.haveMonths*10)/10)+' months of PITIA.</p>';
+        ;
       $("reservesSummary").textContent=(months>0?months+" mo":"")+(months>0&&upbReq>0?" + ":"")+(upbReq>0?"UPB":"")+" · "+(short>0?"short "+usd.format(short):"covered");
     }
     return resInfo;
@@ -2000,33 +1996,54 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     }catch(e){return false}
   }
 
-  var rlgOpen=false;
+  var rlgOpen=false,ldOpen=false;
   function renderResLogic(){
     var ai=assetsInfo,ri=resInfo;if(!ai||!ri)return;
-    var show=ri.req>0&&(ai.reserved>0||ri.short>0);
-    ["rlgWrapR","rlgWrapA"].forEach(function(id){
-      var w=$(id);if(!w)return;
-      if(!show){w.hidden=true;w.innerHTML="";return}
-      var rows=ai.items.filter(function(x){return !x.earnest&&!x.gift&&x.amt>0});
-      var h='<button type="button" class="logicbtn" data-rlg="1" aria-expanded="'+rlgOpen+'">[View Underwriting Logic]</button>';
-      if(rlgOpen){
-        var f2=function(v){return usd.format(v).replace("$","")},sp=function(c,t){return '<span class="'+c+'">'+t+'</span>'};
-        var m='<span class="c">// required reserves</span>\nrequired_reserves = months x monthly_payment\n';
+    var tot=ai.liquid+ai.nonliquid,hasRes=ri.req>0&&(ai.reserved>0||ri.short>0);
+    var f2=function(v){return usd.format(v).replace("$","")},sp=function(c,t){return '<span class="'+c+'">'+t+'</span>'};
+    function body(title){
+      var m=sp("c","// total assets")+'\nliquid       = '+sp("v","$"+f2(ai.liquid))+'\nnon_liquid   = '+sp("v","$"+f2(ai.nonliquid))+'\ntotal_assets = '+sp("r","$"+f2(tot));
+      if(title==="Reserves"&&!hasRes)m=sp("c","// required reserves")+'\nrequired_reserves = months x monthly_payment';
+      if(hasRes){
+        m+='\n\n'+sp("c","// required reserves")+'\nrequired_reserves = months x monthly_payment\n';
         if(ri.all&&ri.other>0)m+='monthly_payment  = '+sp("v","$"+f2(ri.subj))+' + '+sp("v","$"+f2(ri.other))+'  '+sp("c","// subject + other properties")+'\n';
         m+='                  = '+sp("v",ri.months)+' x '+sp("v","$"+f2(ri.base))+'\n';
         if(ri.upbReq>0)m+='                  + '+sp("v","$"+f2(ri.upbReq))+'  '+sp("c","// unpaid-balance reserves")+'\n';
         m+='                  = '+sp("r","$"+f2(ri.req));
+        m+='\n\n'+sp("c","// total assets after reserves")+'\nafter_reserves = '+sp("v","$"+f2(tot))+' - '+sp("v","$"+f2(ai.reserved))+'\n               = '+sp("r","$"+f2(ai.avail));
+        var ul=ai.items.filter(function(x){return x.used>0}).map(function(x){return x.type+" $"+f2(x.used)});
+        if(ul.length)m+='\n\n'+sp("c","// accounts used")+'\n'+ul.join(", ");
+      }
+      if(ai.earnest>0)m+='\n\n'+sp("c","// earnest money already paid, credited at closing")+'\n'+sp("v","$"+f2(ai.earnest));
+      if(ai.giftClose>0)m+='\n\n'+sp("c","// gift to be received at closing, credited at closing")+'\n'+sp("v","$"+f2(ai.giftClose));
+      var h='<div class="rlg"><div class="rbar"><span>'+title+'</span><button type="button" data-rlg="1" aria-label="Close">&times; Close</button></div>'+(title==="Reserves"?'<div class="rnotes" style="padding-top:14px"><p>// reserves are the months of housing payments you would still have in the bank after closing. Choose what to base them on and how many months.</p></div>':'')+'<pre>'+m+'</pre>';
+      if(hasRes){
         var rows=ai.items.filter(function(x){return !x.earnest&&!x.gift&&x.amt>0});
-        h+='<div class="rlg"><div class="rbar"><span>Reserves</span><button type="button" data-rlg="1" aria-label="Close">&times; Close</button></div><pre>'+m+'</pre>'
+        h+='<div class="rnotes"><p>// all assets together = about '+(Math.round(ri.haveMonths*10)/10)+' months of PITIA</p><p>// non-liquid assets (retirement, mutual funds, stocks) are used first, so checking and savings stay available for the down payment and closing costs. That may mean liquidating them, so check the taxes and penalties first.</p></div>'
          +'<table><thead><tr><th>Account</th><th>Balance</th><th>Set aside</th><th>Remaining</th></tr></thead><tbody>'
          +rows.map(function(x){return '<tr><td>'+x.type+'</td><td class="v">'+usd.format(x.amt)+'</td><td class="v">'+usd.format(x.used)+'</td><td class="v">'+usd.format(x.amt-x.used)+'</td></tr>'}).join("")
-         +'<tr class="tot"><td>Total</td><td>'+usd.format(ai.liquid+ai.nonliquid)+'</td><td>'+usd.format(ai.reserved)+'</td><td>'+usd.format(ai.avail)+'</td></tr></tbody></table>'
-         +'<div class="lgfoot">Live values from the numbers you entered. Estimates only.</div></div>';
+         +'<tr class="tot"><td>Total</td><td>'+usd.format(tot)+'</td><td>'+usd.format(ai.reserved)+'</td><td>'+usd.format(ai.avail)+'</td></tr></tbody></table>';
       }
-      w.innerHTML=h;w.hidden=false;
+      return h+'<div class="lgfoot">Live values from the numbers you entered. Estimates only.</div></div>';
+    }
+    [["rlgWrapR",true,"Reserves"],["rlgWrapA",(tot>0||ai.earnest>0||ai.giftClose>0),"Assets"]].forEach(function(c){
+      var w=$(c[0]);if(!w)return;
+      if(!c[1]){w.hidden=true;w.innerHTML="";return}
+      w.innerHTML='<button type="button" class="logicbtn" data-rlg="1" aria-expanded="'+rlgOpen+'">[View Underwriting Logic]</button>'+(rlgOpen?body(c[2]):"");
+      w.hidden=false;
     });
   }
-  document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-rlg]");if(b){rlgOpen=!rlgOpen;renderResLogic()}});
+  function renderLdLogic(){
+    var w=$("rlgWrapD");if(!w)return;
+    var sp=function(c,t){return '<span class="'+c+'">'+t+'</span>'},inc=lastIncome||0,t=Math.round(inc*0.5);
+    var m=sp("c","// large deposit")+'\nlarge_deposit = deposit > 50% x gross_monthly_income';
+    if(t>0)m+='\nthreshold     = 50% x '+sp("v",usd.format(inc))+' = '+sp("r",usd.format(t));
+    w.innerHTML='<button type="button" class="logicbtn" data-ldp="1" aria-expanded="'+ldOpen+'">[View Underwriting Logic]</button>'+(ldOpen?
+      '<div class="rlg"><div class="rbar"><span>Large deposits</span><button type="button" data-ldp="1" aria-label="Close">&times; Close</button></div><pre>'+m+'</pre>'
+      +'<div class="rnotes"><p>// deposits from an employer, the IRS or Social Security may not need verification, at the lender’s discretion.</p><p>// lenders often ask for a statement and a short explanation for each large deposit, so have them ready.</p></div>'
+      +'<div class="lgfoot">Live values from the numbers you entered. Estimates only.</div></div>':"");
+  }
+  document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-rlg]");if(b){rlgOpen=!rlgOpen;renderResLogic();return}var d=e.target.closest&&e.target.closest("[data-ldp]");if(d){ldOpen=!ldOpen;renderLdLogic()}});
   function paymentTotal(){
     var loan=n("pLoan"), rate=n("pRate")/100/12, N=pmtYears*12;
     var pi=pmt(loan,rate,N);
@@ -2112,12 +2129,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     if(dgShown>1)dgShown--;
     recompute();affSaveSoon();
   })});
-  function ldepUpdate(){
-    var yes=sel("largeDep")==="yes",el=$("largeDepNote");if(!el)return;
-    el.hidden=!yes;
-    if(yes){var t=Math.round((lastIncome||0)*0.5);
-      el.textContent=(t>0?"Based on your income, a deposit above about "+usd.format(t)+" is usually treated as large. ":"")+"Lenders often ask for a statement and a short explanation for each one, so have them ready. Whether a deposit needs verification is up to the lender.";}
-  }
+  function ldepUpdate(){var el=$("largeDepNote");if(el)el.hidden=true;renderLdLogic()}
   function recompute(){
     s2Sync();
     var income=0;
