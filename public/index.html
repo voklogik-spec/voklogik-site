@@ -547,7 +547,7 @@ header .tag{color:#94A3B8!important}
 .wscta:hover{background:#E64D00}
 @media (max-width:560px){.wshint,.wslab{display:none}.wsin{padding:8px 12px;gap:8px}.wsseg button{padding:7px 10px;font-size:.8rem}.wscta{padding:8px 12px;font-size:.82rem}}
 /* Homebuyer view: fold away advanced rows and fields (values still count) */
-@media screen{html.vk-simple #rowT,html.vk-simple #rowP,html.vk-simple #apprF,html.vk-simple #hoaF,html.vk-simple #miF,html.vk-simple #qrF,html.vk-simple #armCapsGroup,html.vk-simple #rcol,html.vk-simple #lh2{display:none!important}}
+@media screen{html.vk-simple #rowT,html.vk-simple #rowP,html.vk-simple #apprF:not(.keep),html.vk-simple #hoaF,html.vk-simple #miF,html.vk-simple #qrF,html.vk-simple #armCapsGroup,html.vk-simple #rcol,html.vk-simple #lh2{display:none!important}}
 .arow{transition:opacity .15s}
 @media print{.wsbar{display:none!important}}.vtrust{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 28px;padding:8px 12px!important;font-size:.8rem!important;line-height:1.35}.vtrust span{display:inline!important;margin:0!important}
 </style><style id="vklogic">
@@ -680,8 +680,8 @@ header .tag{color:#94A3B8!important}
     </fieldset>
     <div class="grid" id="homeGrid">
       <div class="f w" id="rtF" hidden><label for="rsub">Refinance type</label><select id="rsub"><option value="rate" selected>Rate and term</option><option value="cash">Cash-out</option><option value="delay">Technical / delayed financing</option></select></div>
-      <div class="f w"><label for="price" id="priceL">Home price ($)</label><input id="price" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 400,000"></div>
-      <div class="f w" id="apprF"><label for="appr">Appraised or current value ($)</label><input id="appr" type="number" inputmode="decimal" min="0" step="1000" placeholder="Leave blank to use the home price"><span class="k">If the appraised value is not known yet, the home price is used. LTV is based on the lower of the two.</span></div>
+      <div class="f w" id="priceF"><label for="price" id="priceL">Home price ($)</label><input id="price" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 400,000"></div>
+      <div class="f w" id="apprF"><label for="appr">Appraised or current value ($)</label><input id="appr" type="number" inputmode="decimal" min="0" step="1000" placeholder="Leave blank to use the home price"><span class="k" id="apprNote">If the appraised value is not known yet, the home price is used. LTV is based on the lower of the two.</span></div>
       <div class="f" id="downF"><label for="down">Down payment (%)</label><input id="down" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="" placeholder="e.g. 20"></div>
       <div class="f" id="downAmtF"><label for="downAmt">Down payment ($)</label><input id="downAmt" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 80,000"></div>
       <div class="f w"><label for="tax">Property tax ($)</label><div class="ur"><input id="tax" type="number" inputmode="decimal" min="0" step="100" value="" placeholder="e.g. 4,800"><select id="taxU" aria-label="Property tax period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
@@ -733,14 +733,14 @@ header .tag{color:#94A3B8!important}
           </div>
         </fieldset>
         <div class="grid" id="rgrid">
-          <div class="f w"><label for="s2Amt" id="s2AmtL">HELOAN amount ($)</label><input id="s2Amt" type="number" inputmode="decimal" min="0" step="1000" value="50000"></div>
-          <div class="f"><label for="s2Rate" id="s2RateL">Interest rate (%)</label><input id="s2Rate" type="number" inputmode="decimal" min="0" step="0.05" value="8"></div>
+          <div class="f w" id="s2AmtF" hidden><label for="s2Amt" id="s2AmtL">HELOAN amount ($)</label><input id="s2Amt" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 50,000"></div>
+          <div class="f"><label for="s2Rate" id="s2RateL">Interest rate (%)</label><input id="s2Rate" type="number" inputmode="decimal" min="0" step="0.05" value="" placeholder="e.g. 8"></div>
           <div class="f" id="s2TermF"><label for="s2Term" id="s2TermL">Loan term</label><select id="s2Term"><option value="5">5 years</option><option value="10">10 years</option><option value="15" selected>15 years</option><option value="20">20 years</option><option value="25">25 years</option><option value="30">30 years</option></select></div>
           <div class="f" id="s2DrawYF" hidden><label for="s2DrawY">Draw period</label><select id="s2DrawY"><option value="5">5 years</option><option value="10" selected>10 years</option></select></div>
-          <div class="f" id="s2DrawF" hidden><label for="s2Draw" id="s2DrawL">Drawn at closing ($)</label><input id="s2Draw" type="number" inputmode="decimal" min="0" step="1000" value="50000"></div>
-          <div class="f" id="s2QF" hidden><label for="s2Q">Qualifying rate (%)</label><input id="s2Q" type="number" inputmode="decimal" min="0" step="0.05" value="8.5"></div>
+          <div class="f" id="s2DrawF" hidden><label for="s2Draw" id="s2DrawL">Drawn at closing ($)</label><input id="s2Draw" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 50,000"></div>
+          <div class="f" id="s2QF" hidden><label for="s2Q">Qualifying rate (%)</label><input id="s2Q" type="number" inputmode="decimal" min="0" step="0.05" value="" placeholder="e.g. 8.5"></div>
           <div class="f" id="s2IntroF" hidden><label for="s2Intro">Start rate lasts</label><select id="s2Intro"><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option></select></div>
-          <div class="f" id="s2AfterF" hidden><label for="s2After">Rate after that (%)</label><input id="s2After" type="number" inputmode="decimal" min="0" step="0.05" value="8.5"></div>
+          <div class="f" id="s2AfterF" hidden><label for="s2After">Rate after that (%)</label><input id="s2After" type="number" inputmode="decimal" min="0" step="0.05" value="" placeholder="e.g. 8.5"></div>
           <div class="f" id="s2RepayF" hidden><label for="s2Repay">Repayment period</label><select id="s2Repay"><option value="10">10 years</option><option value="15">15 years</option><option value="20" selected>20 years</option></select></div>
         </div>
         <p class="k" id="s2Note" style="margin:12px 0 0"></p>
@@ -1212,7 +1212,7 @@ header .tag{color:#94A3B8!important}
   function model(){
     var m=mode(),refi=m==="refi",heq=m==="heq",purch=m==="purchase",sub=$("rsub").value;
     var sec=heq?"new":chk("sec"),on=heq||sec!=="no";
-    var price=n("price"),appr=n("appr");
+    var price=purch?n("price"):n("appr"),appr=n("appr");
     var value=purch?(appr>0&&price>0?Math.min(price,appr):(price>0?price:appr)):price;
     var arm0=chk("rtype")==="arm",years=parseInt($("term").value,10),N=years*12;
     var s2={on:on,type:chk("s2type"),cur:sec==="cur",amt:0,drawn:0,limit:0,pay:0,after:0,qpay:0,repay:0};
@@ -1227,7 +1227,7 @@ header .tag{color:#94A3B8!important}
       }
     }
     var fund=(purch&&on)?s2.drawn:0,downAmt=purch?price*Math.min(n("down"),100)/100:0;
-    var lt=n("loanTyped");var loan=purch?(price>0?Math.max(price-downAmt-fund,0):lt):(heq?n("bal"):(sub==="delay"?n("delAmt"):lt));
+    var lt=n("loanTyped");var loan=purch?(lt>0?lt:(price>0?Math.max(price-downAmt-fund,0):0)):(heq?n("bal"):(sub==="delay"?n("delAmt"):lt));
     var r=n("rate")/1200,k=Math.min(parseInt($("armYrs").value,10)*12,N),r2=arm0?n("armRate")/1200:null;
     return {m:m,refi:refi,heq:heq,purch:purch,sub:sub,s2:s2,price:price,appr:appr,value:value,loan:loan,r:r,N:N,k:k,r2:r2,arm0:arm0,arm:arm0&&k<N};
   }
@@ -1321,7 +1321,7 @@ header .tag{color:#94A3B8!important}
     $("qrF").hidden=!arm;
     $("armF1").hidden=!arm;$("armF2").hidden=!arm;$("armCapsGroup").hidden=!arm;
     if(!arm&&capsOpen){capsOpen=false;$("armCapsWrap").hidden=true;$("capsToggle").textContent="+ Add rate caps (optional)"}
-    $("downF").hidden=!purch;$("downAmtF").hidden=!purch;$("apprF").hidden=!purch;var inv=document.querySelector('input[name="occ"]:checked').value==="inv";var ownSub=document.querySelector('input[name="own"]:checked').value;$("ownF").hidden=inv;
+    $("downF").hidden=!purch;$("downAmtF").hidden=!purch;$("priceF").hidden=!purch;$("apprF").hidden=false;$("apprF").classList.toggle("keep",!purch);$("apprNote").textContent=purch?"If the appraised value is not known yet, the home price is used. LTV is based on the lower of the two.":"Enter the current or appraised value of the home. LTV is based on it.";var inv=document.querySelector('input[name="occ"]:checked').value==="inv";var ownSub=document.querySelector('input[name="own"]:checked').value;$("ownF").hidden=inv;
     var on=inv?"Investment property loans often carry higher rates than owner-occupied loans. Enter the rate your lender quotes.":ownSub==="second"?"Second home loans often require a larger down payment and can carry slightly higher rates than a primary residence.":ownSub==="pied"?"A pied-à-terre is typically financed like a second home. Lender rules vary, so confirm requirements.":"";
     $("occNote").textContent=on;$("occNote").hidden=!on;
     var ptm={condo:"Condo loans often depend on the building meeting lender requirements, and monthly association dues apply.",coop:"A co-op is a share in a corporation, not real property, so it is financed with a share loan. Fewer lenders offer them, and monthly maintenance fees apply.",multi:"Multi-unit properties usually have 2 to 4 units. Lenders often ask for a larger down payment, especially if you will not live in one of the units.",pud:"A PUD has a homeowners association, so monthly dues apply."};
@@ -1619,7 +1619,7 @@ header .tag{color:#94A3B8!important}
       if(e.loan>0&&Math.abs(e.loan-M.loan)>0.5){
         if(M.purch){
           var pr=n("price");
-          if(pr>0){var da=Math.max(pr-M.s2.drawn-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}else $("loanTyped").value=Math.round(e.loan)
+          if(pr>0){var da=Math.max(pr-M.s2.drawn-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}$("loanTyped").value=Math.round(e.loan)
         }else if(M.heq)$("bal").value=Math.round(e.loan);
         else if(M.sub==="delay")$("delAmt").value=Math.round(e.loan);
         else $("loanTyped").value=Math.round(e.loan);
@@ -1725,7 +1725,7 @@ header .tag{color:#94A3B8!important}
 (function(){
   function $(i){return document.getElementById(i)}
   var fr=$("affFrame");if(!fr)return;
-  function setSampleHome(){var m={price:"350000",down:"10",rate:"6.75",tax:"4800",ins:"1500"};Object.keys(m).forEach(function(k){var e=$(k);if(!e)return;e.value=m[k];e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})}
+  function setSampleHome(){$("loanTyped").value="";var m={price:"350000",down:"10",rate:"6.75",tax:"4800",ins:"1500"};Object.keys(m).forEach(function(k){var e=$(k);if(!e)return;e.value=m[k];e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})}
   function loadSample(){setSampleHome();setTimeout(function(){fr.src="/affordability.html?embed=1&sample=1&t="+Date.now()},250);$("analyzer").scrollIntoView({behavior:"smooth",block:"start"})}
   var sl=$("sampleLink");if(sl)sl.addEventListener("click",function(e){e.preventDefault();try{track("click_hero_sample")}catch(x){}loadSample()});
   if(/[?&]sample=1\b/.test(location.search)){setSampleHome();fr.src="/affordability.html?embed=1&sample=1";setTimeout(function(){$("analyzer").scrollIntoView({block:"start"})},400)}
@@ -1830,43 +1830,51 @@ header .tag{color:#94A3B8!important}
   function num(id){var e=$(id);return e?(parseFloat(String(e.value).replace(/[^0-9.\-]/g,""))||0):0}
   function fm(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}
   function txnV(){var t=document.querySelector('input[name="type"]:checked');return t?t.value:"purchase"}
-  function loan1(){var t=txnV();if(t==="purchase")return num("price")>0?Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0):num("loanTyped");if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
-  var af=document.createElement("div");af.innerHTML='<div class="f w"><label for="mLoan1" id="mLoan1L">1st mortgage loan amount ($)</label><input id="mLoan1" type="text" inputmode="decimal" autocomplete="off"></div><div class="f w" id="mLoan2F" hidden style="margin-top:14px"><label for="mLoan2">2nd mortgage amount ($)</label><input id="mLoan2" type="text" inputmode="decimal" autocomplete="off"></div><div class="grid" id="mDownG" style="margin-top:14px"></div>';
-  var dg=af.querySelector("#mDownG");[ $("downF"),$("downAmtF") ].forEach(function(n){if(n)dg.appendChild(n)});
+  function loan1(){var t=txnV();if(t==="purchase")return num("loanTyped")>0?num("loanTyped"):Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0);if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
+  var af=document.createElement("div");af.innerHTML='<div class="f w"><label for="mLoan1" id="mLoan1L">1st mortgage loan amount ($)</label><input id="mLoan1" type="text" inputmode="decimal" autocomplete="off"></div><div class="f w" id="mLoan2F" hidden style="margin-top:14px"><label for="mLoan2" id="mLoan2L">2nd mortgage amount ($)</label><input id="mLoan2" type="text" inputmode="decimal" autocomplete="off"></div><div id="mMid" style="margin-top:14px"></div><div class="grid" id="mDownG" style="margin-top:14px"></div><div class="f w" id="mSubjF" style="margin-top:14px"><label for="mSubj" id="mSubjL">Subject property address</label><input id="mSubj" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP"><span class="k">Fills in Subject Property on the right. Stays in your browser.</span></div>';
+  var dg=af.querySelector("#mDownG"),mid=af.querySelector("#mMid");[ $("priceF"),$("apprF") ].forEach(function(n){if(n){n.style.marginBottom="14px";mid.appendChild(n)}});[ $("downF"),$("downAmtF") ].forEach(function(n){if(n)dg.appendChild(n)});
   function loanReady(){var t=txnV();if(t==="purchase"&&num("price")>0)return($("down").value!==""||$("downAmt").value!=="")&&loan1()>0;return loan1()>0}
   var rA=mk("rowA","Loan amount",[af],function(){if(!loanReady())return T("Add amount");var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");return x},function(){return secOn()?T("2nd mortgage")+": $"+fm(num("s2Amt")):""});
   var m1=$("mLoan1"),m2=$("mLoan2");
   function syncA(){
     var t=txnV();m1.readOnly=(t==="heq"||(t==="refi"&&$("rsub").value==="delay"));m1.placeholder=T("e.g. {1}").replace("{1}","350,000");
     $("mLoan2F").hidden=!secOn();
-    $("mLoan1L").textContent=secOn()?"1st mortgage loan amount ($)":"Loan amount ($)";
+    $("mLoan1L").textContent=T(secOn()?"1st mortgage loan amount ($)":"Loan amount ($)");$("mLoan2L").textContent=T(document.querySelector('input[name="s2type"]:checked').value==="heloc"?"HELOC credit limit ($)":"HELOAN amount ($)");$("mSubjL").textContent=T("Subject property address")+(t==="refi"?" "+T("(required for a refinance)"):"");
     if(document.activeElement!==m1){var L1=loan1();m1.value=L1>0?fm(L1):""}
     if(document.activeElement!==m2)m2.value=fm(num("s2Amt"));
   }
   function fire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
-  var ltyp=$("loanTyped"),busy=false;
+  var ltyp=$("loanTyped");
   function s2v(){return secOn()?num("s2Amt"):0}
-  function setP(p){busy=true;$("price").value=Math.round(p);fire($("price"));busy=false}
+  function setP(p){$("price").value=Math.round(p);fire($("price"))}
+  // With a loan amount typed, the loan stays put: price and down payment move around it.
+  function downFromLoan(){var p=num("price"),L=num("loanTyped");if(p>0&&L>0){var d=Math.max(p-L-s2v(),0);$("downAmt").value=Math.round(d);$("down").value=Math.round(d/p*10000)/100}}
   function fromLoan(){/* purchase with no price yet: work the price out from the loan plus the down payment */
     var L=num("loanTyped");if(!(L>0)||num("price")>0)return;
     var da=num("downAmt"),dp=num("down"),b=L+s2v();
-    if(da>0){var p=b+da;$("down").value=Math.round(da/p*10000)/100;setP(p);$("downAmt").value=Math.round(da);fire(ltyp)}else if(dp>0&&dp<100){var q=b/(1-dp/100);setP(q);$("downAmt").value=Math.round(q-b);$("down").value=dp;fire(ltyp)}
+    if(da>0)setP(b+da);else if(dp>0&&dp<100)setP(b/(1-dp/100));
   }
   m1.addEventListener("input",function(){var t=txnV();if(t==="heq"||(t==="refi"&&$("rsub").value==="delay"))return;
     var v=parseFloat(m1.value.replace(/[^0-9.]/g,""))||0;
-    if(t==="purchase"&&num("price")>0){ltyp.value="";var d=Math.max(num("price")-v-s2v(),0);var da=$("downAmt");da.value=Math.round(d);fire(da);return}
-    ltyp.value=v>0?Math.round(v):"";fire(ltyp);if(t==="purchase")fromLoan()});
-  $("down").addEventListener("input",function(){if(busy)return;var L=num("loanTyped"),dp=num("down");if(txnV()==="purchase"&&!(num("price")>0)&&L>0&&dp>0&&dp<100){var p=(L+s2v())/(1-dp/100);setP(p);$("downAmt").value=Math.round(p-L-s2v());$("down").value=dp;fire(ltyp)}});
-  $("downAmt").addEventListener("input",function(){if(busy)return;var L=num("loanTyped"),da=num("downAmt");if(txnV()==="purchase"&&!(num("price")>0)&&L>0&&da>0){var p=L+s2v()+da,pc=Math.round(da/p*10000)/100;$("down").value=pc;setP(p);$("downAmt").value=Math.round(da);$("down").value=pc;fire(ltyp)}});
-  $("price").addEventListener("input",function(){if(busy)return;var L=num("loanTyped"),p=num("price");if(txnV()==="purchase"&&p>0&&L>0&&num("down")===0&&num("downAmt")===0){ltyp.value="";var da=$("downAmt");da.value=Math.round(Math.max(p-L-s2v(),0));fire(da)}});
+    ltyp.value=v>0?Math.round(v):"";
+    if(t==="purchase"){if(num("price")>0)downFromLoan();else fromLoan()}
+    fire(ltyp)});
+  ["down","downAmt"].forEach(function(id){$(id).addEventListener("input",function(){
+    if(txnV()!=="purchase")return;
+    if(num("price")>0){ltyp.value="";return}/* the down payment is now what you are setting, so the loan follows it */
+    fromLoan();fire(ltyp)})});
+  $("price").addEventListener("input",function(){if(txnV()!=="purchase")return;if(num("loanTyped")>0){downFromLoan();fire(ltyp)}});
+  // Subject property address: typed here, it fills Subject Property on the right (and the other way around).
+  var mS=$("mSubj"),lastS="";
+  function syncSubj(d){var ia=d.getElementById("subjAddr");if(!ia)return;var mv=mS.value,iv=ia.value;
+    if(mv===iv){lastS=mv;return}
+    if(mv!==lastS){ia.value=mv;lastS=mv;var no=d.querySelector('input[name="subjFound"][value="yes"]');if(mv.trim()&&no&&!no.checked)no.click();ia.dispatchEvent(new Event("input",{bubbles:true}))}
+    else if(document.activeElement!==mS){mS.value=iv;lastS=iv}}
   m2.addEventListener("input",function(){var v=parseFloat(m2.value.replace(/[^0-9.]/g,""))||0,e=$("s2Amt");e.value=Math.round(v);fire(e)});
   [m1,m2].forEach(function(m){m.addEventListener("blur",function(){syncA()})});
-  var r3=mk("rowC","Price and monthly housing overhead",[home],function(){
-    var t=txnV(),p=num("price"),a=num("appr");
-    if(t==="purchase"&&!p)return T("Add price");if(t!=="purchase"&&!(a>0?a:p))return T("Add value");
-    if(t!=="purchase")return (a>0?T("Appraised value"):T("Home value"))+" $"+fm(a>0?a:p);
-    if(a>0&&p>0&&a<p)return T("Appraised value")+" $"+fm(a);
-    return T("Purchase price")+" $"+fm(p)},function(){if($("tax").value===""&&$("ins").value==="")return T("Add property tax and insurance when known");var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
+  var r3=mk("rowC","Monthly housing overhead",[home],function(){
+    function moN(id,u){var v=num(id);return $(u).value==="m"?v:v/12}var t=moN("tax","taxU")+moN("ins","insU"),h=$("hoaF");if(h&&!h.hidden)t+=moN("hoaIn","hoaU");
+    return t>0?"$"+fm(t)+T("/mo"):T("Add amount")},function(){if($("tax").value===""&&$("ins").value==="")return T("Add property tax and insurance when known");var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
   var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:""),x=($("rate").value===""?T("Add rate"):lab("rtype")+" "+$("rate").value+"%")+" \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x:x},function(){return secOn()?T("2nd mortgage")+": "+lab("s2type"):""});
   function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}r.el.querySelector(".arowvalue").textContent=v;r.el.querySelector(".arowvalue").classList.toggle("emp",/^(Add |\u2014$)/.test(v));var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
   upd();setInterval(upd,500);area.addEventListener("input",upd);area.addEventListener("change",upd);
@@ -1899,7 +1907,7 @@ header .tag{color:#94A3B8!important}
   hero.insertBefore(band,cr);
   var rOpen={},rLast="";
   var rSig="";
-  function syncR(){var d;try{d=$("affFrame").contentDocument}catch(e){return}if(!d)return;
+  function syncR(){var d;try{d=$("affFrame").contentDocument}catch(e){return}if(!d)return;try{syncSubj(d)}catch(e){}
     var st=d.querySelectorAll("main>.calc.emb-stats>.stat");if(!st.length)return;
     var h="";st.forEach(function(x){h+=x.outerHTML.replace(/ id="[^"]*"/g,"")});
     var inc=0;try{inc=parseFloat(String((d.getElementById("incomeSummary")||{}).textContent||"").replace(/[^0-9.]/g,""))||0}catch(e){}
