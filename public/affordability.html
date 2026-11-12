@@ -730,6 +730,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         <p class="k" id="resPickEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p></div>
       <h4 class="subtitle" style="margin:22px 0 6px">Unpaid principal balance (UPB)</h4>
       
+      <div id="resUpbSubj" hidden><div class="f" style="margin:10px 0"><label style="display:flex;gap:10px;align-items:flex-start;font-weight:600;text-align:left;cursor:pointer"><input type="checkbox" id="resUpbSubjOn" checked style="width:auto;margin:4px 0 0;flex:none"><span>Subject property (refinance)</span></label><div style="display:flex;gap:10px;margin-top:6px"><input id="resUpbSubjV" type="number" inputmode="decimal" min="0" step="1000" placeholder="Current loan balance, UPB ($)" style="flex:2 1 0;min-width:0"><input id="resUpbSubjP" type="number" inputmode="decimal" min="0" step="0.5" placeholder="% of UPB" aria-label="Percentage of UPB for the subject property" style="flex:1 1 0;min-width:0"></div><span class="k">This is the same as the current loan balance under Loan terms. Enter it in either place and it fills in the other.</span></div></div>
       <div id="resUpbList"></div>
       <p class="k" id="resUpbEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p>
       <div class="grid" style="margin-top:10px"><div class="f"><label for="resUpbPct">Default percentage of UPB (%), used when a property has none of its own</label><input id="resUpbPct" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 2"></div></div>
@@ -1848,6 +1849,14 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     $("resPickBox").hidden=!all;
     $("resPickEmpty").hidden=oi.length>0;$("resUpbEmpty").hidden=oi.length>0;
     var pickedNames=[],upbItems=[],upbTotal=0,upbReq=0;
+    var refiS=subjTxn()==="refi";$("resUpbSubj").hidden=!refiS;$("resUpbEmpty").hidden=oi.length>0||refiS;
+    if(refiS){
+      var sv=$("resUpbSubjV"),sp=$("resUpbSubjP"),pb=null;try{if(window.__VKEMB)pb=parent.document.getElementById("bal")}catch(e){}
+      if(pb&&document.activeElement!==sv){var bv=String(pb.value).replace(/,/g,"");if(bv!==String(sv.value).replace(/,/g,""))sv.value=bv}
+      var su=parseFloat(String(sv.value).replace(/,/g,""))||0,spv=(sp&&sp.value!=="")?parseFloat(sp.value):NaN,spp=(spv>=0)?spv:Math.max(0,parseFloat($("resUpbPct").value)||0);
+      if(sp)sp.placeholder=($("resUpbPct").value!==""?$("resUpbPct").value+"% (default)":"% of UPB");
+      if($("resUpbSubjOn").checked&&su>0&&spp>0){var sam=su*spp/100;upbItems.push({name:"Subject property",upb:su,pct:spp,amt:sam});upbTotal+=su;upbReq+=sam}
+    }
     oi.forEach(function(x){
       var pk=$("resPick"+x.id),on=$("resUpbOn"+x.id),ur=$("resUpb"+x.id),uo=$("own"+x.id+"Upb");
       $("resPickT"+x.id).textContent=x.name+" ("+usd.format(x.pay)+"/mo)";
@@ -2203,6 +2212,12 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   }
 
   document.querySelectorAll('input[name="nontax"],input[name="nontaxMode"],input[name="b2nontax"],input[name="b2nontaxMode"]').forEach(function(e){e.addEventListener("change",recompute)});
+  // The subject property's UPB in Reserves and the current loan balance under Loan terms (on the page that holds this one) are the same number.
+  (function(){var sv=$("resUpbSubjV");if(!sv)return;
+    function pbox(){try{return window.__VKEMB?parent.document.getElementById("bal"):null}catch(e){return null}}
+    sv.addEventListener("input",function(){var pb=pbox();if(!pb)return;pb.value=String(sv.value).replace(/,/g,"");pb.dispatchEvent(new Event("input",{bubbles:true}))});
+    setInterval(function(){var pb=pbox();if(!pb||document.activeElement===sv)return;if(String(pb.value).replace(/,/g,"")!==String(sv.value).replace(/,/g,""))recompute()},500);
+  })();
   document.querySelectorAll(".calc input, .calc select").forEach(function(e){e.addEventListener("input",recompute);if(e.type==="checkbox"||e.type==="radio")e.addEventListener("change",recompute)});
 
   // ---- optional lender directory: data comes from /lenders.json and the section stays hidden until it has entries ----

@@ -688,6 +688,7 @@ header .tag{color:#94A3B8!important}
       <div class="f w"><label for="ins">Home insurance ($)</label><div class="ur"><input id="ins" type="number" inputmode="decimal" min="0" step="50" value="" placeholder="e.g. 1,500"><select id="insU" aria-label="Home insurance period"><option value="y" selected>Yearly</option><option value="m">Monthly</option></select></div></div>
       <div class="f w" id="hoaF" hidden><label for="hoaIn" id="hoaL">HOA / association dues ($)</label><div class="ur"><input id="hoaIn" type="number" inputmode="decimal" min="0" step="10" value="300"><select id="hoaU" aria-label="HOA period"><option value="y">Yearly</option><option value="m" selected>Monthly</option></select></div></div>
       <div class="f w" id="miF" hidden><label for="miRate">Mortgage insurance (% of loan per year)</label><input id="miRate" type="number" inputmode="decimal" min="0" step="0.05" value="0.7"><span class="k">Usually required with less than 20% down or equity, and typically ends once you reach about 20% equity. The rate varies by credit score and loan.</span></div>
+      <input type="hidden" id="loanTyped" value="">
       <p class="k f w" id="refiNote" hidden style="margin:0"></p>
     </div>
 
@@ -702,11 +703,11 @@ header .tag{color:#94A3B8!important}
         </fieldset>
         <div class="grid" id="lgrid">
           <div class="f w" id="l1AmtF" hidden><label for="l1Amt">Loan amount ($)</label><input id="l1Amt" type="number" readonly tabindex="-1"></div>
-          <div class="f w" id="balF" hidden><label for="bal" id="balL">Current loan balance ($)</label><input id="bal" type="number" inputmode="decimal" min="0" step="1000" value="280000"></div>
-          <div class="f w" id="delF" hidden><label for="delAmt">Amount to borrow ($)</label><input id="delAmt" type="number" inputmode="decimal" min="0" step="1000" value="240000"></div>
+          <div class="f w" id="balF" hidden><label for="bal" id="balL">Current loan balance ($)</label><input id="bal" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 280,000"></div>
+          <div class="f w" id="delF" hidden><label for="delAmt">Amount to borrow ($)</label><input id="delAmt" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 240,000"></div>
           <div class="f"><label for="rate" id="rateL">Interest rate (%)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.05" value="" placeholder="e.g. 6.5"></div>
           <div class="f"><label for="term" id="termL">Loan term</label><select id="term"><option value="30" selected>30 years</option><option value="20">20 years</option><option value="15">15 years</option><option value="10">10 years</option></select></div>
-          <div class="f" id="cashF" hidden><label for="cash">Cash out ($)</label><input id="cash" type="number" inputmode="decimal" min="0" step="1000" value="50000"></div>
+          <div class="f" id="cashF" hidden><label for="cash">Cash out ($)</label><input id="cash" type="number" inputmode="decimal" min="0" step="1000" value="" placeholder="e.g. 50,000"></div>
           <div class="f" id="qrF" hidden><label for="qr">Qualifying rate (%)</label><input id="qr" type="number" inputmode="decimal" min="0" step="0.05" placeholder="Same as starting rate"></div>
           <div class="f" id="armF1" hidden><label for="armYrs">Fixed period term</label><select id="armYrs"><option value="3">3 years</option><option value="5" selected>5 years</option><option value="7">7 years</option><option value="10">10 years</option></select></div>
           <div class="f" id="armF2" hidden><label for="armRate">Rate after that (%)</label><input id="armRate" type="number" inputmode="decimal" min="0" step="0.05" value="7.5"></div>
@@ -1226,7 +1227,7 @@ header .tag{color:#94A3B8!important}
       }
     }
     var fund=(purch&&on)?s2.drawn:0,downAmt=purch?price*Math.min(n("down"),100)/100:0;
-    var loan=purch?Math.max(price-downAmt-fund,0):(heq?n("bal"):(sub==="cash"?n("bal")+n("cash"):sub==="delay"?n("delAmt"):n("bal")));
+    var lt=n("loanTyped");var loan=purch?(price>0?Math.max(price-downAmt-fund,0):lt):(heq?n("bal"):(sub==="delay"?n("delAmt"):lt));
     var r=n("rate")/1200,k=Math.min(parseInt($("armYrs").value,10)*12,N),r2=arm0?n("armRate")/1200:null;
     return {m:m,refi:refi,heq:heq,purch:purch,sub:sub,s2:s2,price:price,appr:appr,value:value,loan:loan,r:r,N:N,k:k,r2:r2,arm0:arm0,arm:arm0&&k<N};
   }
@@ -1618,11 +1619,10 @@ header .tag{color:#94A3B8!important}
       if(e.loan>0&&Math.abs(e.loan-M.loan)>0.5){
         if(M.purch){
           var pr=n("price");
-          if(pr>0){var da=Math.max(pr-M.s2.drawn-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}
+          if(pr>0){var da=Math.max(pr-M.s2.drawn-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}else $("loanTyped").value=Math.round(e.loan)
         }else if(M.heq)$("bal").value=Math.round(e.loan);
-        else if(M.sub==="cash")$("bal").value=Math.max(Math.round(e.loan-n("cash")),0);
         else if(M.sub==="delay")$("delAmt").value=Math.round(e.loan);
-        else $("bal").value=Math.round(e.loan);
+        else $("loanTyped").value=Math.round(e.loan);
       }
       if(e.rate>0){
         var useQ=M.arm0&&n("qr")>0;
@@ -1830,21 +1830,35 @@ header .tag{color:#94A3B8!important}
   function num(id){var e=$(id);return e?(parseFloat(String(e.value).replace(/[^0-9.\-]/g,""))||0):0}
   function fm(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}
   function txnV(){var t=document.querySelector('input[name="type"]:checked');return t?t.value:"purchase"}
-  function loan1(){var t=txnV();if(t==="purchase")return Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0);if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
+  function loan1(){var t=txnV();if(t==="purchase")return num("price")>0?Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0):num("loanTyped");if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
   var af=document.createElement("div");af.innerHTML='<div class="f w"><label for="mLoan1" id="mLoan1L">1st mortgage loan amount ($)</label><input id="mLoan1" type="text" inputmode="decimal" autocomplete="off"></div><div class="f w" id="mLoan2F" hidden style="margin-top:14px"><label for="mLoan2">2nd mortgage amount ($)</label><input id="mLoan2" type="text" inputmode="decimal" autocomplete="off"></div><div class="grid" id="mDownG" style="margin-top:14px"></div>';
   var dg=af.querySelector("#mDownG");[ $("downF"),$("downAmtF") ].forEach(function(n){if(n)dg.appendChild(n)});
-  function loanReady(){var t=txnV();if(t==="purchase")return num("price")>0&&($("down").value!==""||$("downAmt").value!=="")&&loan1()>0;return loan1()>0}
+  function loanReady(){var t=txnV();if(t==="purchase"&&num("price")>0)return($("down").value!==""||$("downAmt").value!=="")&&loan1()>0;return loan1()>0}
   var rA=mk("rowA","Loan amount",[af],function(){if(!loanReady())return T("Add amount");var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");return x},function(){return secOn()?T("2nd mortgage")+": $"+fm(num("s2Amt")):""});
   var m1=$("mLoan1"),m2=$("mLoan2");
   function syncA(){
-    var t=txnV();m1.readOnly=(t!=="purchase");
+    var t=txnV();m1.readOnly=(t==="heq"||(t==="refi"&&$("rsub").value==="delay"));m1.placeholder=T("e.g. {1}").replace("{1}","350,000");
     $("mLoan2F").hidden=!secOn();
     $("mLoan1L").textContent=secOn()?"1st mortgage loan amount ($)":"Loan amount ($)";
-    if(document.activeElement!==m1)m1.value=fm(loan1());
+    if(document.activeElement!==m1){var L1=loan1();m1.value=L1>0?fm(L1):""}
     if(document.activeElement!==m2)m2.value=fm(num("s2Amt"));
   }
   function fire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
-  m1.addEventListener("input",function(){if(txnV()!=="purchase")return;var v=parseFloat(m1.value.replace(/[^0-9.]/g,""))||0,d=Math.max(num("price")-v-(secOn()?num("s2Amt"):0),0);var da=$("downAmt");da.value=Math.round(d);fire(da)});
+  var ltyp=$("loanTyped"),busy=false;
+  function s2v(){return secOn()?num("s2Amt"):0}
+  function setP(p){busy=true;$("price").value=Math.round(p);fire($("price"));busy=false}
+  function fromLoan(){/* purchase with no price yet: work the price out from the loan plus the down payment */
+    var L=num("loanTyped");if(!(L>0)||num("price")>0)return;
+    var da=num("downAmt"),dp=num("down"),b=L+s2v();
+    if(da>0){var p=b+da;$("down").value=Math.round(da/p*10000)/100;setP(p);$("downAmt").value=Math.round(da);fire(ltyp)}else if(dp>0&&dp<100){var q=b/(1-dp/100);setP(q);$("downAmt").value=Math.round(q-b);$("down").value=dp;fire(ltyp)}
+  }
+  m1.addEventListener("input",function(){var t=txnV();if(t==="heq"||(t==="refi"&&$("rsub").value==="delay"))return;
+    var v=parseFloat(m1.value.replace(/[^0-9.]/g,""))||0;
+    if(t==="purchase"&&num("price")>0){ltyp.value="";var d=Math.max(num("price")-v-s2v(),0);var da=$("downAmt");da.value=Math.round(d);fire(da);return}
+    ltyp.value=v>0?Math.round(v):"";fire(ltyp);if(t==="purchase")fromLoan()});
+  $("down").addEventListener("input",function(){if(busy)return;var L=num("loanTyped"),dp=num("down");if(txnV()==="purchase"&&!(num("price")>0)&&L>0&&dp>0&&dp<100){var p=(L+s2v())/(1-dp/100);setP(p);$("downAmt").value=Math.round(p-L-s2v());$("down").value=dp;fire(ltyp)}});
+  $("downAmt").addEventListener("input",function(){if(busy)return;var L=num("loanTyped"),da=num("downAmt");if(txnV()==="purchase"&&!(num("price")>0)&&L>0&&da>0){var p=L+s2v()+da,pc=Math.round(da/p*10000)/100;$("down").value=pc;setP(p);$("downAmt").value=Math.round(da);$("down").value=pc;fire(ltyp)}});
+  $("price").addEventListener("input",function(){if(busy)return;var L=num("loanTyped"),p=num("price");if(txnV()==="purchase"&&p>0&&L>0&&num("down")===0&&num("downAmt")===0){ltyp.value="";var da=$("downAmt");da.value=Math.round(Math.max(p-L-s2v(),0));fire(da)}});
   m2.addEventListener("input",function(){var v=parseFloat(m2.value.replace(/[^0-9.]/g,""))||0,e=$("s2Amt");e.value=Math.round(v);fire(e)});
   [m1,m2].forEach(function(m){m.addEventListener("blur",function(){syncA()})});
   var r3=mk("rowC","Price and monthly housing overhead",[home],function(){
