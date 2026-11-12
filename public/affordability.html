@@ -65,6 +65,9 @@ html.emb main>.calc.emb-stats{border-top:1px solid var(--line)!important}
 html.emb main>.calc.emb-rows{overflow:visible}
 html.emb main>.calc.emb-stats{margin-top:0!important}
 html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
+
+.astline .ro{box-sizing:border-box;height:44px;min-height:44px;padding:0 12px;border-radius:6px!important;font-size:1.05rem;line-height:1}
+.astline>.f{align-self:end}
 </style>
 <script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
@@ -195,7 +198,7 @@ input[type="checkbox"]{width:auto;padding:0;margin:0}
 @media print{.rlgwrap{display:none!important}}
 .astline{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;align-items:end}
 .astline>.f:first-child{grid-column:1/-1}
-.astline select{font-size:.88rem;text-overflow:clip}
+.astline select,#assetsWrap select,.debtline select{font-size:1.05rem!important;text-overflow:clip;padding-right:30px}
 
 .bhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
 .btgl{flex:1;display:flex;align-items:center;gap:12px;background:none;border:0;padding:6px 0;cursor:pointer;color:var(--ink);text-align:left;font:700 1.05rem "Bricolage Grotesque",sans-serif}
@@ -724,7 +727,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         <div id="resPickList"></div>
         <p class="k" id="resPickEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p></div>
       <h4 class="subtitle" style="margin:22px 0 6px">Unpaid principal balance (UPB)</h4>
-      <p class="k" style="margin:0 0 10px">Some lenders figure reserves as a percentage of the unpaid principal balance of a property. Choose the properties, enter each balance, and set a percentage for each property. Leave a property's percentage blank to use the default below. A balance you enter here also fills in that property under Additional Properties Owned, and the other way around.</p>
+      
       <div id="resUpbList"></div>
       <p class="k" id="resUpbEmpty" style="margin:6px 0 0">Add your other properties under Additional Properties Owned and they will show up here.</p>
       <div class="grid" style="margin-top:10px"><div class="f"><label for="resUpbPct">Default percentage of UPB (%), used when a property has none of its own</label><input id="resUpbPct" type="number" inputmode="decimal" min="0" step="0.5" placeholder="e.g. 2"></div></div>
@@ -2016,7 +2019,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       }
       if(ai.earnest>0)m+='\n\n'+sp("c","// earnest money already paid, credited at closing")+'\n'+sp("v","$"+f2(ai.earnest));
       if(ai.giftClose>0)m+='\n\n'+sp("c","// gift to be received at closing, credited at closing")+'\n'+sp("v","$"+f2(ai.giftClose));
-      var h='<div class="rlg"><div class="rbar"><span>'+title+'</span><button type="button" data-rlg="1" aria-label="Close">&times; Close</button></div>'+(title==="Reserves"?'<div class="rnotes" style="padding-top:14px"><p>// reserves are the months of housing payments you would still have in the bank after closing. Choose what to base them on and how many months.</p></div>':'')+'<pre>'+m+'</pre>';
+      var h='<div class="rlg"><div class="rbar"><span>'+title+'</span><button type="button" data-rlg="1" aria-label="Close">&times; Close</button></div>'+(title==="Reserves"?'<div class="rnotes" style="padding-top:14px"><p>// reserves are the months of housing payments you would still have in the bank after closing. Choose what to base them on and how many months.</p><p>// some lenders also figure reserves as a percentage of the unpaid principal balance (UPB) of a property. Choose the properties, enter each balance, and set a percentage for each one. Leave a property\'s percentage blank to use the default. A balance you enter here also fills in that property under Additional Properties Owned, and the other way around.</p></div>':'')+'<pre>'+m+'</pre>';
       if(hasRes){
         var rows=ai.items.filter(function(x){return !x.earnest&&!x.gift&&x.amt>0});
         h+='<div class="rnotes"><p>// all assets together = about '+(Math.round(ri.haveMonths*10)/10)+' months of PITIA</p><p>// non-liquid assets (retirement, mutual funds, stocks) are used first, so checking and savings stay available for the down payment and closing costs. That may mean liquidating them, so check the taxes and penalties first.</p></div>'

@@ -597,7 +597,15 @@ header .tag{color:#94A3B8!important}
 .ratioband .stactions .infobtn{padding:0 2px;text-decoration:underline;text-underline-offset:3px;background:none;border:0}
 .ratioband .stactions .logicbtn{padding:0 10px}
 .ratioband .stathead{flex-direction:column;align-items:flex-start;gap:8px;flex-wrap:nowrap}.ratioband .stathead .rowlabel{min-height:2.5em;line-height:1.25}.ratioband .stathead .statword{min-height:28px;box-sizing:border-box;display:inline-flex;align-items:center}.ratioband .stactions{flex-direction:column;align-items:flex-start;gap:8px}.ratioband .statpct{line-height:1.1;margin-top:6px}
-</style><style id="vkhide">#ratioband .stat>.k{display:none}</style></head>
+</style><style id="vkhide">#ratioband .stat>.k{display:none}</style><style id="vkratio2">
+.hero>.ratioband{display:flex!important;flex-wrap:wrap}
+.ratioband .stat{flex:1 1 220px;align-items:center;text-align:center}
+.ratioband .stathead{align-items:center!important;text-align:center}
+.ratioband .stactions{justify-content:center}
+.ratioband .stat:not(:has(~ .stat:not([hidden]))){border-right:0!important}
+.ratioband>.ratnote,.ratioband>.lgd{flex:0 0 100%;box-sizing:border-box}
+.ratioband>.ratnote{text-align:center}
+</style></head>
 <body>
 <div class="prwm" aria-hidden="true">Voklogik</div>
 <div class="wrap">
