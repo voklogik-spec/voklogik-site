@@ -1913,8 +1913,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   var cashInfo={on:false};
   function cashCalc(){
     var refi=subjTxn()==="refi",price=n("propValue"),loan=n("pLoan");
-    var s2=(pS2&&pS2.on)?(pS2.drawn||0):0;
-    var down=refi?0:Math.max(price-loan-s2,0);
+    var s2=0;
+    var down=refi?0:Math.max(price-loan,0);
     var pct=parseFloat($("feePct").value)||3,own=n("feeAmt"),fees=own>0?own:loan*pct/100;
     var cm=$("credMode").value,cv=n("credVal");
     $("credValF").hidden=cm==="none"||refi;$("credGrid").hidden=refi;
@@ -1982,7 +1982,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       $("pLoan").value=Math.round(d.loan);
       $("pRate").value=d.ratePct;
       if(d.price>0){$("propValue").value=Math.round(d.price);$("valSource").textContent=d.refi?"Current value carried over from your payment analyzer. You can change it.":"Purchase price carried over from your payment analyzer. You can change it."}
-      if(d.liens>0&&$("propLiens"))$("propLiens").value=Math.round(d.liens);
+      if($("propLiens"))$("propLiens").value=d.liens>0?Math.round(d.liens):"";
       if(d.appr>0&&!d.refi&&$("propAppr"))$("propAppr").value=Math.round(d.appr);
       pmtYears=d.years||30;
       pmtExtras=d.extras||0;

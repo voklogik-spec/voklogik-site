@@ -421,6 +421,8 @@ table.sched th{color:var(--muted);font-weight:500}
 .arowhead{width:100%;background:none;border:0;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;text-align:left;color:var(--ink)}
 .arowlabel{font:700 1.05rem "Bricolage Grotesque",sans-serif}
 .arowright{display:flex;align-items:center;gap:12px;min-width:0}
+#rowA .arowvalue,#rowL .arowvalue{white-space:pre-line;text-align:left}
+.arowvalue .s2line{color:#64748B}
 .arowvalue{font:700 .98rem "Bricolage Grotesque",sans-serif;color:var(--accent);text-align:right;overflow-wrap:anywhere}
 .achev{color:var(--muted);transition:transform .15s;font-size:.85rem}
 .arow.open .achev{transform:rotate(180deg)}
@@ -1226,8 +1228,8 @@ header .tag{color:#94A3B8!important}
         s2.limit=a;s2.drawn=a;s2.amt=a;s2.pay=pmt(a,n("s2Rate")/1200,nn);s2.after=s2.pay;s2.qpay=s2.pay;
       }
     }
-    var fund=(purch&&on)?s2.drawn:0,downAmt=purch?price*Math.min(n("down"),100)/100:0;
-    var lt=n("loanTyped");var loan=purch?(lt>0?lt:(price>0?Math.max(price-downAmt-fund,0):0)):(heq?n("bal"):(sub==="delay"?n("delAmt"):lt));
+    var downAmt=purch?value*Math.min(n("down"),100)/100:0;
+    var lt=n("loanTyped");var loan=purch?(lt>0?lt:(value>0?Math.max(value-downAmt,0):0)):(heq?n("bal"):(sub==="delay"?n("delAmt"):lt));
     var r=n("rate")/1200,k=Math.min(parseInt($("armYrs").value,10)*12,N),r2=arm0?n("armRate")/1200:null;
     return {m:m,refi:refi,heq:heq,purch:purch,sub:sub,s2:s2,price:price,appr:appr,value:value,loan:loan,r:r,N:N,k:k,r2:r2,arm0:arm0,arm:arm0&&k<N};
   }
@@ -1411,9 +1413,10 @@ header .tag{color:#94A3B8!important}
       }catch(e){}
     }
   }
-  function syncDownAmt(){var p=n("price");$("downAmt").value=p?Math.round(p*Math.min(n("down"),100)/100):""}
+  window.vkBase=function(){var p=parseFloat(String($("price").value).replace(/,/g,""))||0,a=parseFloat(String($("appr").value).replace(/,/g,""))||0;return a>0&&p>0?Math.min(p,a):(p>0?p:a)};
+  function syncDownAmt(){var p=window.vkBase();$("downAmt").value=p?Math.round(p*Math.min(n("down"),100)/100):""}
   $("down").addEventListener("input",syncDownAmt);
-  $("price").addEventListener("input",syncDownAmt);
+  $("price").addEventListener("input",syncDownAmt);$("appr").addEventListener("input",syncDownAmt);
   $("downAmt").addEventListener("input",function(){var p=n("price");$("down").value=p?Math.round(n("downAmt")/p*10000)/100:""});
   [["tax","taxU"],["ins","insU"],["hoaIn","hoaU"]].forEach(function(q){
     $(q[1]).addEventListener("change",function(){var v=parseFloat($(q[0]).value);if(isFinite(v))$(q[0]).value=Math.round($(q[1]).value==="m"?v/12:v*12);calc()});
@@ -1619,7 +1622,7 @@ header .tag{color:#94A3B8!important}
       if(e.loan>0&&Math.abs(e.loan-M.loan)>0.5){
         if(M.purch){
           var pr=n("price");
-          if(pr>0){var da=Math.max(pr-M.s2.drawn-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}$("loanTyped").value=Math.round(e.loan)
+          if(pr>0){var da=Math.max(pr-e.loan,0);$("downAmt").value=Math.round(da);$("down").value=Math.round(da/pr*10000)/100}$("loanTyped").value=Math.round(e.loan)
         }else if(M.heq)$("bal").value=Math.round(e.loan);
         else if(M.sub==="delay")$("delAmt").value=Math.round(e.loan);
         else $("loanTyped").value=Math.round(e.loan);
@@ -1830,11 +1833,11 @@ header .tag{color:#94A3B8!important}
   function num(id){var e=$(id);return e?(parseFloat(String(e.value).replace(/[^0-9.\-]/g,""))||0):0}
   function fm(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}
   function txnV(){var t=document.querySelector('input[name="type"]:checked');return t?t.value:"purchase"}
-  function loan1(){var t=txnV();if(t==="purchase")return num("loanTyped")>0?num("loanTyped"):Math.max(num("price")-num("downAmt")-(secOn()?num("s2Amt"):0),0);if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
+  function loan1(){var t=txnV();if(t==="purchase")return num("loanTyped")>0?num("loanTyped"):Math.max(window.vkBase()-num("downAmt"),0);if(t==="heq")return num("bal");var l=$("loan");return l?(parseFloat(String(l.textContent).replace(/[^0-9.]/g,""))||0):0}
   var af=document.createElement("div");af.innerHTML='<div class="f w"><label for="mLoan1" id="mLoan1L">1st mortgage loan amount ($)</label><input id="mLoan1" type="text" inputmode="decimal" autocomplete="off"></div><div class="f w" id="mLoan2F" hidden style="margin-top:14px"><label for="mLoan2" id="mLoan2L">2nd mortgage amount ($)</label><input id="mLoan2" type="text" inputmode="decimal" autocomplete="off"></div><div id="mMid" style="margin-top:14px"></div><div class="grid" id="mDownG" style="margin-top:14px"></div><div class="f w" id="mSubjF" style="margin-top:14px"><label for="mSubj" id="mSubjL">Subject property address</label><input id="mSubj" type="text" autocomplete="off" maxlength="120" placeholder="Street, city, state, ZIP"><span class="k">Fills in Subject Property on the right. Stays in your browser.</span></div>';
   var dg=af.querySelector("#mDownG"),mid=af.querySelector("#mMid");[ $("priceF"),$("apprF") ].forEach(function(n){if(n){n.style.marginBottom="14px";mid.appendChild(n)}});[ $("downF"),$("downAmtF") ].forEach(function(n){if(n)dg.appendChild(n)});
   function loanReady(){var t=txnV();if(t==="purchase"&&num("price")>0)return($("down").value!==""||$("downAmt").value!=="")&&loan1()>0;return loan1()>0}
-  var rA=mk("rowA","Loan amount",[af],function(){if(!loanReady())return T("Add amount");var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");return x},function(){return secOn()?T("2nd mortgage")+": $"+fm(num("s2Amt")):""});
+  var rA=mk("rowA","Loan amount",[af],function(){if(!loanReady())return T("Add amount");var t=txnV(),x=(secOn()?T("1st mortgage")+" ":"")+"$"+fm(loan1());if(t==="purchase"&&$("down").value)x+=" \u00b7 "+T($("down").value+"% down");if(secOn())x+="\n"+T("2nd mortgage")+": "+(num("s2Amt")>0?"$"+fm(num("s2Amt")):T("Add amount"));return x},function(){return ""});
   var m1=$("mLoan1"),m2=$("mLoan2");
   function syncA(){
     var t=txnV();m1.readOnly=(t==="heq"||(t==="refi"&&$("rsub").value==="delay"));m1.placeholder=T("e.g. {1}").replace("{1}","350,000");
@@ -1845,25 +1848,25 @@ header .tag{color:#94A3B8!important}
   }
   function fire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
   var ltyp=$("loanTyped");
-  function s2v(){return secOn()?num("s2Amt"):0}
+  function bv(){return window.vkBase()}
   function setP(p){$("price").value=Math.round(p);fire($("price"))}
   // With a loan amount typed, the loan stays put: price and down payment move around it.
-  function downFromLoan(){var p=num("price"),L=num("loanTyped");if(p>0&&L>0){var d=Math.max(p-L-s2v(),0);$("downAmt").value=Math.round(d);$("down").value=Math.round(d/p*10000)/100}}
+  function downFromLoan(){var p=bv(),L=num("loanTyped");if(p>0&&L>0){var d=Math.max(p-L,0);$("downAmt").value=Math.round(d);$("down").value=Math.round(d/p*10000)/100}}
   function fromLoan(){/* purchase with no price yet: work the price out from the loan plus the down payment */
-    var L=num("loanTyped");if(!(L>0)||num("price")>0)return;
-    var da=num("downAmt"),dp=num("down"),b=L+s2v();
+    var L=num("loanTyped");if(!(L>0)||bv()>0)return;
+    var da=num("downAmt"),dp=num("down"),b=L;
     if(da>0)setP(b+da);else if(dp>0&&dp<100)setP(b/(1-dp/100));
   }
   m1.addEventListener("input",function(){var t=txnV();if(t==="heq"||(t==="refi"&&$("rsub").value==="delay"))return;
     var v=parseFloat(m1.value.replace(/[^0-9.]/g,""))||0;
     ltyp.value=v>0?Math.round(v):"";
-    if(t==="purchase"){if(num("price")>0)downFromLoan();else fromLoan()}
+    if(t==="purchase"){if(bv()>0)downFromLoan();else fromLoan()}
     fire(ltyp)});
   ["down","downAmt"].forEach(function(id){$(id).addEventListener("input",function(){
     if(txnV()!=="purchase")return;
-    if(num("price")>0){ltyp.value="";return}/* the down payment is now what you are setting, so the loan follows it */
+    if(bv()>0){ltyp.value="";return}/* the down payment is now what you are setting, so the loan follows it */
     fromLoan();fire(ltyp)})});
-  $("price").addEventListener("input",function(){if(txnV()!=="purchase")return;if(num("loanTyped")>0){downFromLoan();fire(ltyp)}});
+  ["price","appr"].forEach(function(id){$(id).addEventListener("input",function(){if(txnV()!=="purchase")return;if(num("loanTyped")>0){downFromLoan();fire(ltyp)}})});
   // Subject property address: typed here, it fills Subject Property on the right (and the other way around).
   var mS=$("mSubj"),lastS="";
   function syncSubj(d){var ia=d.getElementById("subjAddr");if(!ia)return;var mv=mS.value,iv=ia.value;
@@ -1875,8 +1878,8 @@ header .tag{color:#94A3B8!important}
   var r3=mk("rowC","Monthly housing overhead",[home],function(){
     function moN(id,u){var v=num(id);return $(u).value==="m"?v:v/12}var t=moN("tax","taxU")+moN("ins","insU"),h=$("hoaF");if(h&&!h.hidden)t+=moN("hoaIn","hoaU");
     return t>0?"$"+fm(t)+T("/mo"):T("Add amount")},function(){if($("tax").value===""&&$("ins").value==="")return T("Add property tax and insurance when known");var h=$("hoaF"),hv=(h&&h.hidden)?T("N/A"):yn("hoaIn");return T("Property tax")+": "+yn("tax")+" \u00b7 "+T("Insurance")+": "+yn("ins")+" \u00b7 HOA: "+hv});
-  var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:""),x=($("rate").value===""?T("Add rate"):lab("rtype")+" "+$("rate").value+"%")+" \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x:x},function(){return secOn()?T("2nd mortgage")+": "+lab("s2type"):""});
-  function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}r.el.querySelector(".arowvalue").textContent=v;r.el.querySelector(".arowvalue").classList.toggle("emp",/^(Add |\u2014$)/.test(v));var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
+  var r4=mk("rowL","Loan terms",[loans],function(){var tm=$("term"),y=(tm&&tm.options[tm.selectedIndex]?tm.options[tm.selectedIndex].text:"").replace(/\s*years?$/i," yrs"),x=($("rate").value===""?T("Add rate"):lab("rtype")+" "+$("rate").value+"%")+" \u00b7 "+y;return secOn()?T("1st mortgage")+": "+x+"\n"+T("2nd mortgage")+": "+lab("s2type"):x},function(){return ""});
+  function upd(){try{syncA()}catch(e){}rows.forEach(function(r){var v="",sb="";try{v=r.sum()}catch(e){}try{sb=r.sub?r.sub():""}catch(e){}var ve=r.el.querySelector(".arowvalue"),vp=String(v).split("\n");ve.textContent=vp[0];if(vp.length>1){var s2e=document.createElement("span");s2e.className="s2line";s2e.textContent="\n"+vp.slice(1).join("\n");ve.appendChild(s2e)}r.el.querySelector(".arowvalue").classList.toggle("emp",/^(Add |\u2014$)/.test(v));var se=r.el.querySelector(".arowsub");se.innerHTML=String(sb).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/(Yes|S\u00ed)(?=\s|\u00b7|$)/g,'<b class="yn-y">$1</b>').replace(/(: )(No)(?=\s|\u00b7|$)/g,'$1<b class="yn-n">$2</b>')})}
   upd();setInterval(upd,500);area.addEventListener("input",upd);area.addEventListener("change",upd);
   // choosing a transaction (or second mortgage option) shows it on the right of the row, collapses it, and opens the next step
   r1.addEventListener("change",function(e){if(e.target&&e.target.type==="radio"){upd();setTimeout(function(){toggle(r1,false);toggle(r2,true)},350)}});
