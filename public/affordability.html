@@ -2791,7 +2791,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   $("keyCsvBtn").addEventListener("click",function(){track("click_keyin_csv");saveKeyinCsv()});
 
   // ---- MISMO 3.4 export: the same entries as a standard XML file a loan system can import ----
-  function mismoXml(){
+  function mismoXml(ov){
     recompute();
     var X=function(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")};
     var A=function(v){return (Math.round((isFinite(v)?v:0)*100)/100).toFixed(2)};
@@ -2851,6 +2851,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     };
     var parties="",ct={name:"",email:"",phone:""};
     try{var cj=JSON.parse(localStorage.getItem("voklogik:contact")||"{}");ct={name:String(cj.cName||"").trim(),email:String(cj.cEmail||"").trim(),phone:String(cj.cPhone||"").trim()}}catch(e){}
+    if(ov&&typeof ov==="object")ct={name:String(ov.name||"").trim(),email:String(ov.email||"").trim(),phone:String(ov.phone||"").trim()};
     borrowers.forEach(function(b,i){
       var items="",lines=incomeLinesFor(b),c=0;
       lines.forEach(function(l){
@@ -2904,7 +2905,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   function saveKeyinMismo(){allow(function(free){
     try{var b=new Blob([mismoXml()],{type:"application/xml;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="voklogik-scenario-mismo34.xml";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},500);if(free)bump()}catch(e){}
   })}
-  window.vkMismoXml=mismoXml;
+  window.vkMismoXml=function(ov){return mismoXml(ov)};
   $("keyMismoBtn").addEventListener("click",function(){track("click_keyin_mismo");saveKeyinMismo()});
   if(window.jspdf){$("keyPdfBtn").hidden=false;$("keyPdfBtn").addEventListener("click",function(){track("click_keyin_pdf");saveKeyinPdf()})}
 

@@ -52,6 +52,7 @@
     grid.appendChild(field("lPhone","Phone","tel",true,30,"tel"));grid.appendChild(field("lMsg","Message","text",true,500));
     f2.appendChild(grid);
     var hp=el("div","hp");hp.setAttribute("aria-hidden","true");var hl=el("label","","Leave this empty");var hi=document.createElement("input");hi.id="lWeb";hi.tabIndex=-1;hi.autocomplete="off";hl.appendChild(hi);hp.appendChild(hl);f2.appendChild(hp);
+    var fn2=el("p","","Your summary is sent with a loan system file (MISMO 3.4) that your loan officer can import. It has your numbers and contact details, and never an SSN or date of birth.");fn2.style.cssText="margin:12px 0 0;font-size:.82rem;color:#6A6678;line-height:1.45";f2.appendChild(fn2);
     var cl=el("label","consent");var cb=document.createElement("input");cb.type="checkbox";cb.id="lOk";cl.appendChild(cb);
     cl.appendChild(el("span","","I agree that "+who2+" and Voklogik may contact me about this summary by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment."));
     f2.appendChild(cl);
@@ -72,9 +73,10 @@
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($v("lEmail"))){say("err","Please enter a valid email.");return}
       if(!cb.checked){say("err","Please tick the box so we know it is OK to contact you.");return}
       var rows=[];try{rows=window.__vkRows?window.__vkRows():[]}catch(x){}
+      var mismo="";try{if(window.vkMismoXml){mismo=window.vkMismoXml({name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone")});if(mismo.indexOf("<BaseLoanAmount>")<0)mismo=""}}catch(x){mismo=""}
       send.disabled=true;say("","Sending...");
       fetch("/api/widget/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-        h:H,name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone"),message:$v("lMsg"),website:hi.value,consent:true,kind:"affordability",affordability:rows})})
+        h:H,name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone"),message:$v("lMsg"),website:hi.value,consent:true,kind:"affordability",affordability:rows,mismo:mismo})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok&&j.ok,j:j}})}).then(function(x){
         if(x.ok){f2.hidden=true;sec.querySelector("h2").textContent="Thank you.";sec.querySelector(".sub").textContent="Your summary was sent. You should hear back soon."}
         else{send.disabled=false;say("err",x.j.error||"Could not send. Please try again.")}})
