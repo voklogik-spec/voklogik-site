@@ -70,6 +70,37 @@ html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 .astline>.f{align-self:end}
 
 .astliq{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:end}.astliq>.f:first-child{grid-column:1/-1}.astliq select{font-size:1.05rem!important;text-overflow:clip;padding-right:30px}.astliq .ro{box-sizing:border-box;height:44px;min-height:44px;padding:0 12px;border-radius:6px!important;font-size:1.05rem;line-height:1}
+
+/* document upload (pay stub, bank statements) */
+.vkb{display:inline-flex;align-items:center;gap:5px;font:600 .74rem var(--ui);padding:3px 10px 3px 7px;border-radius:999px;background:#DCFCE7;color:#166534;border:1px solid #86EFAC;margin-left:10px;white-space:nowrap;vertical-align:middle;line-height:1.3}
+.vkb i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#16A34A;color:#fff;font-size:.62rem;font-weight:700}
+.vkb.ed{background:#F1F5F9;color:#475569;border-color:#CBD5E1}.vkb.ed i{background:#94A3B8}
+.vkb.ln{margin:0 0 8px}
+@media(max-width:640px){.btgl{flex-wrap:wrap;row-gap:2px}.btgl .vkb{order:5;margin-left:0;flex-basis:auto}.btgl .tot,.btgl .chev{order:2}}
+.vkd{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#16A34A;color:#fff;font-size:.65rem;font-weight:700;margin-left:8px;vertical-align:middle}.vkd.ed{background:#94A3B8}
+.docbox{border:2px dashed #9AA3B2;border-radius:12px;padding:14px 16px;margin:0 0 16px;background:#F8FAFC;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.docbox .dtx{flex:1;min-width:200px}.docbox b{display:block;font-size:.98rem;color:#0F172A}.docbox span{display:block;font-size:.84rem;color:#475569;margin-top:2px;line-height:1.4}
+.dr-panel{border:1px solid #CBD5E1;border-radius:12px;background:#fff;margin:0 0 16px;overflow:hidden;color:#0F172A}
+.dr-panel h5{margin:0;padding:12px 16px;background:#0F172A;color:#fff;font-size:.95rem;font-weight:600}
+.dr-warn{padding:10px 16px;background:#FFF7ED;color:#7C2D12;font-size:.84rem;border-bottom:1px solid #FED7AA}
+.dr-note{padding:10px 16px;background:#F0F9FF;color:#0C4A6E;font-size:.84rem;border-top:1px solid #BAE6FD}
+.dr-row{display:grid;grid-template-columns:1fr minmax(120px,190px);gap:10px;padding:10px 16px;border-bottom:1px solid #E2E8F0;align-items:center;font-size:.92rem}
+.dr-row small{display:block;color:#64748B;font-size:.78rem;line-height:1.3}
+.dr-in{width:100%;padding:8px 10px;border:1px solid #CBD5E1;border-radius:7px;background:#fff;font:inherit;color:#0F172A;min-width:0}
+.dr-found{background:#FFFBEB;border-color:#F59E0B}
+.dr-ro{font-weight:600;text-align:right}.dr-ro.good{color:#166534}
+.dr-acct{border-bottom:1px solid #E2E8F0;background:#FAFAFB}.dr-acct .dr-row:last-child{border-bottom:0}
+.dr-inc{display:flex;gap:8px;align-items:center;padding:10px 16px 0;font-weight:600;font-size:.9rem;cursor:pointer}
+.dr-note.dr-inc{padding:10px 16px;font-weight:500}
+.dr-foot{padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.9rem}.dr-sp{flex:1}
+.dr-btn{background:#FF5500;color:#fff;border:0;border-radius:8px;padding:10px 16px;font:600 .92rem inherit;cursor:pointer}
+.dr-btn.ghost{background:#fff;color:#0F172A;border:1px solid #CBD5E1}.dr-btn:disabled{opacity:.45;cursor:not-allowed}
+.dr-msg{padding:10px 14px;border-radius:10px;background:#FFF7ED;color:#7C2D12;font-size:.88rem;margin:0 0 16px}.dr-msg.ok{background:#F0FDF4;color:#166534}
+@media(max-width:520px){.dr-row{grid-template-columns:1fr}.dr-ro{text-align:left}}
+.dr-wide{grid-template-columns:minmax(130px,1fr) minmax(250px,430px)}.dr-ycells{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px}.dr-yhead{background:#F1F5F9;font-weight:600;font-size:.82rem;color:#334155}
+@media(max-width:520px){.dr-wide{grid-template-columns:1fr}}
+
+@media print{.docbox,#docPayOut,#docBankOut{display:none!important}}
 </style>
 <script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
@@ -423,6 +454,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
 
       <!-- Employment -->
       <div class="source" id="srcEmployment">
+        <div class="docbox" id="docPay"><div class="dtx"><b>Have a pay stub? Upload it to pre-fill.</b><span>PDF only. It is read on your device and never uploaded. You check every number before it is used.</span></div><button type="button" class="bubble" id="docPayBtn" data-docpay="">Upload pay stub</button><input type="file" id="docPayFile" data-docpayfile="" accept="application/pdf,.pdf" hidden></div>
+        <div id="docPayOut" aria-live="polite"></div>
         <div class="grid">
           <div class="f"><label for="wageAmt">Gross employment income ($)</label><input id="wageAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 5000"></div>
           <div class="f"><label for="wageFreq">Paid</label>
@@ -703,6 +736,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     <div class="rowbody">
       <div class="note" style="margin:0 0 14px"><strong>Good to know:</strong> Checking and savings are available right away. Retirement accounts, mutual funds and stocks may need to be sold or withdrawn (liquidated) if you need them for cash to close or your down payment. Taxes, penalties or market changes can apply, and lenders may count only part of some accounts. Your lender will ask for statements to verify balances.</div>
       <div id="assetsList"></div>
+      <div class="docbox" id="docBank"><div class="dtx"><b>Have bank statements? Upload them to pre-fill.</b><span>PDF only, up to 3 files. Read on your device and never uploaded. Only the balance and dates are used, never the account number. You check every number first.</span></div><button type="button" class="bubble" id="docBankBtn">Upload statements</button><input type="file" id="docBankFile" accept="application/pdf,.pdf" multiple hidden></div>
+      <div id="docBankOut" aria-live="polite"></div>
       <button type="button" class="bubble" id="addAssetBtn" style="margin-top:6px">+ Add an account</button>
       <p class="srctotal" id="assetsTotalLine"></p>
       <p class="k" id="assetsUseLine" style="margin:4px 0 0;font-size:.8rem"></p><div class="rlgwrap" id="rlgWrapA" hidden></div>
@@ -1048,7 +1083,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     h+='<p class="srctotal" id="'+p+kind+'Total"></p>';
     return h;
   }
-  function selfEmpHtml(p){return groupHtml(p,"bz",BIZ,"Select every kind of self-employment income you have, then enter the figures from your tax returns. Most lenders average two years and add back items like depreciation, which reduce your taxes but not your real cash flow.","Types of self-employment income")}
+  function taxBox(p){return '<div class="docbox"><div class="dtx"><b>Have tax returns? Upload them to pre-fill.</b><span>PDF only, up to 3 files, one per tax year. Read on your device and never uploaded. Only the income and add-back figures are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-doctax="'+p+'">Upload tax returns</button><input type="file" data-doctaxfile="'+p+'" accept="application/pdf,.pdf" multiple hidden></div><div aria-live="polite"></div>'}
+  function selfEmpHtml(p){return taxBox(p)+groupHtml(p,"bz",BIZ,"Select every kind of self-employment income you have, then enter the figures from your tax returns. Most lenders average two years and add back items like depreciation, which reduce your taxes but not your real cash flow.","Types of self-employment income")}
   function additionalHtml(p){return groupHtml(p,"ad",ADDL,"Select each type that applies. Bonus, commission, capital gains, and interest or dividends are usually averaged over two years, because lenders want income that is likely to continue.","Types of additional income")}
   $("srcSelfemp").innerHTML=selfEmpHtml("");
   $("srcAdditional").innerHTML=additionalHtml("");
@@ -1198,6 +1234,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   // ---- dynamically add any number of additional borrowers ----
   function employmentHtml(p){
     return ''
+      +(p?'<div class="docbox"><div class="dtx"><b>Have a pay stub? Upload it to pre-fill.</b><span>PDF only. It is read on your device and never uploaded. You check every number before it is used.</span></div><button type="button" class="bubble" data-docpay="'+p+'">Upload pay stub</button><input type="file" data-docpayfile="'+p+'" accept="application/pdf,.pdf" hidden></div><div aria-live="polite"></div>':'')
       +'<div class="grid">'
       +'<div class="f"><label for="'+p+'wageAmt">Gross employment income ($)</label><input id="'+p+'wageAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 5000"></div>'
       +'<div class="f"><label for="'+p+'wageFreq">Paid</label><select id="'+p+'wageFreq">'
@@ -1795,6 +1832,103 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     if(!skip)recompute();
   }
   $("addAssetBtn").addEventListener("click",function(){addAsset()});
+  // ---- upload a pay stub or bank statements (read on this device by /doc-read.js) ----
+  var docMod=null;
+  function docLoad(){return docMod||(docMod=import("/doc-read.js").catch(function(e){docMod=null;throw e}))}
+  function docFire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
+  var docTrack=[];
+  function docMark(kind,P,ids){ids.forEach(function(id){var el=$(id);if(!el)return;docTrack=docTrack.filter(function(t){return t.id!==id});docTrack.push({id:id,v:el.value,kind:kind,P:P})});docBadges()}
+  function vkEl(cls,txt,ed){var e=document.createElement("span");e.className=cls+(ed?" ed":"");e.setAttribute("data-vk","1");if(cls==="vkd"){e.textContent="\u2713";e.title=txt}else{var i=document.createElement("i");i.textContent=ed?"\u2022":"\u2713";e.appendChild(i);e.appendChild(document.createTextNode(txt))}return e}
+  function docBadges(){
+    document.querySelectorAll("[data-vk]").forEach(function(x){x.remove()});
+    docTrack=docTrack.filter(function(t){return $(t.id)});
+    var inc={},ast={},anyInc=null,anyAst=null;
+    docTrack.forEach(function(t){
+      var ed=$(t.id).value!==t.v;
+      if(t.kind==="bank"){var m=/^ast(\d+)/.exec(t.id);var k=m?m[1]:"";ast[k]=ast[k]||{ed:false};if(ed)ast[k].ed=true;anyAst=anyAst||{ed:false};if(ed)anyAst.ed=true;return}
+      var mm=/^(b\d+)/.exec(t.P||""),key=mm?mm[1]:"b1";inc[key]=inc[key]||{kinds:{},ed:false};inc[key].kinds[t.kind]=1;if(ed)inc[key].ed=true;anyInc=anyInc||{ed:false};if(ed)anyInc.ed=true;
+    });
+    Object.keys(inc).forEach(function(key){
+      var o=inc[key],k=Object.keys(o.kinds).map(function(x){return x==="pay"?"pay stub":"tax return"}).join(" + "),txt=o.ed?"Edited after upload":"From "+k;
+      var tg=$(key+"Tgl"),h=key==="b1"?$("b1H3"):null;
+      if(tg&&!tg.hidden){var sp=tg.firstElementChild;if(sp)tg.insertBefore(vkEl("vkb",txt,o.ed),sp.nextSibling)}
+      else if(h&&h.parentNode)h.parentNode.insertBefore(vkEl("vkb",txt,o.ed),h.nextSibling);
+    });
+    Object.keys(ast).forEach(function(k){var w=$("ast"+k+"Wrap");if(w)w.insertBefore(vkEl("vkb ln","From bank statement"+(ast[k].ed?" \u2013 edited":""),ast[k].ed),w.firstChild)});
+    var il=document.querySelector('[data-row="rowIncome"] .rowlabel'),al=document.querySelector('[data-row="rowAssets"] .rowlabel');
+    if(anyInc&&il)il.appendChild(vkEl("vkd",anyInc.ed?"Some numbers edited after upload":"Filled from a document",anyInc.ed));
+    if(anyAst&&al)al.appendChild(vkEl("vkd",anyAst.ed?"Some numbers edited after upload":"Filled from a document",anyAst.ed));
+  }
+  document.addEventListener("input",function(){if(docTrack.length)docBadges()});
+  document.addEventListener("change",function(){if(docTrack.length)docBadges()});
+  var docApi={
+    income:function(){var t=$("incomeSummary");return t?(parseFloat(String(t.textContent).replace(/[^0-9.]/g,""))||0):0},
+    applyPay:function(o,P){P=P||"";$(P+"wageFreq").value=o.freq;docFire($(P+"wageFreq"));$(P+"wageAmt").value=o.amount;docFire($(P+"wageAmt"));docMark("pay",P,[P+"wageFreq",P+"wageAmt"]);recompute()},
+    applyTax:function(list,P){
+      P=P||"";var gotSc=false,tids=[];
+      list.forEach(function(x){
+        if(x.key==="sc")gotSc=true;
+        var base=P+"bz_"+x.key,on=$(base+"_on");if(!on)return;
+        on.checked=true;docFire(on);
+        var c3=$(base+"_3");if(c3){c3.checked=!!(x.three&&x.years>=3);docFire(c3)}
+        Object.keys(x.rows).forEach(function(id){
+          for(var y=1;y<=3;y++){var el=$(base+"_"+id+"_"+y);if(!el)continue;var v=x.rows[id][y-1];el.value=(v===undefined||v===null)?"":String(v);docFire(el);tids.push(el.id)}
+        });
+        var ow=$(base+"_own");if(ow&&x.own!=null){ow.value=x.own;docFire(ow);tids.push(ow.id)}
+      });
+      // the Schedule C panel starts on with example numbers: switch it off if it is still untouched and we filled another type
+      if(!gotSc&&list.length){
+        var sc=$(P+"bz_sc_on"),def={net:[85000,72000],dep:[6000,5000],depl:[0,0]},same=true;
+        ["net","dep","depl"].forEach(function(id){[1,2].forEach(function(y){var el=$(P+"bz_sc_"+id+"_"+y);if(el&&parseFloat(el.value)!==def[id][y-1])same=false})});
+        if(sc&&sc.checked&&same){sc.checked=false;docFire(sc)}
+      }
+      docMark("tax",P,tids);recompute();
+    },
+    applyAssets:function(list,ld){
+      var aids=[];
+      list.forEach(function(a){
+        var id=null;assetLines.forEach(function(x){if(id===null&&!$("ast"+x+"Amt").value)id=x});
+        if(id===null){addAsset(true);id=assetLines[assetLines.length-1]}
+        $("ast"+id+"Type").value=a.type;docFire($("ast"+id+"Type"));$("ast"+id+"Amt").value=a.amount;docFire($("ast"+id+"Amt"));aids.push("ast"+id+"Type","ast"+id+"Amt");
+      });
+      docMark("bank","",aids);
+      if(ld){var r=document.querySelector('input[name="largeDep"][value="yes"]');if(r){r.checked=true;docFire(r)}}
+      recompute();
+    }
+  };
+  function docRun(kind,fl,o,api){
+    o.textContent="Reading on this device...";
+    docLoad().then(function(m){return m.run(kind,fl,o,api)}).catch(function(){o.textContent="We could not open the reader. Please type your numbers in."});
+  }
+  // pay stub boxes (Borrower 1, Borrower 2 and extra employment lines) share one handler; each knows its own field prefix
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-docpay]");if(!b)return;
+    var f=b.parentNode.querySelector("[data-docpayfile]");if(f){f.value="";f.click()}
+  });
+  document.addEventListener("change",function(e){
+    var f=e.target;if(!f.matches||!f.matches("[data-docpayfile]"))return;
+    var P=f.getAttribute("data-docpayfile")||"",fl=Array.prototype.slice.call(f.files||[]),box=f.closest(".docbox"),o=box&&box.nextElementSibling;
+    if(!fl.length||!o)return;
+    var api=Object.assign({},docApi,{applyPay:function(x){docApi.applyPay(x,P)}});
+    docRun("pay",fl,o,api);f.value="";
+  });
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-doctax]");if(!b)return;
+    var f=b.parentNode.querySelector("[data-doctaxfile]");if(f){f.value="";f.click()}
+  });
+  document.addEventListener("change",function(e){
+    var f=e.target;if(!f.matches||!f.matches("[data-doctaxfile]"))return;
+    var P=f.getAttribute("data-doctaxfile")||"",fl=Array.prototype.slice.call(f.files||[]),box=f.closest(".docbox"),o=box&&box.nextElementSibling;
+    if(!fl.length||!o)return;
+    var api=Object.assign({},docApi,{applyTax:function(x){docApi.applyTax(x,P)}});
+    docRun("tax",fl,o,api);f.value="";
+  });
+  $("docBankBtn").addEventListener("click",function(){$("docBankFile").value="";$("docBankFile").click()});
+  $("docBankFile").addEventListener("change",function(){
+    var fl=Array.prototype.slice.call($("docBankFile").files||[]);if(!fl.length)return;
+    docRun("bank",fl,$("docBankOut"),docApi);$("docBankFile").value="";
+  });
+
   $("assetsList").addEventListener("input",function(){recompute()});
   $("assetsList").addEventListener("change",function(){recompute()});
   $("resUpbList").addEventListener("input",function(e){var m=/^resUpb(\d+)$/.exec(e.target.id);if(m){var o=$("own"+m[1]+"Upb");if(o)o.value=e.target.value}});
