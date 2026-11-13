@@ -178,6 +178,7 @@ var FREQ_TXT = { annual: "/ 12", monthly: "x 1", semimonthly: "x 2", biweekly: "
 function typeGuess(lines, idx) {
   for (var k = idx; k >= Math.max(0, idx - 40); k--) {
     var s = lines[k].toLowerCase();
+    if (/^\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\s/.test(s)) continue; // a transaction line, such as "Transfer to Savings", is not an account heading
     if (/money\s*market|certificate of deposit|\bcd\b/.test(s)) return "mmkt";
     if (/savings/.test(s)) return "savings";
     if (/checking|everyday|complete chk|total checking/.test(s)) return "checking";
