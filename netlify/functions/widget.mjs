@@ -1,5 +1,6 @@
 import { store, getAccount, getImages, validEmail, normEmail, clip, opalOk, HANDLE_RE, sha256, countStat } from "../lib/topaz.mjs";
 import { sendMail } from "../lib/mail.mjs";
+import { checkMismo } from "../lib/mismo-check.mjs";
 import { json } from "../lib/common.mjs";
 
 // Public endpoints for the Opal co-branded widget page (/w/<handle>).
@@ -86,6 +87,14 @@ export default async (req) => {
     const aff = Array.isArray(b.affordability)
       ? b.affordability.slice(0, 80).map((r) => (Array.isArray(r) ? [clip(r[0], 80), clip(r[1], 100)] : null)).filter((r) => r && (r[0] || r[1]))
       : [];
+    // Optional loan system file (MISMO 3.4) built in the visitor's browser. It is checked strictly, only emailed
+    // (never stored), and if the check fails the lead still goes out without it.
+    let attach = null;
+    if (typeof b.mismo === "string" && b.mismo) {
+      const v = checkMismo(b.mismo);
+      if (v.ok) attach = [{ filename: "voklogik-scenario-mismo34.xml", content: b.mismo, contentType: "application/xml" }];
+      else console.error("lead file rejected:", v.reason);
+    }
     const hasScenario = Object.values(scenario).some((v) => v != null);
     const at = new Date().toISOString();
     const lead = { at, name, email, phone, message, scenario, affordability: aff, kind: aff.length ? "affordability" : "payment", consent: "Agreed to be contacted by the member and Voklogik about this estimate", handle: a.widget.handle };
@@ -106,12 +115,13 @@ export default async (req) => {
         `  Rate: ${scenario.rate ?? "n/a"}%`, `  Term: ${scenario.years ?? "n/a"} years`, `  Estimated monthly payment: ${money(scenario.payment)}`, "",
       ] : []),
       ...affLines,
+      ...(attach ? ["A loan system file (MISMO 3.4, XML) is attached. Import it into your loan origination system, then add their SSN and date of birth and pull credit. It was built from what they entered and is not verified.", ""] : []),
       `They agreed on ${at.slice(0, 10)} to be contacted by you and Voklogik about this estimate.`,
       "This is a planning estimate, not a loan application. Reply to this email to answer them directly.",
     ].filter((x) => x !== null);
     const html = "<p>" + lines.join("\n").split("\n").map((l) => esc(l)).join("<br>") + "</p>";
     try {
-      await sendMail({ to, bcc: process.env.LEADS_BCC || process.env.SMTP_USER, replyTo: email, subject: `New lead from your Voklogik page: ${name}`, text: lines.join("\n"), html });
+      await sendMail({ to, bcc: process.env.LEADS_BCC || process.env.SMTP_USER, replyTo: email, subject: `New lead from your Voklogik page: ${name}`, text: lines.join("\n"), html, attachments: attach });
     } catch (e) { console.error("lead email failed", e.message); }
     return json({ ok: true });
   }
