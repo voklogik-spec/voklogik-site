@@ -834,8 +834,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     <button type="button" class="btn" id="pvBtn" hidden>Preview</button>
     <button type="button" class="btn" id="pdfBtn" hidden>Save as PDF</button>
   </div>
-  <div class="acts" id="keyActs" style="margin-top:0;padding-top:0"><button type="button" class="btn" id="keyPdfBtn" hidden>Key-in sheet (PDF)</button><button type="button" class="btn" id="keyCsvBtn">Key-in sheet (CSV)</button></div>
-  <p class="k" id="keyNote" style="margin:4px 20px 0">For loan officers: your entries in loan application order, ready to key into your loan system. Borrower-entered and unverified. Counts as one report.</p>
+  <div class="acts" id="keyActs" style="margin-top:0;padding-top:0"><button type="button" class="btn" id="keyPdfBtn" hidden>Key-in sheet (PDF)</button><button type="button" class="btn" id="keyCsvBtn">Key-in sheet (CSV)</button><button type="button" class="btn" id="keyMismoBtn">Export to your loan system</button></div>
+  <p class="k" id="keyNote" style="margin:4px 20px 0">For loan officers: your entries in loan application order, ready to key into your loan system. The MISMO 3.4 file is a standard format many loan systems can import. It includes your name, phone and email if you entered them in Your details, and never an SSN or date of birth. Borrower-entered and unverified. Counts as one report.</p>
   <p class="k" id="freeNote" style="margin:4px 20px 0"></p>
   <p class="k" style="margin:6px 20px 0"><button type="button" class="editlink" id="clearEntries">Clear all entries and start over</button></p>
   <p class="k" id="manageSub" hidden style="margin:4px 20px 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
@@ -2789,6 +2789,123 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     try{var b=new Blob([keyinCsv()],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=KFN+".csv";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},500);if(free)bump()}catch(e){}
   })}
   $("keyCsvBtn").addEventListener("click",function(){track("click_keyin_csv");saveKeyinCsv()});
+
+  // ---- MISMO 3.4 export: the same entries as a standard XML file a loan system can import ----
+  function mismoXml(){
+    recompute();
+    var X=function(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")};
+    var A=function(v){return (Math.round((isFinite(v)?v:0)*100)/100).toFixed(2)};
+    var T=function(name,val){return (val===""||val==null)?"":"<"+name+">"+X(val)+"</"+name+">"};
+    var M=function(name,v){return v>0?"<"+name+">"+A(v)+"</"+name+">":""};
+    var seq={a:0,l:0,r:0,ln:0};
+    var refi=subjTxn()==="refi",pay=paymentTotal(),dt=debtTotals(),oc=ownedCalc();
+    var price=n("propValue"),appr=refi?0:n("propAppr"),loan=n("pLoan"),rate=n("pRate"),s2on=!!(pS2&&pS2.on);
+    var usageOf=function(txt){txt=String(txt||"");return /^Primary/i.test(txt)?"PrimaryResidence":(/^Investment/i.test(txt)?"Investment":"SecondHome")};
+    var roleLabel={};borrowers.forEach(function(b,i){roleLabel[borId(b)]="ROLE_"+(i+1)});
+    var rels=[],assets="",liabs="",incomeBy={};
+    // subject property address: "street, city, ST 12345" when it fits that shape, otherwise the whole text on one line
+    var raw=$("subjAddr").value.trim(),ad={line:raw,city:"",st:"",zip:""},m=/^(.*?),\s*([^,]+?),\s*([A-Za-z]{2})\.?(?:\s+(\d{5})(?:-\d{4})?)?$/.exec(raw);
+    if(m)ad={line:m[1],city:m[2],st:m[3].toUpperCase(),zip:m[4]||""};
+    var addrXml=function(a){return (a.line||a.city||a.st||a.zip)?"<ADDRESS>"+T("AddressLineText",a.line)+T("CityName",a.city)+T("PostalCode",a.zip)+T("StateCode",a.st)+"</ADDRESS>":""};
+    // assets
+    try{assetsCalc();assetsInfo.items.forEach(function(x){
+      if(!(x.amt>0))return;
+      var k=$("ast"+x.id+"Type").value,tp={checking:"CheckingAccount",savings:"SavingsAccount",mmkt:"MoneyMarketFund",earnest:"EarnestMoneyCashDepositTowardPurchase",gift:"GiftOfCash",retirement:"RetirementFund",mutual:"MutualFund",stocks:"Stock"}[k]||"Other";
+      var id=++seq.a;
+      assets+='<ASSET SequenceNumber="'+id+'" xlink:label="ASSET_'+id+'"><ASSET_DETAIL>'+M("AssetCashOrMarketValueAmount",x.amt)+T("AssetType",tp)+(tp==="Other"?T("AssetTypeOtherDescription",x.type):"")+'</ASSET_DETAIL></ASSET>';
+      rels.push(['ASSET_'+id,'ROLE_1','ASSET_IsAssociatedWith_ROLE']);
+    })}catch(e){}
+    // other properties owned
+    oc.items.forEach(function(it){
+      var id=++seq.a,ob={line:it.addr||"",city:"",st:"",zip:""};
+      assets+='<ASSET SequenceNumber="'+id+'" xlink:label="ASSET_'+id+'"><OWNED_PROPERTY><PROPERTY>'+addrXml(ob)+'<PROPERTY_DETAIL>'+T("PropertyUsageType",usageOf(it.occ))+'</PROPERTY_DETAIL></PROPERTY></OWNED_PROPERTY></ASSET>';
+      rels.push(['ASSET_'+id,'ROLE_1','ASSET_IsAssociatedWith_ROLE']);
+      if(it.pay>0||it.upb>0){
+        var lid=++seq.l;
+        liabs+='<LIABILITY SequenceNumber="'+lid+'" xlink:label="LIABILITY_'+lid+'"><LIABILITY_DETAIL>'+(it.complete?"<LiabilityExclusionIndicator>true</LiabilityExclusionIndicator>":"")+M("LiabilityMonthlyPaymentAmount",it.pay)+"<LiabilityType>MortgageLoan</LiabilityType>"+M("LiabilityUnpaidBalanceAmount",it.upb)+'</LIABILITY_DETAIL></LIABILITY>';
+        rels.push(['LIABILITY_'+lid,'ROLE_1','LIABILITY_IsAssociatedWith_ROLE']);
+      }
+    });
+    // monthly debts
+    debtLines.forEach(function(id){
+      var info=debtInfo(id);if(!(info.amt>0))return;
+      var k=$("debt"+id+"Type").value,tp={card:"Revolving",auto:"Installment",student:"Installment",personal:"Installment",alimony:"Alimony",childsupport:"ChildSupport",sepmaint:"SeparateMaintenanceExpense"}[k]||"Other";
+      var left=parseFloat($("debt"+id+"Left").value),lid=++seq.l;
+      liabs+='<LIABILITY SequenceNumber="'+lid+'" xlink:label="LIABILITY_'+lid+'"><LIABILITY_DETAIL>'+(info.excluded?"<LiabilityExclusionIndicator>true</LiabilityExclusionIndicator>":"")+M("LiabilityMonthlyPaymentAmount",info.amt)+(info.installment&&isFinite(left)&&left>0?"<LiabilityRemainingTermMonthsCount>"+Math.round(left)+"</LiabilityRemainingTermMonthsCount>":"")+T("LiabilityType",tp)+(tp==="Other"?T("LiabilityTypeOtherDescription",$("debt"+id+"Type").selectedOptions[0].text):"")+'</LIABILITY_DETAIL></LIABILITY>';
+      rels.push(['LIABILITY_'+lid,roleLabel[borVal(id)]||'ROLE_1','LIABILITY_IsAssociatedWith_ROLE']);
+    });
+    // other loans on the subject property that are not a new 2nd mortgage (used for CLTV)
+    var otherLiens=(!s2on)?n("propLiens"):0;
+    if(otherLiens>0){var lq=++seq.l;liabs+='<LIABILITY SequenceNumber="'+lq+'" xlink:label="LIABILITY_'+lq+'"><LIABILITY_DETAIL><LiabilityType>MortgageLoan</LiabilityType>'+M("LiabilityUnpaidBalanceAmount",otherLiens)+'</LIABILITY_DETAIL></LIABILITY>';rels.push(['LIABILITY_'+lq,'ROLE_1','LIABILITY_IsAssociatedWith_ROLE'])}
+    // income, by borrower
+    var incTypeOf=function(label){
+      label=String(label);
+      if(/^Employment/i.test(label))return ["Base",""];
+      if(/overtime/i.test(label))return ["Overtime",""];
+      if(/bonus/i.test(label))return ["Bonus",""];
+      if(/commission/i.test(label))return ["Commissions",""];
+      if(/rent|royalt/i.test(label))return ["NetRentalIncome",""];
+      if(/interest|dividend/i.test(label))return ["DividendsInterest",""];
+      if(/^Retirement/i.test(label))return ["Other","Retirement, Social Security or pension"];
+      return ["Other",label.replace(/\s+\d+.*$/,"")];
+    };
+    var parties="",ct={name:"",email:"",phone:""};
+    try{var cj=JSON.parse(localStorage.getItem("voklogik:contact")||"{}");ct={name:String(cj.cName||"").trim(),email:String(cj.cEmail||"").trim(),phone:String(cj.cPhone||"").trim()}}catch(e){}
+    borrowers.forEach(function(b,i){
+      var items="",lines=incomeLinesFor(b),c=0;
+      lines.forEach(function(l){
+        if(!(l.amt>0))return;c++;
+        var t=incTypeOf(l.label);
+        items+='<CURRENT_INCOME_ITEM SequenceNumber="'+c+'"><CURRENT_INCOME_ITEM_DETAIL>'+M("CurrentIncomeMonthlyTotalAmount",l.amt)+T("IncomeType",t[0])+(t[0]==="Other"?T("IncomeTypeOtherDescription",t[1]):"")+'</CURRENT_INCOME_ITEM_DETAIL></CURRENT_INCOME_ITEM>';
+      });
+      var fn="Borrower",ln=String(i+1),cp="";
+      if(i===0&&ct.name){var nm=ct.name.replace(/\s+/g," ").trim(),sp=nm.lastIndexOf(" ");if(sp>0){fn=nm.slice(0,sp);ln=nm.slice(sp+1)}else{fn="";ln=nm}}
+      if(i===0){
+        if(ct.email)cp+='<CONTACT_POINT><CONTACT_POINT_EMAIL>'+T("ContactPointEmailValue",ct.email)+'</CONTACT_POINT_EMAIL></CONTACT_POINT>';
+        var dg=String(ct.phone||"").replace(/\D/g,"");if(dg.length>=7)cp+='<CONTACT_POINT><CONTACT_POINT_TELEPHONE>'+T("ContactPointTelephoneValue",dg)+'</CONTACT_POINT_TELEPHONE></CONTACT_POINT>';
+      }
+      parties+='<PARTY SequenceNumber="'+(i+1)+'"><INDIVIDUAL>'+(cp?'<CONTACT_POINTS>'+cp+'</CONTACT_POINTS>':"")+'<NAME>'+T("FirstName",fn)+T("LastName",ln)+'</NAME></INDIVIDUAL><ROLES><ROLE xlink:label="ROLE_'+(i+1)+'"><BORROWER><BORROWER_DETAIL><BorrowerClassificationType>'+(i===0?"Primary":"Secondary")+'</BorrowerClassificationType></BORROWER_DETAIL>'+(items?'<CURRENT_INCOME><CURRENT_INCOME_ITEMS>'+items+'</CURRENT_INCOME_ITEMS></CURRENT_INCOME>':"")+'</BORROWER><ROLE_DETAIL><PartyRoleType>Borrower</PartyRoleType></ROLE_DETAIL></ROLE></ROLES></PARTY>';
+    });
+    // subject property
+    var sold=(!refi&&price>0)?'<SALES_CONTRACTS><SALES_CONTRACT><SALES_CONTRACT_DETAIL>'+M("SalesContractAmount",price)+'</SALES_CONTRACT_DETAIL></SALES_CONTRACT></SALES_CONTRACTS>':"";
+    var estVal=refi?price:(appr>0?appr:price);
+    var coll='<COLLATERALS><COLLATERAL><PROPERTIES><PROPERTY>'+addrXml(ad)+'<PROPERTY_DETAIL>'+M("PropertyEstimatedValueAmount",estVal)+T("PropertyUsageType",usageOf(OCC[$("subjOcc").value]))+'</PROPERTY_DETAIL>'+sold+'</PROPERTY></PROPERTIES></COLLATERAL></COLLATERALS>';
+    // loans
+    var parts=pmtParts||{tax:0,ins:0,mi:0,hoa:0,second:0},hx="",hn=0;
+    var hxe=function(type,v,other){if(!(v>0))return;hn++;hx+='<HOUSING_EXPENSE SequenceNumber="'+hn+'"><HousingExpensePaymentAmount>'+A(v)+'</HousingExpensePaymentAmount><HousingExpenseTimingType>Proposed</HousingExpenseTimingType><HousingExpenseType>'+type+'</HousingExpenseType>'+(other?T("HousingExpenseTypeOtherDescription",other):"")+'</HOUSING_EXPENSE>'};
+    hxe("FirstMortgagePrincipalAndInterest",pay.pi);hxe("RealEstateTax",parts.tax);hxe("HomeownersInsurance",parts.ins);hxe("MIPremium",parts.mi);hxe("HomeownersAssociationDuesAndCondominiumFees",parts.hoa);
+    ltvStats();var lv=ltvInfo;
+    var l1id=++seq.ln;
+    var loans='<LOAN SequenceNumber="'+l1id+'" xlink:label="LOAN_'+l1id+'" LoanRoleType="SubjectLoan">'
+      +(pmtYears>0?'<AMORTIZATION><AMORTIZATION_RULE><LoanAmortizationPeriodCount>'+(pmtYears*12)+'</LoanAmortizationPeriodCount><LoanAmortizationPeriodType>Month</LoanAmortizationPeriodType></AMORTIZATION_RULE></AMORTIZATION>':"")
+      +(hx?'<HOUSING_EXPENSES>'+hx+'</HOUSING_EXPENSES>':"")
+      +(lv&&lv.on?'<LTV>'+T("CombinedLTVRatioPercent",A(lv.cltv))+T("LTVRatioPercent",A(lv.ltv))+'</LTV>':"")
+      +(pay.pi>0?'<PAYMENT><PAYMENT_RULE>'+M("InitialPrincipalAndInterestPaymentAmount",pay.pi)+'</PAYMENT_RULE></PAYMENT>':"")
+      +'<QUALIFICATION>'+M("TotalLiabilitiesMonthlyPaymentAmount",dt.counted+rentalLoss+oc.debt)+M("TotalMonthlyIncomeAmount",lastIncome)+M("TotalMonthlyProposedHousingExpenseAmount",pay.total)+'</QUALIFICATION>'
+      +'<TERMS_OF_LOAN>'+M("BaseLoanAmount",loan)+"<LienPriorityType>FirstLien</LienPriorityType><LoanPurposeType>"+(refi?"Refinance":"Purchase")+"</LoanPurposeType>"+(rate>0?"<NoteRatePercent>"+A(rate)+"</NoteRatePercent>":"")+'</TERMS_OF_LOAN></LOAN>';
+    if(s2on){
+      var l2=++seq.ln,hl=pS2.type==="heloc",a2=n("pLoan2"),r2=n("pRate2");
+      loans+='<LOAN SequenceNumber="'+l2+'" xlink:label="LOAN_'+l2+'" LoanRoleType="SubjectLoan">'
+        +(!hl&&pS2.years>0?'<AMORTIZATION><AMORTIZATION_RULE><LoanAmortizationPeriodCount>'+(pS2.years*12)+'</LoanAmortizationPeriodCount><LoanAmortizationPeriodType>Month</LoanAmortizationPeriodType></AMORTIZATION_RULE></AMORTIZATION>':"")
+        +(hl?'<LOAN_DETAIL><HELOCIndicator>true</HELOCIndicator>'+M("HELOCMaximumBalanceAmount",a2)+'</LOAN_DETAIL>':"")
+        +'<TERMS_OF_LOAN>'+M("BaseLoanAmount",a2)+"<LienPriorityType>SecondLien</LienPriorityType><LoanPurposeType>"+(refi?"Refinance":"Purchase")+"</LoanPurposeType>"+(!hl&&r2>0?"<NoteRatePercent>"+A(r2)+"</NoteRatePercent>":"")+'</TERMS_OF_LOAN></LOAN>';
+    }
+    var rx=rels.map(function(r){return '<RELATIONSHIP xlink:from="'+r[0]+'" xlink:to="'+r[1]+'" xlink:arcrole="urn:fdc:mismo.org:2009:residential/'+r[2]+'"/>'}).join("");
+    var now=new Date().toISOString().replace(/\.\d+Z$/,"Z");
+    return '<?xml version="1.0" encoding="UTF-8"?>\n'
+      +'<!-- Planning scenario exported from Voklogik. Entered by the borrower and not verified. Borrower 1 name, email and phone are included only if entered in Your details. SSNs, dates of birth and credit are never included. Not a loan application, offer or approval. -->\n'
+      +'<MESSAGE xmlns="http://www.mismo.org/residential/2009/schemaprops" xmlns:xlink="http://www.w3.org/1999/xlink" MISMOReferenceModelIdentifier="3.4.032420160128">'
+      +'<ABOUT_VERSIONS><ABOUT_VERSION><CreatedDatetime>'+now+'</CreatedDatetime><DataVersionIdentifier>1</DataVersionIdentifier><DataVersionName>Voklogik planning scenario</DataVersionName></ABOUT_VERSION></ABOUT_VERSIONS>'
+      +'<DEAL_SETS><DEAL_SET><DEALS><DEAL>'
+      +(assets?'<ASSETS>'+assets+'</ASSETS>':"")+coll+(liabs?'<LIABILITIES>'+liabs+'</LIABILITIES>':"")
+      +'<LOANS>'+loans+'</LOANS><PARTIES>'+parties+'</PARTIES>'+(rx?'<RELATIONSHIPS>'+rx+'</RELATIONSHIPS>':"")
+      +'</DEAL></DEALS></DEAL_SET></DEAL_SETS></MESSAGE>\n';
+  }
+  function saveKeyinMismo(){allow(function(free){
+    try{var b=new Blob([mismoXml()],{type:"application/xml;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="voklogik-scenario-mismo34.xml";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},500);if(free)bump()}catch(e){}
+  })}
+  window.vkMismoXml=mismoXml;
+  $("keyMismoBtn").addEventListener("click",function(){track("click_keyin_mismo");saveKeyinMismo()});
   if(window.jspdf){$("keyPdfBtn").hidden=false;$("keyPdfBtn").addEventListener("click",function(){track("click_keyin_pdf");saveKeyinPdf()})}
 
   var pvUrl=null;

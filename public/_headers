@@ -1,0 +1,20 @@
+# Security headers. Netlify reads this file automatically.
+
+# All pages
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Pages that should never be shown inside someone else's site.
+# The Affordability page and the /w/ widget pages are left out on purpose: members embed them.
+/
+  Content-Security-Policy: frame-ancestors 'self'
+/index.html
+  Content-Security-Policy: frame-ancestors 'self'
+/topaz.html
+  Content-Security-Policy: frame-ancestors 'self'
+/privacy.html
+  Content-Security-Policy: frame-ancestors 'self'
+/terms.html
+  Content-Security-Policy: frame-ancestors 'self'

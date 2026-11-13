@@ -408,6 +408,21 @@ table.sched th{color:var(--muted);font-weight:500}
 .reportbox .payonly{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
 .reportbox .payonly summary{cursor:pointer;font-weight:700;font-size:.92rem}
 .reportbox .payonly .acts{margin-top:10px}
+.reportbox .small .logicbtn{display:inline-block;margin:0 0 0 2px;padding:4px 8px;background:#fff;border:1px solid #CBD5E1;border-radius:4px;font:500 .68rem var(--mono,monospace);color:#030712;text-decoration:none;letter-spacing:-.02em;white-space:nowrap;vertical-align:middle}
+.reportbox .small .logicbtn:hover{border-color:#0EA5E9;background:#F0F9FF}
+.reportbox .small .logicbtn[aria-expanded=true]{background:#030712;color:#fff;border-color:#030712}
+.reportbox .mismoinfo{max-height:0;overflow:hidden;transition:max-height .28s ease;background:#0F172A;border-radius:8px;margin-top:0;max-width:760px}
+.reportbox .mismoinfo.on{max-height:1400px;margin-top:14px;border:1px solid #1E293B}
+.reportbox .mismoinfo .mi{padding:18px 20px;font:400 .84rem/1.75 var(--mono,"Geist Mono",monospace);color:#E2E8F0}
+.reportbox .mismoinfo p.mt{margin:0 0 8px;font-weight:600;color:#fff}
+.reportbox .mismoinfo p{margin:8px 0 0}
+.reportbox .mismoinfo p.mh{margin-top:12px;font-weight:600;color:#fff}
+.reportbox .mismoinfo ul{margin:4px 0 0;padding-left:18px}
+.reportbox .mismoinfo li{margin:2px 0}
+.reportbox .mismoinfo li::marker{color:#64748B}
+.reportbox .mismoinfo p.mf{margin-top:14px;padding-top:12px;border-top:1px solid #1E293B;font-size:.72rem;line-height:1.5;color:#94A3B8}
+@media (max-width:560px){.reportbox .mismoinfo .mi{font-size:.74rem;padding:14px}}
+@media print{.reportbox .mismoinfo,#mMismoMore{display:none!important}}
 .midband .details{max-width:none}
 .midband .details .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .midband .details .g2 .w{grid-column:1 / -1}
@@ -1765,7 +1780,8 @@ header .tag{color:#94A3B8!important}
   box.innerHTML='<h3>Your report</h3><p class="sub">Payment, income, debts, assets, reserves, cash to close and ratios in one report. Your details above go on it.</p>'
    +'<div class="mrow"><div class="f"><label id="mRptLbl">Report detail</label><div class="seg" role="radiogroup" aria-labelledby="mRptLbl"><label><input type="radio" name="mRpt" value="simple" checked>Simple</label><label><input type="radio" name="mRpt" value="detailed">Detailed</label></div></div>'
    +'<button type="button" class="btn" id="mPrint">Print</button><button type="button" class="btn" id="mPv" hidden>Preview</button><button type="button" class="btn" id="mPdf" hidden>Save as PDF</button></div>'
-   +'<p class="small"><span>For loan officers:</span> <button type="button" id="mKeyPdf" hidden>Key-in sheet (PDF)</button><button type="button" id="mKeyCsv">Key-in sheet (CSV)</button></p>'
+   +'<p class="small"><span>For loan officers:</span> <button type="button" id="mKeyPdf" hidden>Key-in sheet (PDF)</button><button type="button" id="mKeyCsv">Key-in sheet (CSV)</button><button type="button" id="mKeyMismo">Export to your loan system</button><button type="button" class="logicbtn" id="mMismoMore" aria-expanded="false" aria-controls="mismoInfo">[More info]</button></p>'
+   +'<div class="mismoinfo" id="mismoInfo" aria-hidden="true"><div class="lgtabs"><button type="button" class="lgx" id="mMismoClose" aria-label="Close">&times; <span>Close</span></button></div><div class="mi"><p class="mt">How the export works</p><p>Voklogik creates a standard MISMO 3.4 (XML) file in your browser. Your loan officer can import it into a loan origination system that accepts MISMO 3.4 files, so they do not have to retype your numbers.</p><p>The file is not sent to Voklogik. You choose who receives it.</p><p class="mh">What the file includes:</p><ul><li>Loan: amount, rate, term, monthly payment parts, LTV and CLTV, and a second mortgage if you added one.</li><li>Property: address, how it will be used, value and purchase price.</li><li>Borrowers: income by type, monthly debts, assets and other properties owned.</li><li>Contact: your name, phone and email, only if you entered them in Your details.</li></ul><p>Never included: Social Security number, date of birth, credit report or bank account numbers.</p><p class="mf">Everything is entered by you and is not verified. Your loan officer adds the rest of the application and pulls credit. Counts as one report.</p><p class="mf" style="margin-top:6px;padding-top:0;border-top:0">The file can contain personal details, so send it to your loan officer through a secure channel, not plain email.</p></div></div>'
    +'<details class="payonly" id="payOnly"><summary>Just the payment report</summary><div id="payOnlyHost"></div></details>';
   band.appendChild(box);
   var acts=$("acts");if(acts)box.querySelector("#payOnlyHost").appendChild(acts);
@@ -1775,7 +1791,7 @@ header .tag{color:#94A3B8!important}
   hero.appendChild(band);
   function D(){try{return fr.contentDocument}catch(e){return null}}
   function proxy(mid,inner){var m=$(mid);if(m)m.addEventListener("click",function(){var d=D();var e=d&&d.getElementById(inner);if(e)e.click()})}
-  proxy("mPrint","printBtn");proxy("mPv","pvBtn");proxy("mPdf","pdfBtn");proxy("mKeyPdf","keyPdfBtn");proxy("mKeyCsv","keyCsvBtn");
+  proxy("mPrint","printBtn");proxy("mPv","pvBtn");proxy("mPdf","pdfBtn");proxy("mKeyPdf","keyPdfBtn");proxy("mKeyCsv","keyCsvBtn");proxy("mKeyMismo","keyMismoBtn");(function(){var mb=$("mMismoMore"),mp=$("mismoInfo");function set(o){mp.classList.toggle("on",o);mp.setAttribute("aria-hidden",o?"false":"true");mb.setAttribute("aria-expanded",o?"true":"false")}if(mb&&mp){mb.addEventListener("click",function(){set(!mp.classList.contains("on"))});var cb=$("mMismoClose");if(cb)cb.addEventListener("click",function(){set(false);mb.focus()})}})();
   document.querySelectorAll('input[name="mRpt"]').forEach(function(r){r.addEventListener("change",function(){var d=D();if(!d)return;var t=d.querySelector('input[name="rptMode"][value="'+r.value+'"]');if(t){t.checked=true;t.dispatchEvent(new Event("change",{bubbles:true}));t.dispatchEvent(new Event("input",{bubbles:true}))}})});
   function mirror(){var d=D();if(!d)return;[["mPv","pvBtn"],["mPdf","pdfBtn"],["mKeyPdf","keyPdfBtn"]].forEach(function(p){var i=d.getElementById(p[1]),m=$(p[0]);if(i&&m)m.hidden=i.hidden})}
   setInterval(mirror,700);
