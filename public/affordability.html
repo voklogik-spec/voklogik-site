@@ -78,6 +78,13 @@ html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 .vkb.ln{margin:0 0 8px}
 @media(max-width:640px){.btgl{flex-wrap:wrap;row-gap:2px}.btgl .vkb{order:5;margin-left:0;flex-basis:auto}.btgl .tot,.btgl .chev{order:2}}
 .vkd{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#16A34A;color:#fff;font-size:.65rem;font-weight:700;margin-left:8px;vertical-align:middle}.vkd.ed{background:#94A3B8}
+.ldrow{display:grid;grid-template-columns:1fr minmax(190px,230px) minmax(180px,210px);gap:10px;align-items:center;padding:10px 12px;border:1px solid #E2E8F0;border-radius:10px;margin:8px 0;background:#fff}
+.ldrow b{font:600 .95rem var(--ui)}.ldrow small{display:block;color:#64748B;font-size:.78rem;margin-top:2px}
+.ldrow.exc{background:#FEF2F2;border-color:#FECACA}.ldrow.ver{background:#F0FDF4;border-color:#BBF7D0}
+.ldsum{font-size:.85rem;margin:8px 0 0;color:#991B1B;font-weight:600}.ldhead{font-size:.82rem;color:#475569;margin:12px 0 0}
+.ldrow select,.dr-two select{font-family:var(--ui)!important;font-size:.86rem!important;padding-left:10px;width:100%}
+.ldrow label{display:block;font-size:.72rem;color:#64748B;margin:0 0 3px;font-weight:500}
+@media(max-width:640px){.ldrow{grid-template-columns:1fr}}
 .docbox{border:2px dashed #9AA3B2;border-radius:12px;padding:14px 16px;margin:0 0 16px;background:#F8FAFC;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .docbox .dtx{flex:1;min-width:200px}.docbox b{display:block;font-size:.98rem;color:#0F172A}.docbox span{display:block;font-size:.84rem;color:#475569;margin-top:2px;line-height:1.4}
 .dr-panel{border:1px solid #CBD5E1;border-radius:12px;background:#fff;margin:0 0 16px;overflow:hidden;color:#0F172A}
@@ -88,6 +95,7 @@ html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 .dr-row small{display:block;color:#64748B;font-size:.78rem;line-height:1.3}
 .dr-in{width:100%;padding:8px 10px;border:1px solid #CBD5E1;border-radius:7px;background:#fff;font:inherit;color:#0F172A;min-width:0}
 .dr-found{background:#FFFBEB;border-color:#F59E0B}
+.dr-two{display:grid;gap:6px}.dr-ro.bad{color:#B91C1C}.dr-bal{margin-left:auto;font-weight:500;color:#64748B;font-size:.82rem}.dr-note.dr-alert{background:#FEF2F2;color:#991B1B;border-top-color:#FECACA;font-weight:600}.dr-acct .dr-note{border-top:0;border-bottom:1px solid #E2E8F0}
 .dr-ro{font-weight:600;text-align:right}.dr-ro.good{color:#166534}
 .dr-acct{border-bottom:1px solid #E2E8F0;background:#FAFAFB}.dr-acct .dr-row:last-child{border-bottom:0}
 .dr-inc{display:flex;gap:8px;align-items:center;padding:10px 16px 0;font-weight:600;font-size:.9rem;cursor:pointer}
@@ -100,7 +108,7 @@ html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 .dr-wide{grid-template-columns:minmax(130px,1fr) minmax(250px,430px)}.dr-ycells{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px}.dr-yhead{background:#F1F5F9;font-weight:600;font-size:.82rem;color:#334155}
 @media(max-width:520px){.dr-wide{grid-template-columns:1fr}}
 
-@media print{.docbox,#docPayOut,#docBankOut{display:none!important}}
+@media print{.docbox,#docPayOut,#docBankOut,#docCredOut{display:none!important}}
 </style>
 <script src="/topaz-brand.js"></script>
 <script src="/jspdf.umd.min.js"></script>
@@ -590,6 +598,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       <div class="note" style="margin:0 0 16px"><strong>Tip:</strong> Get your free credit report at <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer">AnnualCreditReport.com</a> (it opens in a new tab, so this page stays right here), then enter the monthly payment shown for each account. For credit cards, enter the minimum payment required each month, not the balance. A credit report lists your accounts and payments; it doesn't show a score (see the note below your ratios). If a payment isn't listed, use the amount on your latest statement. You don't need account numbers or your Social Security number, and nothing you type here leaves your browser.</div>
       <div class="f" style="margin:0 0 14px"><div class="rdorow"><span class="rdolab">Do you have any tax liens, judgments, collections or charge-offs?</span><label class="rdo"><input type="radio" name="pubRec" value="yes">Yes</label><label class="rdo"><input type="radio" name="pubRec" value="no" checked>No</label></div></div>
       <div class="note warn" id="pubRecNote" hidden style="margin:0 0 16px">Lenders may require tax liens, judgments, collections and charge-offs to be paid off, or otherwise resolved, before or at closing. Any payoff adds to the cash you need, and it is not included in Cash Required at Closing. Ask your lender what applies to you.</div>
+      <div class="docbox" id="docCred"><div class="dtx"><b>Have your credit report? Upload it to pre-fill.</b><span>PDF only, up to 3 files. Read on your device and never uploaded. Only the account type, balance, monthly payment and late payments are used, never names or account numbers. You check every number first.</span></div><button type="button" class="bubble" id="docCredBtn">Upload credit report</button><input type="file" id="docCredFile" accept="application/pdf,.pdf" multiple hidden></div>
+      <div id="docCredOut" aria-live="polite"></div>
+      <div class="note warn" id="crHouseWarn" hidden style="margin:0 0 16px"><strong>Late housing payment.</strong> <span>Your credit report shows a late mortgage or rent payment in the last 12 months. Lenders look closely at housing payment history, and this can affect approval or pricing. Talk with your lender before you apply.</span> <button type="button" class="editlink" id="crHouseHide">Hide</button></div>
+      <p class="k" id="crLateNote" hidden style="margin:0 0 14px;font-size:.84rem"></p>
       <div id="debtsList"></div>
       <div class="debtwrap" id="ownedDebtRow" hidden style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Payments on other properties</strong><strong id="ownedDebtAmt">$0/mo</strong></div>
@@ -743,7 +755,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       <p class="k" id="assetsUseLine" style="margin:4px 0 0;font-size:.8rem"></p><div class="rlgwrap" id="rlgWrapA" hidden></div>
       <div class="f" style="margin-top:16px"><label>Do you have any large deposits?</label>
         <div class="plainradio" role="radiogroup"><label><input type="radio" name="largeDep" value="no" checked>No</label><label><input type="radio" name="largeDep" value="yes">Yes</label></div>
-        <p class="k" id="largeDepNote" hidden style="margin:8px 0 0;font-size:.8rem"></p><div class="rlgwrap" id="rlgWrapD"></div></div>
+        <p class="k" id="largeDepNote" hidden style="margin:8px 0 0;font-size:.8rem"></p><div id="ldList"></div><div class="rlgwrap" id="rlgWrapD"></div></div>
       <button type="button" class="editlink" id="assetsDone" style="margin-top:14px">Done &#8594;</button>
     </div>
   </div>
@@ -1842,9 +1854,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   function docBadges(){
     document.querySelectorAll("[data-vk]").forEach(function(x){x.remove()});
     docTrack=docTrack.filter(function(t){return $(t.id)});
-    var inc={},ast={},anyInc=null,anyAst=null;
+    var inc={},ast={},dbt={},anyInc=null,anyAst=null,anyDbt=null;
     docTrack.forEach(function(t){
       var ed=$(t.id).value!==t.v;
+      if(t.kind==="credit"){var md=/^debt(\d+)/.exec(t.id),kd=md?md[1]:"";dbt[kd]=dbt[kd]||{ed:false};if(ed)dbt[kd].ed=true;anyDbt=anyDbt||{ed:false};if(ed)anyDbt.ed=true;return}
       if(t.kind==="bank"){var m=/^ast(\d+)/.exec(t.id);var k=m?m[1]:"";ast[k]=ast[k]||{ed:false};if(ed)ast[k].ed=true;anyAst=anyAst||{ed:false};if(ed)anyAst.ed=true;return}
       var mm=/^(b\d+)/.exec(t.P||""),key=mm?mm[1]:"b1";inc[key]=inc[key]||{kinds:{},ed:false};inc[key].kinds[t.kind]=1;if(ed)inc[key].ed=true;anyInc=anyInc||{ed:false};if(ed)anyInc.ed=true;
     });
@@ -1857,10 +1870,18 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     Object.keys(ast).forEach(function(k){var w=$("ast"+k+"Wrap");if(w)w.insertBefore(vkEl("vkb ln","From bank statement"+(ast[k].ed?" \u2013 edited":""),ast[k].ed),w.firstChild)});
     var il=document.querySelector('[data-row="rowIncome"] .rowlabel'),al=document.querySelector('[data-row="rowAssets"] .rowlabel');
     if(anyInc&&il)il.appendChild(vkEl("vkd",anyInc.ed?"Some numbers edited after upload":"Filled from a document",anyInc.ed));
+    Object.keys(dbt).forEach(function(k){var w=$("debt"+k+"Wrap");if(w)w.insertBefore(vkEl("vkb ln","From credit report"+(dbt[k].ed?" \u2013 edited":""),dbt[k].ed),w.firstChild)});
+    var dl=document.querySelector('[data-row="rowDebts"] .rowlabel');
+    if(anyDbt&&dl)dl.appendChild(vkEl("vkd",anyDbt.ed?"Some numbers edited after upload":"Filled from a document",anyDbt.ed));
     if(anyAst&&al)al.appendChild(vkEl("vkd",anyAst.ed?"Some numbers edited after upload":"Filled from a document",anyAst.ed));
   }
   document.addEventListener("input",function(){if(docTrack.length)docBadges()});
   document.addEventListener("change",function(){if(docTrack.length)docBadges()});
+  var crInfo={hl:false,la:0,coll:0};
+  function crRender(){
+    var w=$("crHouseWarn"),n2=$("crLateNote");if(w)w.hidden=!crInfo.hl;
+    if(n2){n2.hidden=!(crInfo.la>0);n2.textContent="";if(crInfo.la>0){var a=document.createElement("span");a.textContent="Accounts with late payments on your credit report:";n2.appendChild(a);n2.appendChild(document.createTextNode(" "+crInfo.la))}}
+  }
   var docApi={
     income:function(){var t=$("incomeSummary");return t?(parseFloat(String(t.textContent).replace(/[^0-9.]/g,""))||0):0},
     applyPay:function(o,P){P=P||"";$(P+"wageFreq").value=o.freq;docFire($(P+"wageFreq"));$(P+"wageAmt").value=o.amount;docFire($(P+"wageAmt"));docMark("pay",P,[P+"wageFreq",P+"wageAmt"]);recompute()},
@@ -1884,14 +1905,28 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       }
       docMark("tax",P,tids);recompute();
     },
-    applyAssets:function(list,ld){
+    applyDebts:function(list,info){
+      var dids=[];
+      list.forEach(function(a){
+        var id=null;debtLines.forEach(function(x){if(id===null&&!$("debt"+x+"Amt").value)id=x});
+        if(id===null){addDebt(true);id=debtLines[debtLines.length-1]}
+        $("debt"+id+"Type").value=a.type;docFire($("debt"+id+"Type"));$("debt"+id+"Amt").value=a.amount;docFire($("debt"+id+"Amt"));dids.push("debt"+id+"Type","debt"+id+"Amt");
+      });
+      docMark("credit","",dids);
+      crInfo={hl:!!(info&&info.housingLate),la:(info&&info.lateAccts)||0,coll:(info&&info.coll)||0};
+      if(crInfo.coll){var r=document.querySelector('input[name="pubRec"][value="yes"]');if(r){r.checked=true;docFire(r)}}
+      crRender();recompute();affSaveSoon();
+    },
+    applyAssets:function(list,ld,deps){
       var aids=[];
+      var lids=[];
       list.forEach(function(a){
         var id=null;assetLines.forEach(function(x){if(id===null&&!$("ast"+x+"Amt").value)id=x});
         if(id===null){addAsset(true);id=assetLines[assetLines.length-1]}
-        $("ast"+id+"Type").value=a.type;docFire($("ast"+id+"Type"));$("ast"+id+"Amt").value=a.amount;docFire($("ast"+id+"Amt"));aids.push("ast"+id+"Type","ast"+id+"Amt");
+        $("ast"+id+"Type").value=a.type;docFire($("ast"+id+"Type"));$("ast"+id+"Amt").value=a.amount;docFire($("ast"+id+"Amt"));aids.push("ast"+id+"Type","ast"+id+"Amt");lids.push(id);
       });
       docMark("bank","",aids);
+      if(deps&&deps.length){deps.forEach(function(d){var f=null;ldList.forEach(function(x){if(x.date===d.date&&x.amt===d.amt)f=x});var ai=(d.acct!=null&&lids[d.acct]!=null)?lids[d.acct]:null;if(f){f.st=d.st;f.ast=ai}else ldList.push({date:d.date,amt:d.amt,st:d.st||"tbv",ast:ai})})}
       if(ld){var r=document.querySelector('input[name="largeDep"][value="yes"]');if(r){r.checked=true;docFire(r)}}
       recompute();
     }
@@ -1923,6 +1958,12 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var api=Object.assign({},docApi,{applyTax:function(x){docApi.applyTax(x,P)}});
     docRun("tax",fl,o,api);f.value="";
   });
+  $("docCredBtn").addEventListener("click",function(){$("docCredFile").value="";$("docCredFile").click()});
+  $("docCredFile").addEventListener("change",function(){
+    var fl=Array.prototype.slice.call($("docCredFile").files||[]);if(!fl.length)return;
+    docRun("credit",fl,$("docCredOut"),docApi);$("docCredFile").value="";
+  });
+  $("crHouseHide").addEventListener("click",function(){crInfo.hl=false;crRender();affSaveSoon()});
   $("docBankBtn").addEventListener("click",function(){$("docBankFile").value="";$("docBankFile").click()});
   $("docBankFile").addEventListener("change",function(){
     var fl=Array.prototype.slice.call($("docBankFile").files||[]);if(!fl.length)return;
@@ -1969,6 +2010,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(isL)liq+=a;else{liq+=Lq;non+=a-Lq}
       items.push({id:id,type:ASSET[k][0],liquid:isL,earnest:false,amt:a,used:0,lq:isL?a:Lq,nl:isL?0:a-Lq,lqOwn:isL?0:Lq});
     });
+    var ldx=0,ldm=ldDeduct();
+    items.forEach(function(x){if(x.earnest||x.gift||!x.liquid)return;var d=Math.min(ldm[x.id]||0,x.lq);if(d>0){x.lq-=d;x.ex=d;ldx+=d}});
+    liq-=ldx;
     var tot=liq+non;
     // reserves
     var months=Math.max(0,Math.floor(n("resMonths"))),subj=paymentTotal().total,other=0;
@@ -2014,9 +2058,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(x.earnest||x.gift)return;
       var t="ast"+x.id,note=x.liquid?"Liquid: available right away.":(x.lqOwn>0?("You counted "+usd.format(x.lqOwn)+" of this as liquid (after selling or withdrawing). The other "+usd.format(x.nl)+" stays non-liquid."):"Non-liquid: may need to be liquidated to use for cash to close or a down payment. Use the box \"If you would sell or withdraw some of it\" to count the part you would sell or withdraw.");
       x.note=note;$(t+"Note").textContent="";
-      $(t+"After").textContent=usd.format(x.amt-x.used);
+      $(t+"After").textContent=usd.format(x.amt-(x.ex||0)-x.used);
     });
-    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo,giftClose:giftC,giftDep:giftD,giftPending:giftNo};
+    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo,giftClose:giftC,giftDep:giftD,giftPending:giftNo,ldExcl:ldx};
     $("assetsSummary").textContent=usd.format(tot-covered);
     var eTxt=earn>0?" Earnest money already paid, credited at closing: "+usd.format(earn)+".":"";
     if(giftC>0)eTxt+=" Gift to be received at closing, credited at closing: "+usd.format(giftC)+".";
@@ -2279,7 +2323,45 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     if(dgShown>1)dgShown--;
     recompute();affSaveSoon();
   })});
-  function ldepUpdate(){var el=$("largeDepNote");if(el)el.hidden=true;renderLdLogic()}
+  var ldList=[],LDS=[["tbv","To be verified"],["ver","Can document"],["exc","Exclude from assets"]];
+  function ldOn(){var r=document.querySelector('input[name="largeDep"]:checked');return !!r&&r.value==="yes"}
+  function ldExcl(){if(!ldOn())return 0;var t=0;ldList.forEach(function(d){if(d.st==="exc")t+=d.amt});return t}
+  // an excluded deposit comes off the account it went into only, and never takes that account below zero
+  function ldDeduct(){
+    var m={};if(!ldOn())return m;
+    ldList.forEach(function(d){if(d.st==="exc"&&d.ast!=null)m[d.ast]=(m[d.ast]||0)+d.amt});
+    Object.keys(m).forEach(function(id){var e=$("ast"+id+"Amt"),t=$("ast"+id+"Type");if(!e||!t||!ASSET[t.value]||ASSET[t.value][1]!==1){delete m[id];return}m[id]=Math.min(m[id],Math.max(0,n("ast"+id+"Amt")))});
+    return m;
+  }
+  function ldRender(){
+    var w=$("ldList");if(!w)return;
+    var on=ldOn()&&ldList.length>0,liqA=assetLines.filter(function(id){var e=$("ast"+id+"Type");return e&&ASSET[e.value]&&ASSET[e.value][1]===1}),sig=on?ldList.map(function(d){return d.date+"|"+d.amt}).join(",")+"#"+liqA.map(function(id){return id+$("ast"+id+"Type").value}).join(","):"";
+    if(w.getAttribute("data-s")!==sig){
+      w.setAttribute("data-s",sig);w.textContent="";
+      if(on){
+        var mk=function(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+        w.appendChild(mk("p","ldhead","Found on your statements. Choose what to do with each one."));
+        ldList.forEach(function(d,i){
+          var r=mk("div","ldrow"),l=mk("div"),sl=mk("select");r.setAttribute("data-ldrow",i);
+          l.appendChild(mk("b","",usd.format(d.amt)));var sm=mk("small");sm.appendChild(mk("span","","Deposit on"));sm.appendChild(document.createTextNode(" "+d.date));l.appendChild(sm);
+          sl.setAttribute("data-ld",i);sl.setAttribute("aria-label","What to do with this deposit");
+          LDS.forEach(function(o){var op=mk("option","",o[1]);op.value=o[0];sl.appendChild(op)});
+          var sa=mk("select");sa.setAttribute("data-lda",i);sa.setAttribute("aria-label","Account the deposit went into");
+          liqA.forEach(function(id){var op=mk("option","",ASSET[$("ast"+id+"Type").value][0]+" (account "+(assetLines.indexOf(id)+1)+")");op.value=id;sa.appendChild(op)});
+          if(liqA.indexOf(d.ast)<0)d.ast=liqA.length?liqA[0]:null;if(d.ast!=null)sa.value=d.ast;
+          var c1=mk("div"),c2=mk("div");c1.appendChild(mk("label","","Deposited into"));c1.appendChild(sa);c2.appendChild(mk("label","","What to do"));c2.appendChild(sl);
+          r.appendChild(l);r.appendChild(c1);r.appendChild(c2);w.appendChild(r);
+        });
+        var su=mk("p","ldsum");su.id="ldSum";su.appendChild(mk("span","","Deducted from your assets:"));su.appendChild(document.createTextNode(" "));su.appendChild(mk("span","ldv"));w.appendChild(su);
+      }
+    }
+    if(!on)return;
+    ldList.forEach(function(d,i){var sl=w.querySelector('[data-ld="'+i+'"]'),r=w.querySelector('[data-ldrow="'+i+'"]');if(sl&&sl.value!==d.st)sl.value=d.st;if(r)r.className="ldrow"+(d.st==="exc"?" exc":(d.st==="ver"?" ver":""))});
+    var dm=ldDeduct(),x=0;Object.keys(dm).forEach(function(k){x+=dm[k]});var su2=$("ldSum");if(su2){su2.hidden=!(x>0);su2.querySelector(".ldv").textContent=usd.format(x)}
+  }
+  document.addEventListener("change",function(e){var t=e.target;if(!t||!t.getAttribute||t.getAttribute("data-ld")===null)return;var d=ldList[+t.getAttribute("data-ld")];if(d){d.st=t.value;recompute();affSaveSoon()}});
+  document.addEventListener("change",function(e){var t=e.target;if(!t||!t.getAttribute||t.getAttribute("data-lda")===null)return;var d=ldList[+t.getAttribute("data-lda")];if(d){d.ast=+t.value;recompute();affSaveSoon()}});
+  function ldepUpdate(){var el=$("largeDepNote");if(el)el.hidden=true;ldRender();renderLdLogic()}
   function recompute(){
     s2Sync();
     var income=0;
@@ -2592,6 +2674,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         db.push(R("Tax liens, judgments, collections or charge-offs","Yes"));
         db.push(Sm("Lenders may require these to be paid off, or otherwise resolved, before or at closing. A payoff adds to the cash needed and is not included in Cash required at closing. Ask your lender."));
       }
+      if(crInfo.hl)db.push(R("Late mortgage or rent payment in the last 12 months","Yes"));
+      if(crInfo.la>0)db.push(R("Accounts with late payments",String(crInfo.la)));
+      if(crInfo.hl||crInfo.la>0)db.push(Sm("Late payment information was read from a credit report the borrower uploaded. It is not verified."));
       if(debtLines.some(function(id){return debtInfo(id).excluded})){
         db.push(Sm("Debts marked as left out assume your lender excludes installment loans with 10 or fewer payments remaining. Confirm this with your lender."));
         if(!$("debtsShortWarn").hidden)db.push(Sm($("debtsShortWarn").textContent));
@@ -2648,6 +2733,11 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         if(ac.reserved>0)as.push(R("Total assets after reserves",usd.format(ac.avail),1));
         if(ac.reserved>0)as.push(Sm("Set aside for reserves: "+ac.items.filter(function(x){return x.used>0}).map(function(x){return x.type+" "+usd.format(x.used)}).join(", ")+". Available after reserves: "+usd.format(ac.avail)+"."));
         as.push(R("Large deposits",sel("largeDep")==="yes"?"Yes":"No"));
+        if(sel("largeDep")==="yes"&&ldList.length){
+          ldList.forEach(function(d){var an="";assetsInfo.items.forEach(function(x){if(x.id===d.ast)an=" ("+x.type+")"});as.push(R("Large deposit, "+d.date+an,usd.format(d.amt)+" \u2013 "+({tbv:"To be verified",ver:"Borrower can document",exc:"Excluded from assets"})[d.st]))});
+          if(ac.ldExcl>0)as.push(Sm("Excluded large deposits ("+usd.format(ac.ldExcl)+") are deducted from the liquid assets above."));
+          as.push(Sm("Deposit choices are made by the borrower and are not verified."));
+        }
         if(sel("largeDep")==="yes")as.push(Sm("Large deposits are usually deposits above 50% of total monthly income. Lenders may ask for statements and an explanation, and may not require verification for deposits from an employer, the IRS or Social Security. This is at the lender\u2019s discretion."));
         as.push(Sm("Retirement accounts, mutual funds and stocks may need to be liquidated if used for cash to close or a down payment. Lenders may count only part of some accounts and will verify balances."));
         S.push({head:"Total assets",items:as});
@@ -3132,6 +3222,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         o.v[e.id]=e.value;
       });
       document.querySelectorAll('input[type="radio"]:checked').forEach(function(e){o.r[e.name]=e.value});
+      o.ld=ldList;o.cr=crInfo;
       localStorage.setItem(ASK,JSON.stringify(o));
     }catch(e){}
   }
@@ -3173,6 +3264,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       assetLines.slice().forEach(function(id){if((o.assets||[]).indexOf(id)<0){var w=$("ast"+id+"Wrap");if(w)w.remove();assetLines=assetLines.filter(function(x){return x!==id})}});
       (o.assets||[]).forEach(function(id){if(assetLines.indexOf(id)<0){assetSeq=id-1;addAsset(true)}});
       assetSeq=Math.max(assetSeq,(o.seq&&o.seq.a)||0);
+      crInfo={hl:!!(o.cr&&o.cr.hl),la:(o.cr&&+o.cr.la)||0,coll:(o.cr&&+o.cr.coll)||0};crRender();
+      ldList=(o.ld||[]).filter(function(d){return d&&d.amt>0}).map(function(d){return {date:String(d.date||"").slice(0,12),amt:+d.amt,st:/^(tbv|ver|exc)$/.test(d.st)?d.st:"tbv",ast:(d.ast>0?+d.ast:null)}}).slice(0,12);
       ownedLines.slice().forEach(function(id){removeCard(id)});
       (o.owned||[]).forEach(function(so){ownedSeq=so.id-1;addOwned(!!so.prim)});
       ownedSeq=Math.max(ownedSeq,(o.seq&&o.seq.o)||0);

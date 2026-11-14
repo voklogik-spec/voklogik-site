@@ -199,12 +199,12 @@ function parseStmt(lines, threshold) {
     if (accts.length < 4) accts.push({ type: typeGuess(lines, i), balance: v });
   });
   var deps = [];
-  if (threshold) lines.forEach(function (l) {
+  if (threshold) lines.forEach(function (l, li) {
     if (!DATE0.test(l)) return;
     if (!/deposit|transfer\s+from|zelle|wire|incoming|venmo|cash\s*app|credit\s+from/i.test(l)) return;
     if (/payroll|direct\s*dep|dir\s*dep|salary|interest|dividend|refund|reversal/i.test(l)) return;
     var n = nums(l); if (!n.length) return;
-    var amt = n[0].v; if (amt >= threshold) deps.push({ date: l.split(" ")[0], amt: amt });
+    var amt = n[0].v; if (amt >= threshold) deps.push({ date: l.split(" ")[0], amt: amt, type: typeGuess(lines, li) });
   });
   return { period: period, accounts: accts, deposits: deps };
 }
@@ -311,27 +311,39 @@ async function runBank(files, out, api) {
   var months = {}; ok.forEach(function (x) { if (x.period) months[x.period.end.getFullYear() + "-" + x.period.end.getMonth()] = 1; });
   var nm = Object.keys(months).length, rd = ok.map(function (x) { return x.period ? dshort(x.period.start) + " to " + dshort(x.period.end) : "dates not found"; }).join(", ");
   p.appendChild(row("Statements read", rd, h("div", "dr-ro" + (nm >= 2 ? " good" : ""), nm >= 2 ? nm + " months covered" : "Lenders usually want 2 months")));
-  var deps = []; ok.forEach(function (x) { deps = deps.concat(x.deposits); });
-  var ldBox = h("input"); ldBox.type = "checkbox"; ldBox.checked = true;
+  var deps = [], dseen = {}; ok.forEach(function (x) { x.deposits.forEach(function (d) { var k = d.date + "|" + d.amt; if (!dseen[k] && deps.length < 8) { dseen[k] = 1; deps.push(d); } }); });
+  var LDS = [["tbv", "To be verified"], ["ver", "Can document"], ["exc", "Exclude from assets"]], rowsD = [];
   if (!threshold) {
     var n0 = h("div", "dr-note", "Add your income first and we can also look for large deposits."); p.appendChild(n0);
   } else if (deps.length) {
-    deps.slice(0, 5).forEach(function (d) { p.appendChild(row("Possible large deposit", d.date + ", over half of your monthly income", h("div", "dr-ro", usd(d.amt)))); });
-    var lb = h("label", "dr-note dr-inc"); lb.appendChild(ldBox); lb.appendChild(h("span", "", 'Set "Do you have any large deposits?" to Yes. Your lender will ask where the money came from. Keep a record of the source.')); p.appendChild(lb);
+    p.appendChild(h("div", "dr-note", 'We found deposits over half of your monthly income. "Do you have any large deposits?" will be set to Yes. Choose what to do with each one. Your lender will ask where the money came from.'));
+    deps.forEach(function (d) {
+      var s2 = sel(LDS, "tbv"); s2.classList.add("dr-found"); s2.setAttribute("aria-label", "What to do with this deposit");
+      var sa = h("select"), gi = 0; sa.setAttribute("aria-label", "Account the deposit went into"); sa.classList.add("dr-found");
+      latest.accounts.forEach(function (a, ai) { var o = h("option", "", "Into account " + (ai + 1)); o.value = ai; sa.appendChild(o); });
+      for (var q = latest.accounts.length - 1; q >= 0; q--) if (latest.accounts[q].type === d.type) gi = q;
+      sa.value = gi;
+      var two = h("div", "dr-two"); two.appendChild(sa); two.appendChild(s2);
+      p.appendChild(row("Large deposit: " + usd(d.amt), "Deposit on " + d.date, two)); rowsD.push({ d: d, s: s2, a: sa });
+    });
   } else {
     p.appendChild(h("div", "dr-note", "We did not spot any large deposits, but this check can miss some. Review your statements yourself."));
   }
   var ft;
   function calc() {
     var tot = 0; rowsA.forEach(function (r) { if (r.inc.checked) tot += toNum(r.b.value); });
-    ft.summary.textContent = "Added to assets: " + usd(tot); ft.use.disabled = !(tot > 0);
+    var exm = {}, ex = 0; rowsD.forEach(function (r) { if (r.s.value === "exc") exm[r.a.value] = (exm[r.a.value] || 0) + r.d.amt; });
+    Object.keys(exm).forEach(function (k) { var ra = rowsA[+k]; if (ra && ra.inc.checked) ex += Math.min(exm[k], Math.max(0, toNum(ra.b.value))); });
+    ft.summary.textContent = "Added to assets: " + usd(tot - ex) + (ex > 0 ? " (after deducting " + usd(ex) + ")" : ""); ft.use.disabled = !(tot > 0);
   }
   ft = foot(p, "", function () {
-    var list = []; rowsA.forEach(function (r) { if (r.inc.checked && toNum(r.b.value) > 0) list.push({ type: r.t.value, amount: round2(toNum(r.b.value)) }); });
-    api.applyAssets(list, deps.length > 0 && ldBox.checked);
+    var list = [], amap = {}; rowsA.forEach(function (r, ri) { if (r.inc.checked && toNum(r.b.value) > 0) amap[ri] = Object.keys(amap).length; });
+    rowsA.forEach(function (r) { if (r.inc.checked && toNum(r.b.value) > 0) list.push({ type: r.t.value, amount: round2(toNum(r.b.value)) }); });
+    api.applyAssets(list, rowsD.length > 0, rowsD.map(function (r) { var k = amap[+r.a.value]; return { date: r.d.date, amt: r.d.amt, st: r.s.value, acct: k == null ? null : k }; }));
     msg(out, "Added to your assets. You can still change it above.", "ok");
   }, out);
   rowsA.forEach(function (r) { r.inc.addEventListener("change", calc); r.b.addEventListener("input", calc); });
+  rowsD.forEach(function (r) { r.s.addEventListener("change", calc); });
   calc();
 }
 
@@ -592,5 +604,111 @@ async function runTax(files, out, api) {
   calc();
 }
 
-export function run(kind, files, out, api) { return kind === "pay" ? runPay(files[0], out, api) : kind === "tax" ? runTax(files, out, api) : runBank(files, out, api); }
-export { parsePay, parseStmt, readLines, readPages, parseTaxPages };
+
+/* ---------- credit report ---------- */
+var CR_ANCHOR = /\baccount\s*(?:number|#|no\.?)(?=\s|:|$)|#\s*(?=[\w*]*[\d*])[\w*]{4,}\s*$/i;
+var CR_SEC = /^(revolving|mortgage|real estate|installment|collections?|other|line of credit|open|closed)\s+accounts?\b/i;
+function crType(t) {
+  t = t.toLowerCase();
+  if (/collection/.test(t)) return "coll";
+  if (/mortgage|real estate|home equity|heloc|\bmtg\b/.test(t)) return "mortgage";
+  if (/\brent(al)?\b|\blease\b|apartment/.test(t)) return "rent";
+  if (/auto|vehicle/.test(t)) return "auto";
+  if (/student|education/.test(t)) return "student";
+  if (/credit card|revolving|charge account|flexible spending|line of credit/.test(t)) return "card";
+  if (/installment|personal|unsecured|secured|loan/.test(t)) return "personal";
+  return "other";
+}
+function crMoney(str) { var m = /\$\s*([\d,]+(?:\.\d{1,2})?)/.exec(str); return m ? parseFloat(m[1].replace(/,/g, "")) : null; }
+function parseCredit(lines, today) {
+  today = today || new Date();
+  var cut = new Date(today.getFullYear(), today.getMonth() - 12, 1), idx = [], sec = "", secAt = [];
+  lines.forEach(function (l, i) { var m = CR_SEC.exec(l); if (m) sec = m[1]; secAt[i] = sec; if (CR_ANCHOR.test(l)) idx.push(i); });
+  var out = [];
+  idx.forEach(function (a, k) {
+    var end = k + 1 < idx.length ? idx[k + 1] : Math.min(lines.length, a + 60), blk = lines.slice(a, end);
+    var o = { type: "other", pay: null, bal: null, open: true, lates: 0, late12: false, worst: 0, coll: false }, typeTxt = secAt[a] || "", statusTxt = "", years = [];
+    blk.forEach(function (l) {
+      var m;
+      if (CR_SEC.test(l)) return;
+      if ((m = /(?:account|loan)\s+type\s*:?\s*([^$]*?)(?=\s+(?:loan|account)\s+type|\s+date\s|$)/ig)) { var mm; while ((mm = m.exec(l))) typeTxt += " " + mm[1]; }
+      if ((m = /(?:account\s+status|pay\s+status|^status)\s*:?\s*(.+?)(?=\s+date\s+(?:opened|closed)|$)/i.exec(l))) statusTxt += " " + m[1];
+      if (/^(?:remarks?|comments?)\b/i.test(l)) statusTxt += " " + l;
+      if ((m = /date\s+closed\s*:?\s*(\d{1,2}\/\d{2,4})/i.exec(l))) o.open = false;
+      if ((m = /(?:monthly|scheduled|regular)\s+payment(?:\s+amount)?\s*:?\s*(\$\s*[\d,]+(?:\.\d{1,2})?)/i.exec(l)) && o.pay === null) o.pay = crMoney(m[1]);
+      if ((m = /(\$\s*[\d,]+(?:\.\d{1,2})?)\s*(?:per month|monthly(?!\s+payment)|\/\s*mo\b)/i.exec(l)) && o.pay === null) o.pay = crMoney(m[1]);
+      if ((m = /(?:^|\s)(high|original|highest)?\s*(?:current\s+|reported\s+)?balance\s*:?\s*(\$\s*[\d,]+(?:\.\d{1,2})?)/i.exec(l)) && !m[1] && o.bal === null) o.bal = crMoney(m[2]);
+      if ((m = /30\s*\/\s*60\s*\/\s*90[^0-9]*(\d+)\s*\/\s*(\d+)\s*\/\s*(\d+)/.exec(l))) { var c = +m[1] + +m[2] + +m[3]; if (c > o.lates) { o.lates = c; o.undated = true; } }
+      if ((m = /^(20\d\d)\s+(.+)$/.exec(l))) { var tk = m[2].split(" "); if (tk.length <= 12 && tk.every(function (x) { return x.length <= 4; })) years.push({ y: +m[1], t: tk }); }
+    });
+    var top = 0, dated = 0; years.forEach(function (r) { if (r.y > top) top = r.y; });
+    years.forEach(function (r) {
+      var off = r.t.length === 12 ? 0 : (r.y === top ? 0 : 12 - r.t.length);
+      r.t.forEach(function (x, i) {
+        if (/^co$/i.test(x)) o.coll = true;
+        if (!/^(30|60|90|120|150|180)$/.test(x)) return;
+        dated++; if (+x > o.worst) o.worst = +x;
+        if (new Date(r.y, off + i, 1) >= cut) o.late12 = true;
+      });
+    });
+    if (dated) { o.lates = Math.max(dated, o.undated ? o.lates : 0); o.undated = false; }
+    var st = statusTxt.toLowerCase();
+    if (/\bclosed\b|paid in full|transferred|\bsold\b|refinanced/.test(st)) o.open = false;
+    if (/collection|charged?[\s-]?off|profit and loss/.test(st + " " + typeTxt.toLowerCase())) o.coll = true;
+    if (/past due|delinquent|days late/.test(st) && !/never/.test(st) && !o.coll) { o.late12 = true; if (!o.lates) o.lates = 1; }
+    o.type = o.coll ? "coll" : crType(typeTxt);
+    if (o.bal === null && o.pay === null && !statusTxt && !typeTxt.trim()) return;
+    out.push(o);
+  });
+  return out;
+}
+var CR_LABEL = { card: "Credit card", auto: "Auto loan", student: "Student loan", personal: "Personal loan", mortgage: "Mortgage", rent: "Rent", other: "Other" };
+async function runCredit(files, out, api) {
+  msg(out, "Reading your credit report on this device...");
+  var all = [], seen = {}, bad = null, got = 0;
+  for (var i = 0; i < Math.min(files.length, 3); i++) {
+    var lines = [];
+    try { (await readPages(files[i], TAX_PAGES)).forEach(function (pg) { lines = lines.concat(pg.lines); }); } catch (e) { bad = bad || e; continue; }
+    var r = parseCredit(lines); lines = null; if (r.length) got++;
+    r.forEach(function (a) {
+      var k = [a.type, a.bal, a.pay, a.open].join("|"), prev = seen[k];
+      if (prev) { prev.lates = Math.max(prev.lates, a.lates); prev.late12 = prev.late12 || a.late12; prev.worst = Math.max(prev.worst, a.worst); return; }
+      seen[k] = a; all.push(a);
+    });
+  }
+  if (!all.length) { msg(out, bad ? errText(bad, "credit bureau") : "We could not find any accounts on this file. Please type your payments in."); return; }
+  var open = all.filter(function (a) { return a.open && !a.coll; }), coll = all.filter(function (a) { return a.coll; }), closed = all.length - open.length - coll.length;
+  var p = panel(out, "We found " + open.length + (open.length === 1 ? " open account" : " open accounts") + " on your credit report. Check each one.");
+  var TYPES = [["card", "Credit card"], ["auto", "Auto loan"], ["student", "Student loan"], ["personal", "Personal loan"], ["other", "Other"]], rows = [];
+  open.forEach(function (a) {
+    var housing = a.type === "mortgage" || a.type === "rent";
+    var inc = h("input"); inc.type = "checkbox"; inc.checked = !housing && a.pay > 0; inc.setAttribute("aria-label", "Include this account");
+    var t = sel(TYPES, housing ? "other" : a.type), b = field(a.pay != null ? a.pay.toFixed(2) : ""); t.classList.add("dr-found"); if (a.pay != null) b.classList.add("dr-found");
+    var box = h("div", "dr-acct"), top = h("label", "dr-inc"); top.appendChild(inc);
+    top.appendChild(h("span", "", CR_LABEL[a.type] || "Other")); if (a.bal != null) top.appendChild(h("span", "dr-bal", "Balance " + usd(a.bal)));
+    box.appendChild(top);
+    if (!housing) box.appendChild(row("Type", "", t));
+    box.appendChild(row("Monthly payment", a.pay != null ? "" : "Not shown on the report. Check your latest statement.", b));
+    if (housing) box.appendChild(h("div", "dr-note", "Housing payments are entered with your properties, not under debts. Tick the box only if this payment is not counted anywhere else."));
+    if (a.lates) box.appendChild(row("Late payments on the report", a.late12 ? "At least one in the last 12 months" : (a.undated ? "Dates not found" : "None in the last 12 months"), h("div", "dr-ro bad", a.lates + (a.worst ? " (up to " + a.worst + " days)" : ""))));
+    else box.appendChild(row("Late payments on the report", "", h("div", "dr-ro good", "None found")));
+    p.appendChild(box); rows.push({ a: a, inc: inc, t: t, b: b });
+  });
+  var hl = open.some(function (a) { return (a.type === "mortgage" || a.type === "rent") && (a.late12 || (a.lates && a.undated)); });
+  var nl = open.filter(function (a) { return a.lates > 0; }).length;
+  if (hl) p.appendChild(h("div", "dr-note dr-alert", "A late mortgage or rent payment shows in the last 12 months. Lenders look closely at this. A warning will be added to your debts."));
+  if (coll.length) p.appendChild(h("div", "dr-note dr-alert", (coll.length === 1 ? "1 collection or charge-off was found." : coll.length + " collections or charge-offs were found.") + ' "Do you have any tax liens, judgments, collections or charge-offs?" will be set to Yes.'));
+  if (closed > 0) p.appendChild(row("Closed or paid accounts", "Left out", h("div", "dr-ro", String(closed))));
+  var ft;
+  function calc() { var tot = 0; rows.forEach(function (r) { if (r.inc.checked) tot += toNum(r.b.value); }); ft.summary.textContent = "Added to debts: " + usd(tot) + " a month"; }
+  ft = foot(p, "", function () {
+    var list = []; rows.forEach(function (r) { if (r.inc.checked && toNum(r.b.value) > 0) list.push({ type: r.t.value, amount: round2(toNum(r.b.value)) }); });
+    api.applyDebts(list, { coll: coll.length, housingLate: hl, lateAccts: nl });
+    msg(out, "Added to your debts. You can still change them below.", "ok");
+  }, out);
+  rows.forEach(function (r) { r.inc.addEventListener("change", calc); r.b.addEventListener("input", calc); });
+  calc();
+}
+
+export function run(kind, files, out, api) { return kind === "pay" ? runPay(files[0], out, api) : kind === "credit" ? runCredit(files, out, api) : kind === "tax" ? runTax(files, out, api) : runBank(files, out, api); }
+export { parsePay, parseStmt, readLines, readPages, parseTaxPages, parseCredit };
