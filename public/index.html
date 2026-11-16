@@ -70,14 +70,14 @@
         {
           "@type": "Offer",
           "name": "Topaz",
-          "price": "29.99",
+          "price": "49.00",
           "priceCurrency": "USD",
           "description": "Branded underwriting reports, 200 per month. Billed monthly."
         },
         {
           "@type": "Offer",
           "name": "Opal",
-          "price": "79",
+          "price": "99",
           "priceCurrency": "USD",
           "description": "Unlimited branded reports, co-branded Affordability Check page, dashboard with saved scenarios and lead alerts. Founding offer: first 20 businesses pay $49.99/mo for the first year."
         }
@@ -585,6 +585,17 @@ header .tag{color:#94A3B8!important}
 @media (max-width:560px){.lgcode{font-size:.74rem;padding:14px}.lgtabs button{padding:8px 10px;font-size:.7rem}}
 @media print{.logicbtn,.lgd{display:none!important}}
 </style><style id="vktiers">
+.cmp{max-width:860px;margin:18px auto 0;text-align:left}
+.cmp summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:12px 16px;background:var(--panel,#fff);font:700 1rem var(--ui,inherit);color:var(--ink)}
+.cmp summary::-webkit-details-marker{display:none}.cmp summary:hover{border-color:#FF5500}.cmp summary:focus-visible{outline:2px solid #0EA5E9;outline-offset:2px}
+.cmp .ch{width:9px;height:9px;border-right:2px solid #FF5500;border-bottom:2px solid #FF5500;transform:rotate(45deg);margin-top:-4px;transition:transform .15s}.cmp[open] .ch{transform:rotate(-135deg);margin-top:4px}
+.cmp[open] summary{border-radius:8px 8px 0 0;border-bottom:0}.cmp[open] table{border-top:0}
+.cmp table{width:100%;border-collapse:collapse;border:1px solid var(--line);background:var(--panel,#fff);font-size:.9rem;line-height:1.35}
+.cmp th,.cmp td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}.cmp tbody tr:last-child th,.cmp tbody tr:last-child td{border-bottom:0}
+.cmp thead th{font-weight:700;background:#030712;color:#fff;white-space:nowrap}.cmp thead .gem{margin-right:6px;vertical-align:-2px}
+.cmp tbody th{font-weight:600;width:38%}.cmp td{width:31%}.cmp td.y{color:#0369A1;font-weight:600}.cmp td.n{color:var(--muted)}
+.cmp .sr{position:absolute;left:-9999px}.cmp .cfine{text-align:center;margin:10px auto 0;max-width:640px}
+@media(max-width:560px){.cmp table{font-size:.8rem}.cmp th,.cmp td{padding:8px 7px}.cmp tbody th{width:34%}}
 .pilot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;background:#030712;color:#E2E8F0;border-radius:8px;padding:12px 16px;margin:14px 0 14px;text-align:left}
 .pilot .pl{font:600 .7rem var(--mono,monospace);letter-spacing:.14em;color:#FF5500}
 .pilot .pt{flex:1;min-width:220px;font-size:.9rem;line-height:1.4}
@@ -847,19 +858,19 @@ header .tag{color:#94A3B8!important}
       </div>
             <div class="plans3" id="plans">
         <h2>Choose your plan to stay connected</h2>
-        <p class="lede">Start free. You get 5 reports before you purchase anything.</p>
+        <p class="lede">Start free. Preview every report, and get your first clean PDF free.</p>
         <div class="pilot" role="note"><span class="pl">NOW OPEN</span><span class="pt">Opal is open. The first 20 businesses to join directly get $49.99 per month for their first year.</span><a class="pb" href="/topaz.html" onclick="track('click_start_opal')">[ Start Opal ]</a></div>
         <div class="tiers3">
           <div class="tier">
             <div class="th"><span class="tn">Baseline Engine</span><span class="ts">FOR HOMEBUYERS</span></div>
             <div class="tp"><b>$0</b><span>/ forever</span></div>
-            <ul><li>Full payment, affordability and ratio calculations</li><li>Underwriting logic drawer with live numbers</li><li>5 free reports to print or save as PDF</li><li class="mut">More reports: $4.99 for 25, one pack per month</li></ul>
+            <ul><li>Full payment, affordability and ratio calculations</li><li>Underwriting logic drawer with live numbers</li><li>Free preview of every report, with a watermark</li><li>Your first clean PDF or print is free when you ask for a summary by email</li><li class="mut">More clean reports: $14.99 Homebuyer Pass, 25 reports for 30 days</li></ul>
             <a class="tb ghost" href="#inputsArea">Start free</a>
           </div>
           <div class="tier feat">
             <div class="th"><span class="tn"><span class="gem topaz"></span>Topaz</span><span class="ts">FOR LOAN OFFICERS AND REALTORS</span></div>
-            <div class="tp"><b>$29.99</b><span>/ month</span></div>
-            <ul><li>Your name, logo, contact info, NMLS# and headshot on every report</li><li>200 branded reports a month</li><li>Shareable scenario links and an embeddable calculator</li><li class="mut">Sample report: <span class="brwrap"><button type="button" class="brandedtag" id="brTag" aria-expanded="false" onclick="track('click_plan_info',{plan:'topaz'})">Branded reports <span class="i">i</span></button>
+            <div class="tp"><b>$49</b><span>/ month</span></div>
+            <ul><li>Your name, logo, contact info, NMLS# and headshot on every report</li><li>200 branded reports a month</li><li>A client link: your clients run the numbers and send you their summary as a PDF</li><li class="mut">Sample report: <span class="brwrap"><button type="button" class="brandedtag" id="brTag" aria-expanded="false" onclick="track('click_plan_info',{plan:'topaz'})">Branded reports <span class="i">i</span></button>
               <div class="sampop" id="sampop" role="tooltip">
                 <div class="rep">
                   <div class="rep-h"><span class="rep-logo">YOUR<br>LOGO</span><span><b>Jordan Rivera</b><br>Loan Officer · NMLS# 000000<br>jordan@yourco.com · (555) 010-0100</span></div>
@@ -875,12 +886,29 @@ header .tag{color:#94A3B8!important}
           </div>
           <div class="tier">
             <div class="th"><span class="tn"><span class="gem opal"></span>Opal</span><span class="ts">FOR TOP PRODUCERS</span></div>
-            <div class="tp"><b>$79</b><span>/ month</span></div>
-            <ul><li>Unlimited branded reports</li><li>Co-branded page with the Affordability check</li><li>Dashboard with lead alerts and saved scenarios</li><li class="mut">Founding offer: first 20 businesses, $49.99 per month for the first year</li></ul>
+            <div class="tp"><b>$99</b><span>/ month</span></div>
+            <ul><li>Unlimited branded reports</li><li>Co-branded page with the Affordability check</li><li>Dashboard with lead alerts and saved scenarios</li><li>Partner links and QR codes for the realtors or loan officers you work with</li><li class="mut">Founding offer: first 20 businesses, $49.99 per month for the first year</li></ul>
             <a class="tb" href="/topaz.html" onclick="track('click_choose_opal')">Start Opal</a>
           </div>
         </div>
-        <p class="cfine">Individual is a 25-report pack, one per month, not a subscription. Prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
+        <details class="cmp" id="planCompare" ontoggle="if(this.open&&window.track)track('click_plan_compare')">
+          <summary><span class="cs">Topaz &amp; Opal: What's different?</span><span class="ch" aria-hidden="true"></span></summary>
+          <table>
+            <thead><tr><th scope="col"><span class="sr">Feature</span></th><th scope="col"><span class="gem topaz"></span>Topaz</th><th scope="col"><span class="gem opal"></span>Opal</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Branded reports</th><td>200 a month</td><td>Unlimited</td></tr>
+              <tr><th scope="row">A link to send your clients</th><td class="y">Yes</td><td class="y">Yes</td></tr>
+              <tr><th scope="row">What comes back to you</th><td>A PDF summary by email</td><td>A lead email, a file your loan system can import, and your dashboard</td></tr>
+              <tr><th scope="row">Saved leads and page activity</th><td class="n">No</td><td class="y">Yes</td></tr>
+              <tr><th scope="row">Add the page to your own website</th><td class="n">No</td><td class="y">Yes</td></tr>
+              <tr><th scope="row">Partner links for realtors and loan officers</th><td class="n">No</td><td class="y">Up to 25, each with a QR code</td></tr>
+              <tr><th scope="row">Who receives what a client sends</th><td>You only</td><td>You, your partner and Voklogik</td></tr>
+              <tr><th scope="row">Price</th><td>$49 a month</td><td>$99 a month</td></tr>
+            </tbody>
+          </table>
+          <p class="cfine">On Topaz, each PDF a client sends counts as one of your 200 reports. Nothing a client sends is stored. Start on Topaz and upgrade to Opal at any time.</p>
+        </details>
+        <p class="cfine">Individual is a 25-report Homebuyer Pass valid for 30 days, not a subscription. Prices may change. Full tier descriptions are in the <a href="/terms.html#business-plans">Terms</a>.</p>
       </div>
 
       <p class="k" id="freeNote" style="margin:12px 0 0"></p>
@@ -888,10 +916,10 @@ header .tag{color:#94A3B8!important}
       <p class="k" id="manageSub" hidden style="margin:4px 0 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
       <div class="paywall" id="paywall" hidden>
         <b id="payTitle">You have used your free reports.</b>
-        <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan.</p>
+        <p style="margin:6px 0 14px">Preview stays free, with the Voklogik watermark. For a clean PDF or print without the watermark, choose a plan.</p>
         <div class="plans">
-          <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
-          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
+          <div class="plan" id="packPlan"><strong>$14.99</strong><span class="k">Homebuyer Pass · one payment, 30 days</span><p>25 clean reports to compare scenarios while you shop for a home. Not a subscription.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy Homebuyer Pass</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>Your Homebuyer Pass is active. You can buy another when it ends.</span></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $49 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $99 per month: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
         </div>
         <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
         <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -970,6 +998,7 @@ header .tag{color:#94A3B8!important}
 </div>
 <div id="pvModal" hidden role="dialog" aria-modal="true" aria-label="Report preview"><div class="pvBox"><div class="pvBar"><b>Preview</b><span class="k">This is how your saved PDF will look.</span><button type="button" class="btn" id="pvClose">Close</button></div><iframe id="pvFrame" title="PDF preview"></iframe><div class="pvAct"><button type="button" class="btn" id="pvPrint">Print</button><button type="button" class="btn" id="pvSave">Save as PDF</button></div></div></div>
 <script src="/topaz-brand.js"></script>
+<script src="/free-gate.js"></script>
 <script src="/jspdf.umd.min.js"></script>
 <script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <script>
@@ -994,8 +1023,8 @@ header .tag{color:#94A3B8!important}
     function font(st,sz){d.setFont("times",st);d.setFontSize(sz)}
     /* watermark behind everything */
     var TZ=window.VKTZ&&VKTZ.branded();
-    if(!TZ&&!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())&&!paid())try{
-      d.saveGraphicsState();d.setGState(new d.GState({opacity:0.07}));T(OPL?OR:ORG);font("bold",120);
+    if(!TZ&&!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())&&!paid()&&!(window.VKFREE&&VKFREE.clean))try{
+      d.saveGraphicsState();d.setGState(new d.GState({opacity:(window.VKFREE&&VKFREE.prev)?0.16:0.07}));T(OPL?OR:ORG);font("bold",120);
       var ww=d.getTextWidth("Voklogik"),ar=32*Math.PI/180;
       d.text("Voklogik",PW/2-(ww/2)*Math.cos(ar),PH/2+50+(ww/2)*Math.sin(ar),{angle:32});
       d.restoreGraphicsState();
@@ -1477,7 +1506,7 @@ header .tag{color:#94A3B8!important}
     document.addEventListener("click",function(){if(cur)hide()});
     document.addEventListener("keydown",function(e){if(e.key==="Escape"&&cur)hide()});
   })();
-  var LIMIT=5,UK="voklogik:reports",CK="voklogik:contact",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",mem=0,IDS=["cName","cEmail","cPhone"];
+  var LIMIT=5,UK="voklogik:reports",CK="voklogik:contact",PAY_PACK="https://buy.stripe.com/3cIcN54Sm6MO7aQbai9MY05",mem=0,IDS=["cName","cEmail","cPhone"];
   function contact(){return IDS.map(function(id){return $(id).value.trim()}).filter(Boolean)}
   function used(){var v=0;try{v=parseInt(localStorage.getItem(UK),10)||0}catch(e){}return Math.max(v,mem)}
   var API="/.netlify/functions/",ent=null,VK="voklogik:vid",vid=null;
@@ -1498,18 +1527,21 @@ header .tag{color:#94A3B8!important}
       .then(function(j){if(j&&typeof j.credits==="number")ent=j;gate();return ent})
       .catch(function(){gate();return ent});
   }
+  // Free reports this browser was given: 5 for earlier visitors, 1 after the email step, otherwise none (see /free-gate.js).
+  function fcap(){return window.VKFREE?VKFREE.cap():LIMIT}
+  window.addEventListener("storage",function(e){if(e.key==="voklogik:reports"||e.key==="voklogik:freecap"||e.key==="voklogik:freeclaimed"){try{gate()}catch(x){}}});
   function gate(){
     var tzOn=!!(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0);
-    var left=Math.max(LIMIT-used(),0),ok=left>0||paid()||tzOn;
-    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?left+" of "+LIMIT+" free reports left.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":"")));
-    $("acts").hidden=!ok;$("paywall").hidden=ok;
+    var cap=fcap(),left=Math.max(cap-used(),0),ok=left>0||paid()||tzOn,offer=!ok&&!!(window.VKFREE&&VKFREE.canOffer());
+    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?(cap===1?"Your free clean report is ready. Save or print it without the watermark.":left+" of "+LIMIT+" free reports left."):(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":(offer?"Preview is free. Your first clean report is free when you ask for a summary by email.":"Preview is free, with a watermark. A clean PDF or print needs a Homebuyer Pass."))));
+    $("acts").hidden=false;$("paywall").hidden=ok||offer;
     $("manageSub").hidden=!(ent&&ent.sub);
-    $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
+    $("payTitle").textContent=(cap===5?"You have used your "+LIMIT+" free reports.":(cap===1?"You have used your free clean report.":"A clean report needs a Homebuyer Pass."));
     var cid="client_reference_id="+encodeURIComponent(getVid());
     [["payPack",PAY_PACK]].forEach(function(q){if(q[1])$(q[0]).href=q[1]+(q[1].indexOf("?")<0?"?":"&")+cid;$(q[0]).hidden=!q[1];$(q[0]+"Soon").hidden=!!q[1]});
     var capped=!!(ent&&ent.canBuyPack===false&&!(ent.credits>0));
     $("packUsed").hidden=!capped;if(capped){$("payPack").hidden=true;$("payPackSoon").hidden=true}
-    $("payTitle").textContent=capped?"You have used this month's individual reports.":"You have used your "+LIMIT+" free reports.";
+    $("payTitle").textContent=capped?"You have used this month's individual reports.":(cap===5?"You have used your "+LIMIT+" free reports.":(cap===1?"You have used your free clean report.":"A clean report needs a Homebuyer Pass."));
     $("proPlan").style.borderColor=capped?"var(--accent)":"";
     $("payMsg").hidden=!!PAY_PACK;
   }
@@ -1521,7 +1553,7 @@ header .tag{color:#94A3B8!important}
       }).catch(function(){});
       return;
     }
-    if(Math.max(LIMIT-used(),0)>0){go(true);return}
+    if(Math.max(fcap()-used(),0)>0){if(window.VKFREE)VKFREE.clean=fcap()===1;try{go(true)}finally{if(window.VKFREE)VKFREE.clean=false}return}
     if(ent&&ent.sub){go(false);return}
     if(ent&&ent.credits>0){
       fetch(API+"consume",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:getVid()})})
@@ -1530,7 +1562,8 @@ header .tag{color:#94A3B8!important}
         .catch(function(){});
       return;
     }
-    gate();
+    if(window.VKFREE&&VKFREE.canOffer()){VKFREE.offer({kind:"calc",rows:VKFREE.rows(),onUsed:gate},function(){gate();VKFREE.clean=true;try{go(true)}finally{VKFREE.clean=false}});return}
+    gate();try{$("paywall").scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}
   }
   // The estimate a visitor typed in is saved when they click a pay link, and restored when Stripe sends them back.
   var SK="voklogik:scenario";
@@ -1561,7 +1594,7 @@ header .tag{color:#94A3B8!important}
     }catch(e){return false}
   }
   if(window.VKTZ)VKTZ.onchange=function(){gate()};
-  function bump(){mem+=1;try{localStorage.setItem(UK,String(Math.max(used(),mem)))}catch(e){}gate()}
+  function bump(){mem=used()+1;try{localStorage.setItem(UK,String(mem))}catch(e){}gate()}
   try{var sv=JSON.parse(localStorage.getItem(CK)||"{}");IDS.forEach(function(id){if(sv[id])$(id).value=sv[id]})}catch(e){}
   IDS.forEach(function(id){$(id).addEventListener("input",function(){try{var o={};IDS.forEach(function(k){o[k]=$(k).value});localStorage.setItem(CK,JSON.stringify(o))}catch(e){}})});
   // Keep entries when the visitor moves to the Affordability Check and back (stored in this browser only, 12 hours).
@@ -1698,7 +1731,7 @@ header .tag{color:#94A3B8!important}
     allow(function(free){
       var c=contact();$("prepPrint").textContent=c.length?"Prepared for  "+c.join("   |   "):"";
       var tz=window.VKTZ&&VKTZ.branded();if(tz)VKTZ.mountPrint(true);
-      document.body.classList.toggle("vkwm",!tz&&!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())&&!paid());
+      document.body.classList.toggle("vkwm",!tz&&!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())&&!paid()&&!(window.VKFREE&&VKFREE.clean));
       try{window.print();if(free)bump()}catch(e){}
       if(tz)VKTZ.mountPrint(false);
     });
@@ -1716,7 +1749,7 @@ header .tag{color:#94A3B8!important}
   function pvClose(){$("pvModal").hidden=true;$("pvFrame").removeAttribute("src");if(pvUrl){try{URL.revokeObjectURL(pvUrl)}catch(e){}pvUrl=null}}
   $("pvBtn").addEventListener("click",function(){
     track("click_preview");
-    var doc=buildPdf();if(!doc)return;
+    var doc=null;if(window.VKFREE)VKFREE.prev=true;try{doc=buildPdf()}finally{if(window.VKFREE)VKFREE.prev=false}if(!doc)return;
     try{pvUrl=doc.output("bloburl")}catch(e){return}
     $("pvFrame").src=pvUrl+"#toolbar=0&navpanes=0";$("pvModal").hidden=false;
   });

@@ -42,6 +42,9 @@ h2{font-size:19px;margin:0 0 4px}.sub{color:var(--muted);font-size:14px;margin:0
 .pw{text-align:center;margin:14px 0 0;font-size:13px;color:var(--muted)}.pw a{color:var(--accent2);font-weight:700;text-decoration:none}
 [hidden]{display:none!important}
 .gone{text-align:center;padding:60px 16px}
+.partner{flex-basis:100%;border-top:1px solid var(--line);padding-top:8px;margin-top:2px;font-size:14px;color:var(--muted)}.partner b{color:var(--ink)}.partner a{color:var(--accent2);font-weight:600;text-decoration:none}
+body.topaz{--bg:#ECEBE8;--ink:#23272D;--muted:#5E6670;--line:#CFCDC8;--accent:#C9540F;--accent2:#B0480C;--soft:#FAF9F7}
+body.topaz .agent{border-bottom-color:#E8681A}body.topaz .big{background:#fff;border-bottom-color:#E8681A;box-shadow:none}body.topaz .bar{background:#E3E1DC}body.topaz .big .legend{color:#3A3F46}body.topaz .alt:hover{background:#FBEBDD}
 </style></head><body>
 <div class="wrap" id="app" hidden>
  <div class="agent" id="agent">
@@ -104,6 +107,7 @@ h2{font-size:19px;margin:0 0 4px}.sub{color:var(--muted);font-size:14px;margin:0
 var $=function(i){return document.getElementById(i)};
 var embed=/[?&]embed=1/.test(location.search);if(embed)document.body.className="embed";
 var h=(location.pathname.match(/\/w\/([a-z0-9-]+)/i)||[])[1]||(location.search.match(/[?&]h=([a-z0-9-]+)/i)||[])[1]||"";
+var pslug=((location.pathname.match(/\/w\/[a-z0-9-]+\/([a-z0-9-]+)/i)||[])[1]||(location.search.match(/[?&]p=([a-z0-9-]+)/i)||[])[1]||"").toLowerCase();
 var P=null,taxEdited=false,CUR=null;
 var pv=/[?&]pv=1/.test(location.search),sent={};
 // Plain activity counts for the page owner. Nothing about the visitor is sent. The owner's own "Open" link adds pv=1 so it is not counted.
@@ -120,7 +124,7 @@ function calc(){
   var tax=num($("tax").value)/12,ins=num($("ins").value)/12,hoa=num($("hoa").value);
   var total=pi+tax+ins+hoa;
   $("total").textContent=usd(total);
-  var parts=[["Principal & interest",pi,"#5B4B8A"],["Property tax",tax,"#8FB8D4"],["Home insurance",ins,"#D3A9DA"],["HOA",hoa,"#A8DCC5"]].filter(function(p){return p[1]>0.5});
+  var tzc=document.body.classList.contains("topaz"),parts=[["Principal & interest",pi,tzc?"#C9540F":"#5B4B8A"],["Property tax",tax,tzc?"#6F7B87":"#8FB8D4"],["Home insurance",ins,tzc?"#E2A03F":"#D3A9DA"],["HOA",hoa,tzc?"#A9B2BB":"#A8DCC5"]].filter(function(p){return p[1]>0.5});
   $("bar").innerHTML="";$("legend").innerHTML="";
   parts.forEach(function(p){var i=document.createElement("i");i.style.width=(total?p[1]/total*100:0)+"%";i.style.background=p[2];$("bar").appendChild(i);
     var d=document.createElement("div"),l=document.createElement("span"),e=document.createElement("em");e.style.background=p[2];l.appendChild(e);l.appendChild(document.createTextNode(p[0]));
@@ -135,7 +139,7 @@ function calc(){
 function safeHost(w){w=String(w||"").trim().replace(/^https?:\/\//i,"").replace(/\/+$/,"");return /^[A-Za-z0-9.-]+\.[A-Za-z]{2,}([\/?#][A-Za-z0-9\/._~%?=&#+-]*)?$/.test(w)?w:null}
 function link(txt,href){var a=document.createElement("a");a.textContent=txt;a.href=href;return a}
 function render(p){
-  var b=p.brand;P=p;document.title=(b.name||b.company||"Payment estimate")+" | Payment estimate";
+  var b=p.brand,TZ=p.tier==="topaz",pt=TZ?null:p.partner;P=p;if(TZ)document.body.classList.add("topaz");document.title=(b.name||b.company||"Payment estimate")+" | Payment estimate";
   if(b.logo){$("aLogo").src=b.logo;$("aLogo").hidden=false}
   if(b.headshot){$("aFace").src=b.headshot;$("aFace").hidden=false}
   $("aName").textContent=b.name||b.company||"";
@@ -145,9 +149,13 @@ function render(p){
   if(b.email&&/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(b.email))c.appendChild(link(b.email,"mailto:"+b.email));
   var w=safeHost(b.website);if(w)c.appendChild(link(w,"https://"+w));
   var who=b.name||b.company||"me",first=(b.name||"").split(" ")[0]||"your agent";
+  if(pt){var pl=document.createElement("div");pl.className="partner";pl.appendChild(document.createTextNode("With "));var pb=document.createElement("b");pb.textContent=pt.name;pl.appendChild(pb);
+    if(pt.company)pl.appendChild(document.createTextNode(", "+pt.company));if(pt.phone){pl.appendChild(document.createTextNode("  ·  "));pl.appendChild(link(pt.phone,"tel:"+pt.phone.replace(/[^0-9+]/g,"")))}$("agent").appendChild(pl)}
+  // Topaz: no lead form on this page. The client checks affordability, then emails a PDF summary.
+  if(TZ){$("leadCard").hidden=true;$("affCard").querySelector(".sub").textContent="Add your income, debts and savings to see your housing ratio, debt-to-income ratio and more. When you are done, send "+(b.name||b.company||"us")+" your summary as a PDF. Your numbers stay in your browser until you choose to send them."}
   $("intro").textContent=p.intro||"Run your numbers. I am happy to talk them through whenever you are ready.";
   $("leadSub").textContent="Send your numbers to "+(b.name||b.company||"us")+" and get a reply.";
-  $("consentTxt").textContent="I agree that "+who+" and Voklogik may contact me about this estimate by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment.";
+  $("consentTxt").textContent="I agree that "+who+(pt?", "+pt.name:"")+" and Voklogik may contact me about this estimate by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment.";
   var fine=["This is an estimate for planning only. It is not a loan offer, approval or commitment. Actual rates, taxes, insurance and costs depend on your situation and lender."];
   var ids=[];if(b.nmls)ids.push("NMLS ID #"+b.nmls);if(b.mls)ids.push(b.mls);
   fine.push((ids.length?ids.join(" · ")+" · ":"")+"Equal Housing Opportunity.");
@@ -155,12 +163,12 @@ function render(p){
   $("fine").appendChild(document.createElement("br"));$("fine").appendChild(link("Privacy notice","/privacy.html"));
   $("app").hidden=false;calc();track("view");
 }
-fetch("/api/widget/profile?h="+encodeURIComponent(h)).then(function(r){return r.ok?r.json():null}).then(function(j){
+fetch("/api/widget/profile?h="+encodeURIComponent(h)+(pslug?"&p="+encodeURIComponent(pslug):"")).then(function(r){return r.ok?r.json():null}).then(function(j){
   if(j&&j.ok)render(j);else $("gone").hidden=false}).catch(function(){$("gone").hidden=false});
 $("affGo").addEventListener("click",function(e){
   e.preventDefault();var c=calc()&&CUR;if(!c)return;
   var r=function(n){return Math.round(n*100)/100};
-  location.href="/affordability.html?w="+encodeURIComponent(h)+(embed?"&embed=1":"")+"&price="+r(c.price)+"&loan="+r(c.loan)+"&rate="+r(c.rate)+"&years="+c.years+"&tax="+r(c.tax/12)+"&ins="+r(c.ins/12)+"&hoa="+r(c.hoa)+"&total="+r(c.total)+(pv?"&pv=1":"");
+  location.href="/affordability.html?w="+encodeURIComponent(h)+(embed?"&embed=1":"")+"&price="+r(c.price)+"&loan="+r(c.loan)+"&rate="+r(c.rate)+"&years="+c.years+"&tax="+r(c.tax/12)+"&ins="+r(c.ins/12)+"&hoa="+r(c.hoa)+"&total="+r(c.total)+(pv?"&pv=1":"")+(P&&P.partner?"&p="+encodeURIComponent(P.partner.id):"");
 });
 $("f").onsubmit=function(e){
   e.preventDefault();var m=$("msg");m.className="msg";m.textContent="";
@@ -169,7 +177,7 @@ $("f").onsubmit=function(e){
   if(!$("lOk").checked){m.className="msg err";m.textContent="Please tick the box so we know it is OK to contact you.";return}
   $("send").disabled=true;m.textContent="Sending...";
   fetch("/api/widget/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-    h:h,name:$("lName").value,email:$("lEmail").value,phone:$("lPhone").value,message:$("lMsg").value,website:$("lWeb").value,consent:true,scenario:calc()})})
+    h:h,p:P&&P.partner?P.partner.id:"",name:$("lName").value,email:$("lEmail").value,phone:$("lPhone").value,message:$("lMsg").value,website:$("lWeb").value,consent:true,scenario:calc()})})
   .then(function(r){return r.json().then(function(j){return{ok:r.ok&&j.ok,j:j}})}).then(function(x){
     if(x.ok){$("f").hidden=true;$("leadH").textContent="Thank you.";$("leadSub").textContent="Your numbers were sent. You should hear back soon."}
     else{$("send").disabled=false;m.className="msg err";m.textContent=x.j.error||"Could not send. Please try again."}})

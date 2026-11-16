@@ -6,6 +6,7 @@
   // Widget mode (/affordability.html?w=<page-name>): a visitor on a member's Opal page. Reports carry the member's
   // branding and are covered by the member's plan, so there is no signed-in account and no counting here.
   var WM=(location.search.match(/[?&]w=([a-z0-9-]+)/i)||[])[1]||null;
+  var WP=(location.search.match(/[?&]p=([a-z0-9-]+)/i)||[])[1]||null; // an Opal member's partner link
   V.widget=WM;
   function brand(){return (V.acct&&V.acct.brand)||{}}
   V.active=function(){return !!V.acct&&(V.acct.plan==="topaz"||V.acct.plan==="opal")};
@@ -142,8 +143,9 @@
     el.innerHTML='<span class="c'+(a.plan==="opal"?" opal":"")+'"></span><b>'+(a.plan==="opal"?"Opal":"Topaz")+' Level by voklogik</b><span>'+esc(txt)+'</span><a href="/topaz.html">Dashboard</a>';
     if(a.widgetOk)saveUi(el);
   };
-  V.ready=WM?fetch("/api/widget/profile?h="+encodeURIComponent(WM)).then(function(r){return r.ok?r.json():null}).then(function(j){
-      if(j&&j.ok){V.profile=j;V.acct={plan:"opal",status:"active",limit:null,left:null,used:0,brand:j.brand};preload();themeHtml()}
+  V.ready=WM?fetch("/api/widget/profile?h="+encodeURIComponent(WM)+(WP?"&p="+encodeURIComponent(WP):"")).then(function(r){return r.ok?r.json():null}).then(function(j){
+      if(j&&j.ok){V.profile=j;V.acct={plan:j.tier==="topaz"?"topaz":"opal",status:"active",limit:null,left:null,used:0,brand:j.brand};preload();themeHtml();
+        try{document.documentElement.classList.toggle("wtopaz",j.tier==="topaz")}catch(e){}}
       if(V.onchange)V.onchange()}).catch(function(){}):flag?fetch("/api/topaz/me",{credentials:"same-origin"}).then(function(r){return r.ok?r.json():null}).then(function(j){
       if(j&&j.ok){V.acct=j.account;preload();themeHtml();V.bar()}else{try{localStorage.removeItem("voklogik:topaz")}catch(e){}}
       if(V.onchange)V.onchange()}).catch(function(){}):Promise.resolve();

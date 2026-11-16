@@ -4,7 +4,7 @@
 (function(){
   var q=location.search,m=q.match(/[?&]w=([a-z0-9-]+)/i);
   if(!m)return;
-  var H=m[1],embed=/[?&]embed=1/.test(q),pv=/[?&]pv=1/.test(q);
+  var H=m[1],embed=/[?&]embed=1/.test(q),pv=/[?&]pv=1/.test(q),PT=(q.match(/[?&]p=([a-z0-9-]+)/i)||[])[1]||"";
   function track(e){if(pv)return;try{var k="vk:ev:"+H+":"+e;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(x){}
     try{fetch("/api/widget/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({h:H,e:e}),keepalive:true}).catch(function(){})}catch(x){}}
   if(embed)document.documentElement.classList.add("embed");
@@ -12,7 +12,7 @@
   function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
   function link(txt,href){var a=el("a","",txt);a.href=href;return a}
   function safeHost(w){w=String(w||"").trim().replace(/^https?:\/\//i,"").replace(/\/+$/,"");return /^[A-Za-z0-9.-]+\.[A-Za-z]{2,}([\/?#][A-Za-z0-9\/._~%?=&#+-]*)?$/.test(w)?w:null}
-  var back=link("← Back to the payment estimate","/w/"+H+(embed&&pv?"?embed=1&pv=1":embed?"?embed=1":pv?"?pv=1":""));back.id="wBack";
+  var back=link("← Back to the payment estimate","/w/"+H+(PT?"/"+PT:"")+(embed&&pv?"?embed=1&pv=1":embed?"?embed=1":pv?"?pv=1":""));back.id="wBack";
 
   (window.VKTZ&&VKTZ.ready?VKTZ.ready:Promise.resolve()).then(function(){
     var P=window.VKTZ&&VKTZ.profile;
@@ -20,7 +20,7 @@
       var g=el("div","","");g.style.cssText="text-align:center;padding:60px 16px";g.appendChild(el("h1","","This page is not available"));
       main.innerHTML="";main.appendChild(g);return;
     }
-    var b=P.brand;track("aff");
+    var b=P.brand,TZ=P.tier==="topaz",pt=TZ?null:P.partner;if(!TZ)track("aff");
     document.title=(b.name||b.company||"Affordability")+" | Affordability check";
 
     // member card
@@ -34,14 +34,15 @@
     if(b.email&&/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(b.email))ct.appendChild(link(b.email,"mailto:"+b.email));
     var w=safeHost(b.website);if(w)ct.appendChild(link(w,"https://"+w));
     who.appendChild(ct);card.appendChild(who);
+    if(pt){var pl=el("div","pt");pl.appendChild(document.createTextNode("With "));pl.appendChild(el("b","",pt.name));if(pt.company)pl.appendChild(document.createTextNode(", "+pt.company));if(pt.phone){pl.appendChild(document.createTextNode("  ·  "));pl.appendChild(link(pt.phone,"tel:"+pt.phone.replace(/[^0-9+]/g,"")))}card.appendChild(pl)}
     main.insertBefore(card,main.firstChild);
     main.insertBefore(back,card.nextSibling);
 
     // lead form
     var who2=b.name||b.company||"your agent";
     var sec=el("section");sec.id="wLead";
-    sec.appendChild(el("h2","","Want to talk it through?"));
-    sec.appendChild(el("p","sub","Send this summary to "+who2+" and get a reply. Only what you tap Send on is shared."));
+    sec.appendChild(el("h2","",TZ?"Send your summary":"Want to talk it through?"));
+    sec.appendChild(el("p","sub",TZ?"Send this summary to "+who2+" as a PDF and get a reply. Only what you tap Send on is shared.":"Send this summary to "+who2+" and get a reply. Only what you tap Send on is shared."));
     var f2=document.createElement("form");f2.noValidate=true;
     function field(id,label,type,opt,max,ac){var d=el("div");var lb=el("label","",label);lb.htmlFor=id;
       if(opt){var o=el("span","", " (optional)");o.style.cssText="font-weight:400;color:#6A6678";lb.appendChild(o)}
@@ -52,11 +53,11 @@
     grid.appendChild(field("lPhone","Phone","tel",true,30,"tel"));grid.appendChild(field("lMsg","Message","text",true,500));
     f2.appendChild(grid);
     var hp=el("div","hp");hp.setAttribute("aria-hidden","true");var hl=el("label","","Leave this empty");var hi=document.createElement("input");hi.id="lWeb";hi.tabIndex=-1;hi.autocomplete="off";hl.appendChild(hi);hp.appendChild(hl);f2.appendChild(hp);
-    var fn2=el("p","","Your summary is sent with a loan system file (MISMO 3.4) that your loan officer can import. It has your numbers and contact details, and never an SSN or date of birth.");fn2.style.cssText="margin:12px 0 0;font-size:.82rem;color:#6A6678;line-height:1.45";f2.appendChild(fn2);
+    var fn2=el("p","",TZ?"Your summary is emailed to "+who2+" as a PDF report. It has your numbers and contact details, and never an SSN or date of birth. Voklogik does not keep a copy.":pt&&!pt.full?"Your summary is sent to "+who2+" with a loan system file (MISMO 3.4) they can import. "+pt.name+" gets your name, contact details and the home price and payment only. Never an SSN or date of birth.":"Your summary is sent with a loan system file (MISMO 3.4) that your loan officer can import. It has your numbers and contact details, and never an SSN or date of birth.");fn2.style.cssText="margin:12px 0 0;font-size:.82rem;color:#6A6678;line-height:1.45";f2.appendChild(fn2);
     var cl=el("label","consent");var cb=document.createElement("input");cb.type="checkbox";cb.id="lOk";cl.appendChild(cb);
-    cl.appendChild(el("span","","I agree that "+who2+" and Voklogik may contact me about this summary by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment."));
+    cl.appendChild(el("span","",TZ?"I agree that "+who2+" may contact me about this summary by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment.":"I agree that "+who2+(pt?", "+pt.name:"")+" and Voklogik may contact me about this summary by email, and by phone if I add a number. I understand this is not a loan application, approval or commitment."));
     f2.appendChild(cl);
-    var send=el("button","send","Send my summary");send.type="submit";f2.appendChild(send);
+    var send=el("button","send",TZ?"Send my PDF":"Send my summary");send.type="submit";f2.appendChild(send);
     var msg=el("p","msg");msg.setAttribute("role","status");f2.appendChild(msg);
     sec.appendChild(f2);main.appendChild(sec);
 
@@ -72,16 +73,31 @@
       if(!$v("lName")){say("err","Please add your name.");return}
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($v("lEmail"))){say("err","Please enter a valid email.");return}
       if(!cb.checked){say("err","Please tick the box so we know it is OK to contact you.");return}
+      if(TZ){sendPdf();return}
       var rows=[];try{rows=window.__vkRows?window.__vkRows():[]}catch(x){}
       var mismo="";try{if(window.vkMismoXml){mismo=window.vkMismoXml({name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone")});if(mismo.indexOf("<BaseLoanAmount>")<0)mismo=""}}catch(x){mismo=""}
       send.disabled=true;say("","Sending...");
       fetch("/api/widget/lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-        h:H,name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone"),message:$v("lMsg"),website:hi.value,consent:true,kind:"affordability",affordability:rows,mismo:mismo})})
+        h:H,p:PT,name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone"),message:$v("lMsg"),website:hi.value,consent:true,kind:"affordability",affordability:rows,mismo:mismo})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok&&j.ok,j:j}})}).then(function(x){
         if(x.ok){f2.hidden=true;sec.querySelector("h2").textContent="Thank you.";sec.querySelector(".sub").textContent="Your summary was sent. You should hear back soon."}
         else{send.disabled=false;say("err",x.j.error||"Could not send. Please try again.")}})
       .catch(function(){send.disabled=false;say("err","Could not send. Please try again.")});
     };
+    // Topaz: build the branded PDF here, email it to the member, then offer the client their own copy of the same file.
+    function sendPdf(){
+      var doc=null,b64="";
+      try{doc=window.vkPdfDoc?window.vkPdfDoc({name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone")}):null;if(doc){var u=doc.output("datauristring");b64=u.slice(u.indexOf("base64,")+7)}}catch(x){doc=null}
+      if(!doc||!b64){say("err","The PDF could not be made on this device. Please try another browser.");return}
+      send.disabled=true;say("","Sending...");
+      fetch("/api/widget/pdf",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        h:H,name:$v("lName"),email:$v("lEmail"),phone:$v("lPhone"),message:$v("lMsg"),website:hi.value,consent:true,pdf:b64})})
+      .then(function(r){return r.json().then(function(j){return{ok:r.ok&&j.ok,j:j}})}).then(function(x){
+        if(x.ok){f2.hidden=true;sec.querySelector("h2").textContent="Thank you.";sec.querySelector(".sub").textContent="Your summary was sent to "+who2+". You should hear back soon.";
+          var cp=el("button","copy","Download a copy for yourself");cp.type="button";cp.onclick=function(){try{doc.save("affordability-summary.pdf")}catch(e){}};sec.appendChild(cp)}
+        else{send.disabled=false;say("err",x.j.error||"Could not send. Please try again.")}})
+      .catch(function(){send.disabled=false;say("err","Could not send. Please try again.")});
+    }
     function $v(id){var e=document.getElementById(id);return e?e.value.trim():""}
   });
 })();

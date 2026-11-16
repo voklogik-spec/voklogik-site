@@ -104,7 +104,7 @@ body.opal .btn,body.opal .mini.go{background:#FF5500;color:#fff}body.opal .btn.g
     <li>Upload your branding once. No coding, no design work</li>
     <li>Move up to Opal any time</li>
    </ul>
-   <p class="small" style="margin-top:14px">$29.99 per month. Cancel any time. Your first 5 reports on the site stay free and carry Voklogik branding.</p>
+   <p class="small" style="margin-top:14px">$49 per month. Cancel any time. Previews on the site stay free and carry Voklogik branding.</p>
   </div>
   <div class="card">
    <div class="tabs" role="tablist"><button type="button" role="tab" id="tReg" aria-selected="true">Create account</button><button type="button" role="tab" id="tIn" aria-selected="false">Sign in</button></div>
@@ -141,8 +141,8 @@ body.opal .btn,body.opal .mini.go{background:#FF5500;color:#fff}body.opal .btn.g
 <section id="dash" hidden>
  <div class="banner" id="subBanner" hidden>
   <strong id="newHello">Welcome to Topaz.</strong> Your account is ready. Add your branding below, then activate Topaz to put it on your reports.
-  <p style="margin:10px 0 0"><a class="btn" id="subscribe" href="#">Activate Topaz &middot; $29.99/month</a> <span class="small" id="noPay" hidden>Checkout is not switched on yet. Check back soon.</span></p>
-  <p class="small" id="opalDirect" style="margin:10px 0 0" hidden>Want more? <a id="opalGo" href="#">Start with Opal instead &middot; $79/month</a>. Unlimited reports, plus everything in Topaz.</p>
+  <p style="margin:10px 0 0"><a class="btn" id="subscribe" href="#">Activate Topaz &middot; $49/month</a> <span class="small" id="noPay" hidden>Checkout is not switched on yet. Check back soon.</span></p>
+  <p class="small" id="opalDirect" style="margin:10px 0 0" hidden>Want more? <a id="opalGo" href="#">Start with Opal instead &middot; $99/month</a>. Unlimited reports, plus everything in Topaz.</p>
  </div>
  <div class="banner" id="endBanner" hidden></div>
 
@@ -165,31 +165,62 @@ body.opal .btn,body.opal .mini.go{background:#FF5500;color:#fff}body.opal .btn.g
  </div>
 
  <div class="card" id="widgetCard" hidden>
-  <h2>Your Voklogik page <span class="pill">Opal</span></h2>
-  <p class="sub">A co-branded page with the payment estimate and the Affordability check, under your logo, photo and contact details. Share the link or add it to your own site. People who ask you to follow up arrive as leads, with the numbers they ran, and Voklogik gets a copy.</p>
+  <h2><span id="wTitle">Your Voklogik page</span> <span class="pill" id="wPill">Opal</span></h2>
+  <p class="sub" id="wSub">A co-branded page with the payment estimate and the Affordability check, under your logo, photo and contact details. Share the link or add it to your own site. People who ask you to follow up arrive as leads, with the numbers they ran, and Voklogik gets a copy.</p>
   <form id="fWidget">
    <div class="two">
     <div><label for="wHandle">Page name</label>
      <div style="display:flex;align-items:center;gap:6px"><span class="small" style="white-space:nowrap">voklogik.com/w/</span><input id="wHandle" type="text" maxlength="40" autocapitalize="none" spellcheck="false"></div>
      <span class="small">Letters, numbers and dashes.</span></div>
-    <div><label for="wNotify">Send lead alerts to</label><input id="wNotify" type="email" placeholder="Leave empty to use your branding email"></div>
+    <div><label for="wNotify" id="wNotifyLbl">Send lead alerts to</label><input id="wNotify" type="email" placeholder="Leave empty to use your branding email"></div>
    </div>
-   <label for="wIntro">Short welcome line <span class="small">(optional)</span></label><input id="wIntro" type="text" maxlength="160" placeholder="Run your numbers. I am happy to talk them through.">
+   <div id="wIntroWrap"><label for="wIntro">Short welcome line <span class="small">(optional)</span></label><input id="wIntro" type="text" maxlength="160" placeholder="Run your numbers. I am happy to talk them through."></div>
    <label style="display:flex;gap:8px;align-items:center;margin-top:14px"><input type="checkbox" id="wOn" style="width:18px;height:18px"> Page is on</label>
    <p style="margin:14px 0 0"><button class="btn" type="submit">Save page</button></p>
    <p class="msg" id="mWidget" role="status"></p>
   </form>
   <div id="wLinks" hidden>
    <label for="wUrl">Your link</label>
-   <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="wUrl" type="text" readonly style="flex:1;min-width:220px"><button class="btn ghost" type="button" id="wCopyUrl">Copy</button><a class="btn ghost" id="wOpen" href="#" target="_blank" rel="noopener">Open</a></div>
-   <p class="small" style="margin:6px 0 0">Easiest way to share: text it, email it, put it in your bio or on a QR code.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="wUrl" type="text" readonly style="flex:1;min-width:220px"><button class="btn ghost" type="button" id="wCopyUrl">Copy</button><a class="btn ghost" id="wOpen" href="#" target="_blank" rel="noopener">Open</a><button class="btn ghost" type="button" id="wQr">QR code</button></div>
+   <p class="small" id="wShareTip" style="margin:6px 0 0">Easiest way to share: text it, email it, put it in your bio or on a QR code.</p>
+   <div id="wEmbedWrap">
    <label for="wEmbed" style="margin-top:14px">Or add it to your own website <span class="small">(paste this code)</span></label>
    <textarea id="wEmbed" readonly rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace"></textarea>
    <p style="margin:8px 0 0"><button class="btn ghost" type="button" id="wCopyEmbed">Copy code</button></p>
+   </div>
   </div>
+  <div id="qrBox" hidden style="margin-top:14px;border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--panel)">
+   <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><canvas id="qrCanvas" width="264" height="264" style="width:132px;height:132px;background:#fff;border-radius:6px"></canvas>
+    <div style="flex:1;min-width:200px"><b id="qrFor"></b><p class="small" id="qrUrl" style="margin:4px 0 10px;word-break:break-all"></p><a class="btn ghost" id="qrDl" href="#" download="voklogik-qr.png">Download image</a> <button class="btn ghost" type="button" id="qrClose">Close</button>
+    <p class="small" style="margin:10px 0 0">Print it on flyers, open-house sheets and business cards. Scanning opens the link.</p></div></div>
+  </div>
+  <div id="wTopazNote" hidden>
+   <h2 style="margin-top:22px">How your client link works</h2>
+   <p class="sub" style="margin-bottom:6px">Send the link to a client. They run the payment estimate and the Affordability check under your branding, then tap Send. You get an email with their summary as a branded PDF.</p>
+   <p class="small" style="margin:0">Each PDF a client sends counts as one of your 200 reports for the month. Nothing is saved: there is no lead list or dashboard, and Voklogik does not keep a copy. Saved leads, a file your loan system can import, adding the page to your website and partner links are part of Opal.</p>
+  </div>
+  <div id="ptWrap">
+   <h2 style="margin-top:22px">Partners <span class="pill">Opal</span></h2>
+   <p class="sub">Add the realtors or loan officers you work with. Each one gets their own link and QR code to your page. Their name shows next to yours, they hear about every lead their link brings in, and the lead is marked with their name here.</p>
+   <div id="ptList"><p class="small">No partners yet.</p></div>
+   <form id="fPt" style="margin-top:12px">
+    <div class="two">
+     <div><label for="ptName">Partner name</label><input id="ptName" type="text" maxlength="80" autocomplete="off"></div>
+     <div><label for="ptCompany">Company <span class="small">(optional)</span></label><input id="ptCompany" type="text" maxlength="80" autocomplete="off"></div>
+     <div><label for="ptEmail">Email for their lead alerts</label><input id="ptEmail" type="email" maxlength="120" autocomplete="off"></div>
+     <div><label for="ptPhone">Phone <span class="small">(optional, shown on the page)</span></label><input id="ptPhone" type="tel" maxlength="30" autocomplete="off"></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-weight:400"><input type="checkbox" id="ptFull" style="width:18px;height:18px;flex:none;margin-top:2px"><span>Also send this partner the client's full summary and loan system file. <span class="small">Leave off for a realtor: they get the client's name, contact details, home price and payment only.</span></span></label>
+    <p style="margin:12px 0 0"><button class="btn" type="submit">Add partner</button></p>
+    <p class="msg" id="mPt" role="status"></p>
+    <p class="small" style="margin:6px 0 0">Up to 25 partners. Only add people who agreed to be listed. Rules on what loan officers and realtors may provide each other (RESPA) apply to shared marketing, so check with your compliance team.</p>
+   </form>
+  </div>
+  <div id="leadWrap">
   <h2 style="margin-top:22px">Leads</h2>
   <p class="sub">People who asked you to follow up. Each one also arrives by email.</p>
   <div id="leadList"><p class="small">No leads yet.</p></div>
+  </div>
  </div>
 
  <div class="card" id="activityCard" hidden>
@@ -253,6 +284,7 @@ body.opal .btn,body.opal .mini.go{background:#FF5500;color:#fff}body.opal .btn.g
 
 <p class="fine">Voklogik reports are estimates for planning only. They are not a loan application, offer or approval. You are responsible for the content you upload and for using your NMLS ID, license and Equal Housing wording as the rules require. See the <a href="/terms.html#business-plans">business plan terms</a> and <a href="/privacy.html">privacy notice</a>.</p>
 </main>
+<script src="/qrcode.js"></script>
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)},A="/api/topaz/",acc=null;
@@ -282,7 +314,14 @@ function render(a,fresh){
   document.body.classList.toggle("opal",a.plan==="opal");
   var nm=a.plan==="opal"?"Opal":"Topaz";$("brandLine").firstChild.nodeValue=nm+" Level ";document.title=nm+" Level by Voklogik";$("gemEl").className="gem"+(a.plan==="opal"?" opal":"");
   $("billCard").hidden=!on;
-  $("widgetCard").hidden=!a.widgetOk;$("activityCard").hidden=!a.widgetOk;$("scnCard").hidden=!a.widgetOk;if(a.widgetOk)loadWidget();
+  var tz=a.linkTier==="topaz";
+  $("widgetCard").hidden=!a.linkTier;$("activityCard").hidden=!a.widgetOk;$("scnCard").hidden=!a.widgetOk;
+  $("wTitle").textContent=tz?"Your client link":"Your Voklogik page";$("wPill").textContent=tz?"Topaz":"Opal";
+  $("wSub").textContent=tz?"A link for your own clients. They run the numbers under your logo, photo and contact details, then send you their summary as a PDF by email.":"A co-branded page with the payment estimate and the Affordability check, under your logo, photo and contact details. Share the link or add it to your own site. People who ask you to follow up arrive as leads, with the numbers they ran, and Voklogik gets a copy.";
+  $("wNotifyLbl").textContent=tz?"Send client PDFs to":"Send lead alerts to";
+  $("wIntroWrap").hidden=tz;$("wEmbedWrap").hidden=tz;$("wTopazNote").hidden=!tz;$("ptWrap").hidden=tz;$("leadWrap").hidden=tz;
+  $("wShareTip").textContent=tz?"Text it or email it to your client, or show them the QR code.":"Easiest way to share: text it, email it, put it in your bio or on a QR code.";
+  if(a.linkTier)loadWidget();
   var b=a.brand||{};$("bName").value=b.name||"";$("bCompany").value=b.company||"";$("bTitle").value=b.title||"";$("bPhone").value=b.phone||"";$("bEmail").value=b.email||"";$("bWeb").value=b.website||"";$("bMls").value=b.mls||"";$("bNmls").value=b.nmls||"";
   pic("logo",b.logo);pic("head",b.headshot);
   try{localStorage.setItem("voklogik:topaz","1")}catch(e){}
@@ -295,8 +334,37 @@ function loadWidget(){
   if(wLoaded)return;wLoaded=true;
   api("widget",null,true).then(function(j){if(!j.ok)return;var w=j.widget||{};
     $("wHandle").value=w.handle||slug((acc.brand&&(acc.brand.company||acc.brand.name))||"");$("wNotify").value=w.notify||"";$("wIntro").value=w.intro||"";$("wOn").checked=!!w.enabled;showLinks(j)});
-  loadLeads();loadStats();loadScn();
+  if(acc.widgetOk){loadLeads();loadStats();loadScn();loadPartners()}
 }
+// ---- QR codes for the main link and each partner link
+function showQr(url,label){
+  if(!window.qrcode||!url)return;
+  var q=qrcode(0,"M");q.addData(url);q.make();
+  var n=q.getModuleCount(),m=4,cv=$("qrCanvas"),px=Math.floor(1056/(n+2*m)),size=px*(n+2*m);cv.width=size;cv.height=size;
+  var c=cv.getContext("2d");c.fillStyle="#fff";c.fillRect(0,0,size,size);c.fillStyle="#000";
+  for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))c.fillRect((k+m)*px,(r+m)*px,px,px);
+  $("qrFor").textContent=label;$("qrUrl").textContent=url;
+  try{$("qrDl").href=cv.toDataURL("image/png")}catch(e){}
+  $("qrDl").download="voklogik-qr-"+slug(label||"link")+".png";
+  $("qrBox").hidden=false;$("qrBox").scrollIntoView({block:"nearest"});
+}
+// ---- Opal partners
+function ptRender(j){
+  var box=$("ptList");box.innerHTML="";
+  if(!j.partners||!j.partners.length){var p=document.createElement("p");p.className="small";p.textContent="No partners yet.";box.appendChild(p);return}
+  j.partners.forEach(function(x){
+    var d=document.createElement("div");d.style.cssText="border-top:1px solid var(--line);padding:10px 0";
+    var t=document.createElement("div"),b=document.createElement("strong");b.textContent=x.name;t.appendChild(b);
+    var s2=document.createElement("span");s2.className="small";s2.textContent="  "+[x.company,x.email].filter(Boolean).join("  ·  ")+(x.full?"  ·  gets the full summary":"");t.appendChild(s2);d.appendChild(t);
+    var row=document.createElement("div");row.style.cssText="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px";
+    var inp=document.createElement("input");inp.type="text";inp.readOnly=true;inp.value=x.url||"Save your page first to get the link";inp.style.cssText="flex:1;min-width:220px";inp.setAttribute("aria-label","Link for "+x.name);row.appendChild(inp);
+    function btn(txt,fn){var e=document.createElement("button");e.type="button";e.className="btn ghost";e.textContent=txt;e.onclick=fn;row.appendChild(e);return e}
+    if(x.url){btn("Copy",function(){inp.select();var me=this;if(navigator.clipboard)navigator.clipboard.writeText(inp.value).then(function(){flash(me)},function(){});else{try{document.execCommand("copy");flash(me)}catch(e){}}});
+      btn("QR code",function(){showQr(x.url,x.name)})}
+    btn("Remove",function(){if(!confirm("Remove "+x.name+"? Their link will open your page without their name."))return;api("partners",{op:"remove",id:x.id}).then(function(r){if(r.ok)ptRender(r)})});
+    d.appendChild(row);box.appendChild(d)});
+}
+function loadPartners(){api("partners",null,true).then(function(j){if(j.ok)ptRender(j)})}
 function loadLeads(){
   api("leads",null,true).then(function(j){var box=$("leadList");box.innerHTML="";
     if(!j.ok||!j.leads.length){var p=document.createElement("p");p.className="small";p.textContent="No leads yet.";box.appendChild(p);return}
@@ -305,6 +373,7 @@ function loadLeads(){
       var when=document.createElement("span");when.className="small";when.textContent="  "+new Date(l.at).toLocaleString();t.appendChild(when);d.appendChild(t);
       var c=document.createElement("div");c.className="small";var a=document.createElement("a");a.href="mailto:"+l.email;a.textContent=l.email;c.appendChild(a);
       if(l.phone)c.appendChild(document.createTextNode("  ·  "+l.phone));d.appendChild(c);
+      if(l.partner&&l.partner.name){var via=document.createElement("div");via.className="small";via.style.fontWeight="700";via.textContent="Through your partner: "+l.partner.name;d.appendChild(via)}
       if(l.message){var m=document.createElement("div");m.textContent="\u201C"+l.message+"\u201D";d.appendChild(m)}
       if(l.affordability&&l.affordability.length){var dt=document.createElement("details");dt.style.marginTop="6px";var sm=document.createElement("summary");sm.textContent="Affordability summary they ran";sm.style.cssText="cursor:pointer;font-size:14px;font-weight:600";dt.appendChild(sm);
         l.affordability.forEach(function(r){var row=document.createElement("div");row.className="small";if(String(r[0]).indexOf("## ")===0){row.style.cssText="margin-top:8px;font-weight:700;color:var(--ink)";row.textContent=String(r[0]).slice(3)}else{row.textContent=r[0]+(r[1]?": "+r[1]:"")}dt.appendChild(row)});d.appendChild(dt)}
@@ -359,9 +428,13 @@ function copyFrom(id,btn){var el=$(id);el.select();var ok=false;try{ok=document.
   if(navigator.clipboard)navigator.clipboard.writeText(el.value).then(function(){flash(btn)},function(){if(ok)flash(btn)});else if(ok)flash(btn)}
 function flash(btn){var t=btn.textContent;btn.textContent="Copied";setTimeout(function(){btn.textContent=t},1400)}
 $("wCopyUrl").onclick=function(){copyFrom("wUrl",this)};$("wCopyEmbed").onclick=function(){copyFrom("wEmbed",this)};
+$("wQr").onclick=function(){showQr($("wUrl").value,(acc.brand&&(acc.brand.name||acc.brand.company))||"My link")};$("qrClose").onclick=function(){$("qrBox").hidden=true};
+$("fPt").onsubmit=function(e){e.preventDefault();msg("mPt","Adding...");
+  api("partners",{op:"add",name:$("ptName").value,company:$("ptCompany").value,email:$("ptEmail").value,phone:$("ptPhone").value,full:$("ptFull").checked}).then(function(j){
+    if(j.ok){ptRender(j);["ptName","ptCompany","ptEmail","ptPhone"].forEach(function(i){$(i).value=""});$("ptFull").checked=false;msg("mPt","Added. Send them their link or QR code.","ok")}else msg("mPt",j.error||"Could not add.","err")})};
 $("fWidget").onsubmit=function(e){e.preventDefault();msg("mWidget","Saving...");
   api("widget",{handle:$("wHandle").value,enabled:$("wOn").checked,notify:$("wNotify").value,intro:$("wIntro").value}).then(function(j){
-    if(j.ok){showLinks(j);msg("mWidget",j.widget&&j.widget.enabled?"Saved. Your page is on.":"Saved. Your page is off.","ok")}else msg("mWidget",j.error||"Could not save.","err")})};
+    if(j.ok){showLinks(j);if(acc.widgetOk)loadPartners();msg("mWidget",j.widget&&j.widget.enabled?"Saved. Your page is on.":"Saved. Your page is off.","ok")}else msg("mWidget",j.error||"Could not save.","err")})};
 function pic(k,src){$(k+"Img").hidden=!src;$(k+"Ph").hidden=!!src;$(k+"Del").hidden=!src;if(src)$(k+"Img").src=src}
 function shrink(file,max,type){return new Promise(function(res,rej){
   var fr=new FileReader();fr.onerror=function(){rej(new Error("Could not read that file."))};

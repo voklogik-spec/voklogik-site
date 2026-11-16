@@ -55,6 +55,12 @@ html.wmode.wmode.wmode{--bg:#F5F4F8;--ink:#2B2838;--muted:#6A6678;--line:#DCD8E8
 #wLead .msg{margin:10px 0 0;font-size:14px;min-height:20px}#wLead .msg.err{color:#B3261E}#wLead .msg.ok{color:#2E7D4F;font-weight:600}
 #wLead .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 #wFine{font:12.5px/1.5 -apple-system,"Segoe UI",Arial,sans-serif;color:#6A6678;margin:0 2px 20px}#wFine a{color:#4B3F78}
+html.wmode.wmode.wmode.wtopaz{--bg:#ECEBE8;--ink:#23272D;--muted:#5E6670;--line:#CFCDC8;--accent:#C9540F;--clay:#C9540F;--panel:#FFFFFF}
+.wtopaz #wAgent{border-color:#CFCDC8;border-bottom-color:#E8681A}.wtopaz #wAgent img.face{border-color:#CFCDC8}.wtopaz #wAgent .who span{color:#5E6670}.wtopaz #wAgent .ct a,.wtopaz #wBack,.wtopaz #wFine a{color:#B0480C}
+.wtopaz #wLead{border-color:#CFCDC8}.wtopaz #wLead .sub,.wtopaz #wLead .consent,.wtopaz #wFine{color:#5E6670}.wtopaz #wLead .send{background:#C9540F}
+.wtopaz #acts{display:none!important}
+#wAgent .pt{flex-basis:100%;border-top:1px solid #E7E3F0;padding-top:8px;margin-top:2px;font-size:14px;color:#6A6678}#wAgent .pt b{display:inline;font-size:14px;color:#2B2838}
+#wLead .copy{display:inline-block;margin-top:12px;background:#fff;border:1px solid currentColor;border-radius:9px;padding:11px 18px;font:700 .95rem inherit;cursor:pointer;color:#B0480C}
 html.emb #acts,html.emb #keyActs,html.emb #keyNote,html.emb #freeNote,html.emb #manageSub,html.emb #creditInfo,html.emb main>section,html.emb .emb-hide{display:none!important}
 html.emb,html.emb body{height:auto}
 html.emb .wrap{height:auto;display:block}
@@ -111,6 +117,7 @@ html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 @media print{.docbox,#docPayOut,#docBankOut,#docCredOut{display:none!important}}
 </style>
 <script src="/topaz-brand.js"></script>
+<script src="/free-gate.js"></script>
 <script src="/jspdf.umd.min.js"></script>
 <script>window.jspdf||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>')</script>
 <style>
@@ -888,10 +895,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   <p class="k" id="manageSub" hidden style="margin:4px 20px 0"><a href="https://billing.stripe.com/p/login/cNi9ATesWc783YEcem9MY00" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline">Manage or cancel your subscription</a> (sign in with the email you used at checkout)</p>
   <div class="paywall" id="paywall" hidden>
     <b id="payTitle">You have used your free reports.</b>
-    <p style="margin:6px 0 14px">To keep saving or printing reports, choose a plan. Your entries on this page stay put while you check out in a new tab.</p>
+    <p style="margin:6px 0 14px">Preview stays free, with the Voklogik watermark. For a clean PDF or print without the watermark, choose a plan. Your entries on this page stay put while you check out in a new tab.</p>
     <div class="plans">
-      <div class="plan" id="packPlan"><strong>$4.99</strong><span class="k">Individuals · one pack per month</span><p>25 reports.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy 25 reports</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>You have already bought this month's pack. It renews next month.</span></div>
-          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $29.99 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $79 per month: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
+      <div class="plan" id="packPlan"><strong>$14.99</strong><span class="k">Homebuyer Pass · one payment, 30 days</span><p>25 clean reports to compare scenarios while you shop for a home. Not a subscription.</p><a class="cta" id="payPack" href="#" target="_blank" rel="noopener" hidden onclick="track('click_buy_pack')">Buy Homebuyer Pass</a><span class="k" id="payPackSoon">Coming soon</span><span class="k" id="packUsed" hidden>Your Homebuyer Pass is active. You can buy another when it ends.</span></div>
+          <div class="plan" id="proPlan"><strong style="font-size:1.2rem;line-height:1.25">Mortgage professional or realtor?</strong><span class="k">Business plans</span><p>Topaz Tier, $49 per month: 200 branded reports with your logo, contact info, MLS# and headshot. Opal Tier, $99 per month: unlimited, plus a co-branded page with the Affordability check, and a dashboard with lead alerts and saved scenarios. Founding offer: the first 20 businesses to join Opal directly get it for $49.99 per month for their first year.</p><a class="cta" href="/topaz.html" onclick="track('click_choose_topaz')">Choose Topaz</a> <a class="cta" id="proWait" href="mailto:hello@voklogik.com?subject=Voklogik%20Opal%20waitlist" onclick="track('click_business_waitlist')">Opal waitlist</a></div>
     </div>
     <p class="k" style="margin:0 0 10px">By purchasing, you agree to the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
     <p class="k" id="payMsg" style="margin:0">Payment is not set up yet. Please contact <a href="mailto:hello@voklogik.com">hello@voklogik.com</a>.</p>
@@ -2782,7 +2789,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       disclaimer:"This is an estimate for planning only and is not a loan offer, pre-approval, or guarantee of approval. Actual qualifying income and ratios are determined by your lender's underwriting guidelines."
     };
   }
-  function showWM(){var tz=false,op=false;try{tz=!!(window.VKTZ&&VKTZ.branded&&VKTZ.branded());op=!!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())}catch(e){}var pd=false;try{pd=paid()}catch(e){}return !tz&&!op&&!pd}
+  function showWM(){var tz=false,op=false;try{tz=!!(window.VKTZ&&VKTZ.branded&&VKTZ.branded());op=!!(window.VKTZ&&VKTZ.opal&&VKTZ.opal())}catch(e){}var pd=false;try{pd=paid()}catch(e){}return !tz&&!op&&!pd&&!(window.VKFREE&&VKFREE.clean)}
   function renderPrint(rep){
     var h=(showWM()?'<div class="pr-wm" aria-hidden="true">Voklogik</div>':'')+'<div class="pr-top"><div class="pr-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#FF5500"/><path d="M15 17h10l7 21 7-21h10L36 47h-8z" fill="#fff"/><rect x="17" y="51" width="30" height="4" rx="2" fill="#030712"/></svg>Voklogik</div><div class="pr-meta"><span>'+esc(rep.sub)+'</span><span>'+esc(rep.date)+'</span></div></div>';
     rep.sections.forEach(function(sec){
@@ -2808,7 +2815,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   window.addEventListener("beforeprint",fillPrint);
   // ---- report limit: the same free reports and paid plans as the payment analyzer ----
   function track(name,params){try{if(typeof gtag==="function")gtag("event",name,params||{})}catch(e){}}
-  var LIMIT=5,UK="voklogik:reports",PAY_PACK="https://buy.stripe.com/cNi9ATesWc783YEcem9MY00",mem=0;
+  var LIMIT=5,UK="voklogik:reports",PAY_PACK="https://buy.stripe.com/3cIcN54Sm6MO7aQbai9MY05",mem=0;
   var API="/.netlify/functions/",ent=null,VK="voklogik:vid",vid=null;
   function used(){var v=0;try{v=parseInt(localStorage.getItem(UK),10)||0}catch(e){}return Math.max(v,mem)}
   function getVid(){
@@ -2828,18 +2835,21 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       .then(function(j){if(j&&typeof j.credits==="number")ent=j;gate();return ent})
       .catch(function(){gate();return ent});
   }
+  // Free reports this browser was given: 5 for earlier visitors, 1 after the email step, otherwise none (see /free-gate.js).
+  function fcap(){return window.VKFREE?VKFREE.cap():LIMIT}
+  window.addEventListener("storage",function(e){if(e.key==="voklogik:reports"||e.key==="voklogik:freecap"||e.key==="voklogik:freeclaimed"){try{gate()}catch(x){}}});
   function gate(){
     var tzOn=!!(window.VKTZ&&VKTZ.active()&&VKTZ.acct.left!==0);
-    var left=Math.max(LIMIT-used(),0),ok=left>0||paid()||tzOn;
-    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?left+" of "+LIMIT+" free reports left. Reports from the payment analyzer count too.":(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":"")));
-    $("acts").hidden=!ok;$("keyActs").hidden=!ok;$("keyNote").hidden=!ok;$("paywall").hidden=ok;
+    var cap=fcap(),left=Math.max(cap-used(),0),ok=left>0||paid()||tzOn,offer=!ok&&!!(window.VKFREE&&VKFREE.canOffer());
+    $("freeNote").textContent=tzOn?(VKTZ.acct.left==null?"Topaz Level by voklogik: unlimited branded reports.":"Topaz Level by voklogik: "+VKTZ.acct.left+" branded reports left this month."):(window.VKTZ&&VKTZ.exhausted()?"You have used all your Topaz reports for this period. Reports are unbranded until it renews. ":"")+(left>0?(cap===1?"Your free clean report is ready. Save or print it without the watermark.":left+" of "+LIMIT+" free reports left. Reports from the payment analyzer count too."):(ent&&ent.sub?"Unlimited plan active.":(ent&&ent.credits>0?ent.credits+" paid reports left.":(offer?"Preview is free. Your first clean report is free when you ask for a summary by email.":"Preview is free, with a watermark. A clean PDF or print needs a Homebuyer Pass."))));
+    $("acts").hidden=false;$("keyActs").hidden=!(ok||offer);$("keyNote").hidden=!(ok||offer);$("paywall").hidden=ok||offer;
     $("manageSub").hidden=!(ent&&ent.sub);
-    $("payTitle").textContent="You have used your "+LIMIT+" free reports.";
+    $("payTitle").textContent=(cap===5?"You have used your "+LIMIT+" free reports.":(cap===1?"You have used your free clean report.":"A clean report needs a Homebuyer Pass."));
     var cid="client_reference_id="+encodeURIComponent(getVid());
     [["payPack",PAY_PACK]].forEach(function(q){if(q[1])$(q[0]).href=q[1]+(q[1].indexOf("?")<0?"?":"&")+cid;$(q[0]).hidden=!q[1];$(q[0]+"Soon").hidden=!!q[1]});
     var capped=!!(ent&&ent.canBuyPack===false&&!(ent.credits>0));
     $("packUsed").hidden=!capped;if(capped){$("payPack").hidden=true;$("payPackSoon").hidden=true}
-    $("payTitle").textContent=capped?"You have used this month's individual reports.":"You have used your "+LIMIT+" free reports.";
+    $("payTitle").textContent=capped?"You have used this month's individual reports.":(cap===5?"You have used your "+LIMIT+" free reports.":(cap===1?"You have used your free clean report.":"A clean report needs a Homebuyer Pass."));
     $("proPlan").style.borderColor=capped?"var(--accent)":"";
     $("payMsg").hidden=!!PAY_PACK;
   }
@@ -2851,7 +2861,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       }).catch(function(){});
       return;
     }
-    if(Math.max(LIMIT-used(),0)>0){go(true);return}
+    if(Math.max(fcap()-used(),0)>0){if(window.VKFREE)VKFREE.clean=fcap()===1;try{go(true)}finally{if(window.VKFREE)VKFREE.clean=false}return}
     if(ent&&ent.sub){go(false);return}
     if(ent&&ent.credits>0){
       fetch(API+"consume",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:getVid()})})
@@ -2860,10 +2870,11 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         .catch(function(){});
       return;
     }
-    gate();
+    if(window.VKFREE&&VKFREE.canOffer()){VKFREE.offer({kind:"aff",rows:VKFREE.rows(),onUsed:gate},function(){gate();VKFREE.clean=true;try{go(true)}finally{VKFREE.clean=false}});return}
+    gate();try{$("paywall").scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}
   }
   if(window.VKTZ)VKTZ.onchange=function(){gate()};
-  function bump(){mem+=1;try{localStorage.setItem(UK,String(Math.max(used(),mem)))}catch(e){}gate()}
+  function bump(){mem=used()+1;try{localStorage.setItem(UK,String(mem))}catch(e){}gate()}
   function refreshIfWaiting(){if(!document.hidden&&!$("paywall").hidden)refresh()}
   document.addEventListener("visibilitychange",refreshIfWaiting);
   window.addEventListener("focus",refreshIfWaiting);
@@ -2883,7 +2894,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     function font(st,sz){d.setFont("helvetica",st);d.setFontSize(sz)}
     function chk(need){if(y+ (need||18) >758){d.addPage();y=64;wmark()}}
     function wmark(){if(!showWM())return;try{
-      d.saveGraphicsState();d.setGState(new d.GState({opacity:0.07}));T(OP?OR:[255,85,0]);d.setFont("times","bold");d.setFontSize(120);
+      d.saveGraphicsState();d.setGState(new d.GState({opacity:(window.VKFREE&&VKFREE.prev)?0.16:0.07}));T(OP?OR:[255,85,0]);d.setFont("times","bold");d.setFontSize(120);
       var ww=d.getTextWidth("Voklogik"),ar=32*Math.PI/180;
       d.text("Voklogik",PW/2-(ww/2)*Math.cos(ar),792/2+50+(ww/2)*Math.sin(ar),{angle:32});
       d.restoreGraphicsState();
@@ -3130,6 +3141,13 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     try{var b=new Blob([mismoXml()],{type:"application/xml;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="voklogik-scenario-mismo34.xml";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},500);if(free)bump()}catch(e){}
   })}
   window.vkMismoXml=function(ov){return mismoXml(ov)};
+  // A Topaz member's client link: hand the finished detailed report to the send form, with the client's details on it.
+  window.vkPdfDoc=function(ct){
+    var det=document.querySelector('input[name="rptMode"][value="detailed"]'),was=document.querySelector('input[name="rptMode"]:checked'),old=null;
+    try{old=localStorage.getItem("voklogik:contact");if(ct)localStorage.setItem("voklogik:contact",JSON.stringify({cName:ct.name||"",cEmail:ct.email||"",cPhone:ct.phone||""}))}catch(e){}
+    if(det)det.checked=true;
+    try{return buildPdf()}finally{if(was)was.checked=true;try{if(old===null)localStorage.removeItem("voklogik:contact");else localStorage.setItem("voklogik:contact",old)}catch(e){}}
+  };
   $("keyMismoBtn").addEventListener("click",function(){track("click_keyin_mismo");saveKeyinMismo()});
   if(window.jspdf){$("keyPdfBtn").hidden=false;$("keyPdfBtn").addEventListener("click",function(){track("click_keyin_pdf");saveKeyinPdf()})}
 
@@ -3137,7 +3155,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   function pvClose(){$("pvModal").hidden=true;$("pvFrame").removeAttribute("src");if(pvUrl){try{URL.revokeObjectURL(pvUrl)}catch(e){}pvUrl=null}}
   $("pvBtn").addEventListener("click",function(){
     track("click_preview");
-    var doc=buildPdf();if(!doc)return;
+    var doc=null;if(window.VKFREE)VKFREE.prev=true;try{doc=buildPdf()}finally{if(window.VKFREE)VKFREE.prev=false}if(!doc)return;
     try{pvUrl=doc.output("bloburl")}catch(e){return}
     if(window.__VKEMB&&parent&&parent.vkShowPreview){parent.vkShowPreview(pvUrl);return}
     $("pvFrame").src=pvUrl+"#toolbar=0&navpanes=0";$("pvModal").hidden=false;
