@@ -211,6 +211,8 @@ window.VK_ES={
 "Include this account": "Incluir esta cuenta",
 "FOR TOP PRODUCERS": "PARA PRODUCTORES DESTACADOS",
 "NOW OPEN": "YA ABIERTO",
+"Opal is open. The first {1} businesses to join directly get {2} per month for their first year. Use code FOUNDERS{3} at checkout.": "Opal ya está abierto. Las primeras {1} empresas que se unan directamente pagan {2} por mes durante su primer año. Use el código FOUNDERS{3} al pagar.",
+"Founding offer: first {1} businesses, {2} per month for the first year. Code FOUNDERS{3}": "Oferta fundadora: primeras {1} empresas, {2} al mes el primer año. Código FOUNDERS{3}",
 "Opal is open. The first {1} businesses to join directly get {2} per month for their first year.": "Opal ya está abierto. Las primeras {1} empresas que se unan directamente pagan {2} por mes durante su primer año.",
 "[ Start Opal ]": "[ Comenzar con Opal ]",
 "Start Opal": "Comenzar con Opal",
