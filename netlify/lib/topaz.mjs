@@ -135,6 +135,18 @@ export const previewEmail = (e) =>
   (process.env.OPAL_PREVIEW_EMAILS || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean).includes(normEmail(e));
 export const opalOk = (a) => !!a && (previewEmail(a.email) || (a.plan === "opal" && isActive(a)));
 
+// A member's client link. Opal: the full co-branded page (leads, dashboard, partners). Topaz: a link whose
+// visitors email a PDF summary back to the member; nothing is stored and there is no dashboard.
+export const linkTier = (a) => (opalOk(a) ? "opal" : isActive(a) && a.plan === "topaz" ? "topaz" : null);
+
+// ---- Opal partners (for example the realtors a loan officer works with). Each gets their own link.
+export const MAX_PARTNERS = 25;
+export const partnerSlug = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+export const findPartner = (a, p) => {
+  p = String(p || "").trim().toLowerCase();
+  return p && Array.isArray(a?.partners) ? a.partners.find((x) => x.id === p) || null : null;
+};
+
 export const HANDLE_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 export const RESERVED = new Set(["api", "admin", "www", "w", "topaz", "opal", "voklogik", "app", "login", "support", "help", "terms", "privacy", "affordability", "index", "static", "assets"]);
 export const SITE = () => process.env.SITE_URL || "https://voklogik.com";

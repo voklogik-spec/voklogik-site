@@ -13,6 +13,13 @@ export async function setEnt(id, ent) {
   await entitlements().setJSON(id, { ...ent, updatedAt: new Date().toISOString() });
 }
 
+export const PASS_DAYS = 30;
+export const passEnd = (from = Date.now()) => new Date(new Date(from).getTime() + PASS_DAYS * 86400000).toISOString();
+// Credits that are still usable: a Homebuyer Pass expires 30 days after purchase.
+// Entries with no creditsUntil (older packs) never expire.
+export const liveCredits = (ent) =>
+  !ent || !(ent.credits > 0) ? 0 : ent.creditsUntil && Date.parse(ent.creditsUntil) < Date.now() ? 0 : ent.credits;
+
 export const monthKey = () => new Date().toISOString().slice(0, 7); // calendar month, UTC
 
 export const json = (obj, status = 200) =>
