@@ -1,5 +1,5 @@
 import { verifyStripeSignature } from "../lib/stripe-sig.mjs";
-import { ID_RE, getEnt, setEnt, payments, json, monthKey } from "../lib/common.mjs";
+import { ID_RE, getEnt, setEnt, payments, json, monthKey, liveCredits, passEnd } from "../lib/common.mjs";
 import { getAccount, saveAccount, stripeApi } from "../lib/topaz.mjs";
 
 // Topaz / Opal business accounts: client_reference_id starts with "tz_".
@@ -21,7 +21,7 @@ async function syncTopaz(accountId, sub) {
   await saveAccount(a);
 }
 
-const PACK_CREDITS = 25; // reports added by the one-time $4.99 pack
+const PACK_CREDITS = 25; // reports in the one-time $14.99 Homebuyer Pass, valid for 30 days
 
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
@@ -89,7 +89,8 @@ export default async (req) => {
       ent.subscription = obj.subscription;
       if (obj.subscription) await log.set("sub:" + obj.subscription, id);
     } else if (obj.mode === "payment") {
-      ent.credits = (ent.credits || 0) + PACK_CREDITS;
+      ent.credits = liveCredits(ent) + PACK_CREDITS; // an expired pass leaves nothing behind
+      ent.creditsUntil = passEnd();
       ent.packMonth = monthKey();
     }
     ent.email = obj.customer_details?.email || ent.email;

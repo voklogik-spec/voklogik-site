@@ -1,4 +1,4 @@
-import { ID_RE, getEnt, setEnt, json } from "../lib/common.mjs";
+import { ID_RE, getEnt, setEnt, json, liveCredits } from "../lib/common.mjs";
 
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
@@ -12,7 +12,7 @@ export default async (req) => {
 
   const ent = await getEnt(id);
   if (ent.sub) return json({ ok: true, unlimited: true });
-  if ((ent.credits || 0) > 0) {
+  if (liveCredits(ent) > 0) {
     ent.credits -= 1;
     await setEnt(id, ent);
     return json({ ok: true, credits: ent.credits });

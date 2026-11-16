@@ -3,7 +3,7 @@ import {
   sessionAccountId, endSession, getAccount, saveAccount, getImages, saveImages, isActive, usage,
   publicAccount, cleanImage, cleanBrand, stripeApi, TOPAZ_REPORTS,
   makeResetToken, readResetToken, dropResetToken, RESET_MINUTES,
-  clip, previewEmail, opalOk, HANDLE_RE, RESERVED, SITE, readStats, sha256,
+  clip, previewEmail, opalOk, linkTier, MAX_PARTNERS, partnerSlug, HANDLE_RE, RESERVED, SITE, readStats, sha256,
 } from "../lib/topaz.mjs";
 import { sendMail } from "../lib/mail.mjs";
 import { json } from "../lib/common.mjs";
@@ -106,6 +106,7 @@ export default async (req) => {
     out.opalLink = opalLive(a) && process.env.OPAL_PAYMENT_LINK ? withRef(process.env.OPAL_PAYMENT_LINK, id, a.email) : null;
     out.canUpgrade = opalLive(a);
     out.widgetOk = opalOk(a);
+    out.linkTier = linkTier(a);
     return json({ ok: true, account: out });
   }
 
@@ -124,8 +125,10 @@ export default async (req) => {
 
 
   // ---- Opal widget settings (hosted link + embed) and the leads it collects
+  // Topaz members get the client link only: clients email a PDF back, with no embed, leads or activity.
   if (action === "widget") {
-    if (!opalOk(a)) return json({ error: "The widget is part of Opal." }, 403);
+    const tier = linkTier(a);
+    if (!tier) return json({ error: "Your client link needs an active plan." }, 403);
     if (req.method === "POST") {
       const b = await body(req);
       const h = String(b.handle || "").trim().toLowerCase();
@@ -137,15 +140,44 @@ export default async (req) => {
       const old = a.widget?.handle;
       if (old && old !== h) await s.delete("handle:" + old);
       await s.set("handle:" + h, id);
-      a.widget = { handle: h, enabled: !!b.enabled, notify, intro: clip(b.intro, 160) };
+      a.widget = { handle: h, enabled: !!b.enabled, notify, intro: tier === "opal" ? clip(b.intro, 160) : a.widget?.intro || "" };
       await saveAccount(a);
     }
     const w = a.widget || null;
     const url = w ? `${SITE()}/w/${w.handle}` : null;
     return json({
-      ok: true, widget: w, url,
-      embed: url ? `<iframe src="${url}?embed=1" title="Payment estimate" width="100%" height="900" style="border:0;max-width:640px" loading="lazy"></iframe>` : null,
+      ok: true, widget: w, url, tier,
+      embed: url && tier === "opal" ? `<iframe src="${url}?embed=1" title="Payment estimate" width="100%" height="900" style="border:0;max-width:640px" loading="lazy"></iframe>` : null,
     });
+  }
+
+  // ---- Opal partners: each one gets their own link to the member's page and hears about the leads it brings.
+  if (action === "partners") {
+    if (!opalOk(a)) return json({ error: "Partners are part of Opal." }, 403);
+    a.partners = Array.isArray(a.partners) ? a.partners : [];
+    if (req.method === "POST") {
+      const b = await body(req), op = String(b.op || "");
+      if (op === "add") {
+        if (a.partners.length >= MAX_PARTNERS) return json({ error: `You can have up to ${MAX_PARTNERS} partners. Remove one to add another.` }, 400);
+        const name = clip(b.name, 80), email = normEmail(b.email);
+        if (!name) return json({ error: "Add the partner's name." }, 400);
+        if (!validEmail(email)) return json({ error: "Enter a valid email for the partner." }, 400);
+        let slug = partnerSlug(name);
+        if (slug.length < 2) slug = "partner";
+        const taken = new Set(a.partners.map((x) => x.id));
+        let pid = slug, n = 2;
+        while (taken.has(pid)) pid = slug.slice(0, 36) + "-" + n++;
+        a.partners.push({ id: pid, name, company: clip(b.company, 80), email, phone: clip(b.phone, 30).replace(/[^0-9+()\-. x]/gi, ""), full: b.full === true, at: new Date().toISOString() });
+      } else if (op === "remove") {
+        a.partners = a.partners.filter((x) => x.id !== String(b.id || ""));
+      } else if (op === "full") {
+        const x = a.partners.find((x) => x.id === String(b.id || ""));
+        if (x) x.full = b.full === true;
+      } else return json({ error: "not found" }, 404);
+      await saveAccount(a);
+    }
+    const base = a.widget?.handle ? `${SITE()}/w/${a.widget.handle}` : null;
+    return json({ ok: true, max: MAX_PARTNERS, partners: a.partners.map((x) => ({ ...x, url: base ? `${base}/${x.id}` : null })) });
   }
 
   if (action === "leads") {

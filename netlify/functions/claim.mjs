@@ -1,4 +1,4 @@
-import { ID_RE, getEnt, setEnt, payments, json, monthKey } from "../lib/common.mjs";
+import { ID_RE, getEnt, setEnt, payments, json, monthKey, liveCredits, passEnd } from "../lib/common.mjs";
 
 // Stripe checkout session ids look like cs_live_a1B2c3... (the customer's return page carries one).
 const SESSION_RE = /^cs_(live|test)_[A-Za-z0-9]{10,200}$/;
@@ -71,11 +71,14 @@ export default async (req) => {
     let moved = Number(rec.credits) || 0;
     if (oldId) {
       const old = await getEnt(oldId);
-      moved = Math.min(moved, old.credits || 0); // only what is still unused
+      moved = Math.min(moved, liveCredits(old)); // only what is still unused and not expired
       old.credits = (old.credits || 0) - moved;
       await setEnt(oldId, old);
     }
-    dest.credits = (dest.credits || 0) + moved;
+    const had = liveCredits(dest);
+    const until = passEnd(rec.at ? Date.parse(rec.at) : Date.now());
+    dest.credits = had + moved;
+    if (moved > 0 && !(had > 0 && dest.creditsUntil > until)) dest.creditsUntil = until;
     dest.packMonth = (rec.at || "").slice(0, 7) || monthKey();
   }
   if (rec.email) dest.email = rec.email;
