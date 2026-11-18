@@ -11,7 +11,7 @@
   box.style.cssText="margin:14px 0 0;padding:14px 16px;background:var(--panel,#fff);border:1px solid var(--line,#ccc);border-radius:8px;color:var(--ink,#222);font-size:.95rem;line-height:1.5;max-width:560px";
   function li(t){return "<li>"+t+"</li>"}
   var steps={
-    ios:li("Open <b>voklogik.com</b> in <b>Safari</b>.")+li("Tap the <b>Share</b> icon (the square with an arrow) at the bottom of the screen.")+li("Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>."),
+    ios:li("Open <b>voklogik.com</b> in <b>Safari</b>.")+li("Tap the <b>menu</b> icon (three lines) on the left of the address bar, then tap <b>Share</b>. On some iPhones, the <b>Share</b> icon is at the bottom of the screen.")+li("Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>."),
     android:li("Open <b>voklogik.com</b> in <b>Chrome</b>.")+li("Tap the <b>⋮</b> menu at the top right.")+li("Tap <b>Install app</b> (or <b>Add to Home screen</b>), then confirm."),
     desktop:li("In <b>Chrome</b> or <b>Edge</b>, click the install icon at the right end of the address bar.")+li("Or open the browser menu and choose <b>Install Voklogik</b>.")
   };

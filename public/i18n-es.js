@@ -6,6 +6,7 @@ window.VK_ES={
 "Free preview.": "Vista previa gratis.",
 "See a sample analysis": "Ver un análisis de ejemplo",
 "Menu": "Menú",
+"Save Voklogik to your home screen": "Guarde Voklogik en su pantalla de inicio",
 "Principal & interest": "Capital e intereses",
 "Add taxes, insurance and MI to see your real payment.": "Agregue impuestos, seguro y MI para ver su pago real.",
 
