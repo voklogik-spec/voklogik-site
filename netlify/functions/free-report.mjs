@@ -1,7 +1,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 import { ID_RE, json } from "../lib/common.mjs";
-import { sendMail } from "../lib/mail.mjs";
+import { sendMail, bccDefault } from "../lib/mail.mjs";
 
 // A visitor asks for a summary of their report by email. In return their first clean report
 // (save or print, no watermark) is free. One per email address and one per browser.
@@ -52,7 +52,7 @@ export default async (req) => {
     "You are getting this because you asked for it at voklogik.com. We may send you occasional Voklogik updates. To stop them, reply to this email with the word unsubscribe.",
   ];
   try {
-    await sendMail({ to: email, bcc: process.env.LEADS_BCC || process.env.SMTP_USER, subject: "Your Voklogik report summary", text: lines.join("\n"),
+    await sendMail({ to: email, bcc: bccDefault(), subject: "Your Voklogik report summary", text: lines.join("\n"),
       html: "<p>" + lines.join("\n").split("\n").map((l) => esc(l)).join("<br>") + "</p>" });
   } catch (e) { console.error("summary email failed", e.message); } // the free report is still granted
   return json({ ok: true });

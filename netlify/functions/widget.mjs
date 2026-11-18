@@ -1,5 +1,5 @@
 import { store, getAccount, saveAccount, getImages, validEmail, normEmail, clip, linkTier, findPartner, usage, TOPAZ_REPORTS, HANDLE_RE, sha256, countStat } from "../lib/topaz.mjs";
-import { sendMail } from "../lib/mail.mjs";
+import { sendMail, bccDefault } from "../lib/mail.mjs";
 import { checkMismo } from "../lib/mismo-check.mjs";
 import { json } from "../lib/common.mjs";
 
@@ -126,7 +126,7 @@ export default async (req) => {
     ].filter((x) => x !== null);
     const html = "<p>" + lines.join("\n").split("\n").map((l) => esc(l)).join("<br>") + "</p>";
     try {
-      await sendMail({ to, bcc: process.env.LEADS_BCC || process.env.SMTP_USER, replyTo: email, subject: `New lead from your Voklogik page: ${name}`, text: lines.join("\n"), html, attachments: attach });
+      await sendMail({ to, bcc: bccDefault(), replyTo: email, subject: `New lead from your Voklogik page: ${name}`, text: lines.join("\n"), html, attachments: attach });
     } catch (e) { console.error("lead email failed", e.message); }
     // The partner hears about it too. Unless the member chose to share the full file with them, they get the
     // contact details and the headline estimate only: no income, debts or assets, and no loan system file.
