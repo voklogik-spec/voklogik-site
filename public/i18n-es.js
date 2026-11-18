@@ -1,5 +1,14 @@
 /* Spanish dictionary for /i18n.js. Keys are the English text with numbers replaced by {1},{2}... */
 window.VK_ES={
+"Try it now. No signup.": "Pruébelo ahora. Sin registrarse.",
+"See my full analysis": "Ver mi análisis completo",
+"Add your numbers": "Agregue sus cifras",
+"Free preview.": "Vista previa gratis.",
+"See a sample analysis": "Ver un análisis de ejemplo",
+"Menu": "Menú",
+"Principal & interest": "Capital e intereses",
+"Add taxes, insurance and MI to see your real payment.": "Agregue impuestos, seguro y MI para ver su pago real.",
+
 "Have tax returns? Upload them to pre-fill.": "¿Tiene declaraciones de impuestos? Súbalas para rellenar los datos.",
 "PDF only, up to {1} files, one per tax year. Read on your device and never uploaded. Only the income and add-back figures are used, never your SSN, name or account numbers. You check every number first.": "Solo PDF, hasta {1} archivos, uno por año fiscal. Se leen en su dispositivo y nunca se suben. Solo se usan las cifras de ingresos y ajustes, nunca su SSN, nombre ni números de cuenta. Usted revisa cada número primero.",
 "Upload tax returns": "Subir declaraciones de impuestos",

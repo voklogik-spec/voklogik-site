@@ -637,6 +637,50 @@ header .tag{color:#94A3B8!important}
 .ratioband .stat:not(:has(~ .stat:not([hidden]))){border-right:0!important}
 .ratioband>.ratnote,.ratioband>.lgd{flex:0 0 100%;box-sizing:border-box}
 .ratioband>.ratnote{text-align:center}
+</style><style id="vk-mfirst">
+.qs{display:none}
+@media (max-width:820px){
+ /* compact chrome so the headline and the fields are on the first screen */
+ header .tag{display:none}
+ header{flex-wrap:nowrap!important;padding:12px 0!important;position:relative;z-index:90}
+ header .bw{flex:1 1 auto}
+ header nav{display:none;position:absolute;left:0;right:0;top:100%;z-index:80;flex-direction:column;background:#0B1220;border:1px solid #1E293B;border-radius:12px;padding:6px 0;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+ header.menu-open nav{display:flex}
+ header nav a{margin:0!important;padding:13px 18px;font-size:1rem}
+ header nav #langSw{display:none}
+ header nav #installBtn{display:none}
+ .mtop{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+ .mtop #langSw{display:inline-flex!important;align-items:center;gap:6px;margin:0!important}
+ #mMenu{background:transparent;border:1px solid #334155;border-radius:9px;color:#F8FAFC;font:600 .85rem Inter,sans-serif;padding:7px 11px;cursor:pointer}
+ .wsbar{position:static!important;border-bottom:0!important}
+ .wsbar .wsin{justify-content:center!important;padding:8px 12px!important}
+ .wsbar .wslab,.wsbar .wshint,.wsbar .wscta{display:none!important}
+ .wsbar .wsseg{margin:0 auto!important}
+ .vtrust span+span{display:none!important}
+ .vtrust{padding:6px 12px!important;font-size:.74rem!important}
+ .hero-main h1{font-size:clamp(1.55rem,7.2vw,2rem)!important}
+ .hero-eyebrow .startline,.hero-eyebrow .lede:nth-of-type(1){display:none!important}
+ .hero-eyebrow .lede{margin-bottom:4px!important}
+ .qs{display:block;margin:14px 0 6px;padding:18px 16px 16px;border:1px solid #E2E8F0;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(3,7,18,.08)}
+ .qs h2{margin:0 0 12px;font:700 1.05rem "Bricolage Grotesque",Inter,sans-serif;color:#030712;text-align:center}
+ .qs .qf{display:grid;grid-template-columns:1fr;gap:10px}
+ .qs .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+ .qs label{display:block;font-size:.78rem;font-weight:600;color:#475569;margin:0 0 4px}
+ .qs input{width:100%;box-sizing:border-box;font-size:16px;padding:12px;border:1px solid #CBD5E1;border-radius:10px;background:#fff;color:#030712}
+ .qs .out{margin:14px 0 4px;padding:12px;border-radius:10px;background:#F1F5F9;text-align:center}
+ .qs .out small{display:block;font-size:.76rem;color:#475569;font-weight:600}
+ .qs .out b{display:block;font:800 1.9rem "Bricolage Grotesque",Inter,sans-serif;color:#030712;margin-top:2px}
+ .qs .qnote{margin:6px 0 0;text-align:center;font-size:.8rem;color:#475569;line-height:1.35}
+ .qs button{width:100%;margin-top:10px;padding:14px;border:0;border-radius:10px;background:#FF5500;color:#fff;font:700 1rem Inter,sans-serif;cursor:pointer}
+ .qs .fine{margin:8px 0 0;text-align:center;font-size:.76rem;color:#64748B}
+ .qs .fine a{color:#B34D14}
+ /* inputs first, results panel after */
+ .hero>.calc{grid-row:3!important}
+ .hero>.sample-hero{grid-row:4!important}
+ .hero>.ratioband,.hero.wide>.ratioband{grid-row:5!important}
+ .hero>.clearrow,.hero.wide>.clearrow{grid-row:6!important}
+ .hero>.midband,.hero.wide>.midband{grid-row:7!important}
+}
 </style></head>
 <body>
 <div class="prwm" aria-hidden="true">Voklogik</div>
@@ -664,6 +708,14 @@ header .tag{color:#94A3B8!important}
     <p class="lede startline">Start with your numbers below, or <a href="#analyzer" id="sampleLink">see a sample analysis</a>.</p>
     </div>
   </div>
+  <div class="qs" id="qs"><h2>Try it now. No signup.</h2>
+<div class="qf"><div><label for="qsPrice">Home price ($)</label><input id="qsPrice" type="number" inputmode="decimal" placeholder="e.g. 400,000"></div>
+<div class="r2"><div><label for="qsDown">Down payment (%)</label><input id="qsDown" type="number" inputmode="decimal" placeholder="e.g. 20"></div>
+<div><label for="qsRate">Interest rate (%)</label><input id="qsRate" type="number" inputmode="decimal" placeholder="e.g. 6.5"></div></div></div>
+<div class="out" aria-live="polite"><small>Principal &amp; interest</small><b id="qsOut">Add your numbers</b></div>
+<p class="qnote">Add taxes, insurance and MI to see your real payment.</p>
+<button type="button" id="qsGo">See my full analysis</button>
+<p class="fine">Free preview. <a href="#analyzer" id="qsSample">See a sample analysis</a></p></div>
   <div class="sample-hero" id="analyzer"><iframe id="affFrame" src="/affordability.html?embed=1" title="Affordability analyzer" loading="eager"></iframe></div>
 
   <div class="calc" role="group" aria-label="Mortgage analyzer">
@@ -2082,5 +2134,28 @@ header .tag{color:#94A3B8!important}
   setInterval(function(){place();addPayBtn();render()},500);
   document.addEventListener("vklang",function(){lg.innerHTML=drawerHTML();band.querySelectorAll(".logicbtn").forEach(function(b){b.remove()});place();addPayBtn()});
 })();
-</script></body>
+</script><script>(function(){
+ var q=function(i){return document.getElementById(i)};
+ function fire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
+ var started=false;
+ function sync(src,dst){var a=q(src),b=q(dst);if(!a||!b)return;b.value=a.value;fire(b)}
+ window.__qsShow=function(){show()};function show(){var t=q("total"),o=q("qsOut");if(!t||!o)return;var v=(t.textContent||"").trim();
+  var es=window.vkLang&&window.vkLang()==="es";o.textContent=(v&&v!=="$0"&&v!=="$0.00"&&v!=="\u2014")?v+(es?" / mes":" / month"):(es?"Agregue sus cifras":"Add your numbers")}
+ [["qsPrice","price"],["qsDown","down"],["qsRate","rate"]].forEach(function(m){
+  var el=q(m[0]);if(!el)return;
+  el.addEventListener("input",function(){if(!started){started=true;try{track("quickstart_start")}catch(e){}}sync(m[0],m[1]);setTimeout(show,60)})});
+ var go=q("qsGo");if(go)go.addEventListener("click",function(){try{track("quickstart_see_analysis")}catch(e){}
+  var t=document.querySelector(".hero>.sample-hero")||q("analyzer");if(t)t.scrollIntoView({behavior:"smooth",block:"start"})});
+ var sm=q("qsSample");if(sm)sm.addEventListener("click",function(e){e.preventDefault();var l=q("sampleLink");if(l)l.click();var t=q("analyzer");if(t)t.scrollIntoView({behavior:"smooth"})});
+})();
+ (function(){var h=document.querySelector("header");if(!h||h.querySelector(".mtop"))return;
+  var box=document.createElement("div");box.className="mtop";
+  var mb=document.createElement("button");mb.type="button";mb.id="mMenu";mb.textContent="Menu";mb.setAttribute("aria-expanded","false");
+  mb.addEventListener("click",function(e){e.stopPropagation();var o=h.classList.toggle("menu-open");mb.setAttribute("aria-expanded",o)});
+  h.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){h.classList.remove("menu-open");mb.setAttribute("aria-expanded","false")})});
+  document.addEventListener("vklang",function(){try{window.__qsShow()}catch(e){}});document.addEventListener("click",function(e){if(!h.contains(e.target)){h.classList.remove("menu-open")}});
+  box.appendChild(mb);h.insertBefore(box,h.querySelector("nav"));
+  function place(){var l=document.getElementById("langSw");if(l&&l.parentNode!==box){box.insertBefore(l,mb);return true}return !!l}
+  if(!place()){var n=0,t=setInterval(function(){if(place()||++n>40)clearInterval(t)},150)}
+ })();</script></body>
 </html>
