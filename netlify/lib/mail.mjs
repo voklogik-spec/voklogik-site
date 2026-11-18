@@ -16,5 +16,5 @@ export async function sendMail({ to, subject, text, html, bcc, replyTo, attachme
     secure: true,
     auth: { user, pass },
   });
-  await t.sendMail({ from: `Voklogik <${fromAddress()}>`, to, subject, text, html, ...(bcc ? { bcc } : {}), ...(replyTo ? { replyTo } : {}), ...(attachments && attachments.length ? { attachments } : {}) });
+  await t.sendMail({ from: `Voklogik <${fromAddress()}>`, headers: { "List-Unsubscribe": `<mailto:${fromAddress()}?subject=unsubscribe>` }, to, subject, text, html, ...(bcc ? { bcc } : {}), ...(replyTo ? { replyTo } : {}), ...(attachments && attachments.length ? { attachments } : {}) });
 }
