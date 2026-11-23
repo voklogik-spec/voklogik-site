@@ -1211,6 +1211,7 @@ window.VK_ES={
 "Pre-Underwrite": "Pre-suscripción",
 "Not a calculator. An analyzer.": "No es una calculadora. Es un analizador.",
 "Start with your numbers below, or": "Comience con sus números abajo, o",
+"Start with your numbers below.": "Comience con sus números abajo.",
 "see a sample analysis": "vea un análisis de muestra",
 "Choose your plan to stay connected": "Elija su plan para mantenerse conectado",
 "{1}-report pack": "Paquete de {1} reportes",

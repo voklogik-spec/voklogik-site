@@ -698,14 +698,20 @@ header .tag{color:#94A3B8!important}
 </style><style id="heroloop-css">
 .heroloop{display:none}
 @media (min-width:821px){
-.heroloop{display:grid;grid-template-columns:268px minmax(0,360px);gap:26px;align-items:center;justify-content:center;margin:20px auto 6px;max-width:700px}
-.heroloop .hl-vid{position:relative;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0;box-shadow:0 10px 28px rgba(3,7,18,.14);background:#0B1220;cursor:pointer;aspect-ratio:900/1032;grid-row:1 / span 2}
+.heroloop{display:block;margin:20px auto 8px;max-width:920px}
+.heroloop .hl-vid{position:relative;border-radius:14px;overflow:hidden;border:1px solid #E2E8F0;box-shadow:0 14px 36px rgba(3,7,18,.18);background:#0B1220;cursor:pointer;aspect-ratio:2/1}
 .heroloop video{display:block;width:100%;height:100%;object-fit:cover}
-.heroloop .hl-btn{display:block;align-self:end;text-align:center;font-weight:700;padding:14px 16px;border-radius:10px;background:#FF5500;color:#fff;text-decoration:none;border:0;width:100%;font-size:1rem;cursor:pointer;font-family:inherit}
-.heroloop .hl-btn:hover{background:#E64D00}
-.heroloop .hl-pp{position:absolute;right:10px;bottom:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(3,7,18,.78);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.heroloop .hl-pp{position:absolute;right:12px;bottom:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(3,7,18,.78);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .heroloop .hl-pp:hover,.heroloop .hl-pp:focus-visible{background:#FF5500;outline:2px solid #fff}
-.heroloop .hl-note{margin:0;align-self:start;font-size:.82rem;line-height:1.45;color:#64748B}
+.heroloop .hl-bar{display:none;width:100%;align-items:center;justify-content:center;gap:10px;padding:13px 16px;border-radius:12px;border:1px solid #E2E8F0;background:#0B1220;color:#fff;font:700 .98rem inherit;font-family:inherit;cursor:pointer}
+.heroloop .hl-bar:hover{background:#111B30}
+.heroloop .hl-bar i{font-style:normal;color:#FF5500}
+.heroloop.collapsed .hl-vid{display:none}
+.heroloop.collapsed .hl-bar{display:flex}
+.heroloop .hl-row{display:flex;align-items:center;gap:22px;margin-top:14px}
+.heroloop .hl-btn{flex:0 0 auto;text-align:center;font-weight:700;padding:14px 22px;border-radius:10px;background:#FF5500;color:#fff;text-decoration:none;border:0;font-size:1rem;cursor:pointer;font-family:inherit}
+.heroloop .hl-btn:hover{background:#E64D00}
+.heroloop .hl-note{margin:0;font-size:.82rem;line-height:1.45;color:#64748B}
 }
 </style>
 </head>
@@ -732,10 +738,10 @@ header .tag{color:#94A3B8!important}
   <div class="hero-eyebrow"><div class="hero-main">
     <h1>Mortgage math, <em>the way an underwriter sees it.</em></h1>
     <p class="lede" style="margin-bottom:10px"><strong>Not a calculator. An analyzer.</strong></p>
-    <p class="lede startline">Start with your numbers below, or <a href="#analyzer" id="sampleLink">see a sample analysis</a>.</p>
-    <div class="heroloop" id="heroLoop"><div class="hl-vid" id="hlVid"><video id="hlVideo" poster="/hero-poster.jpg" autoplay loop muted playsinline preload="metadata" aria-label="Silent 12-second demo: a pay stub, credit report and bank statement are read on the device, then a late payment, a large deposit and a cash shortfall are flagged"><source src="/hero-loop.mp4" type="video/mp4"></video><button type="button" class="hl-pp" id="hlPP" aria-label="Pause video" aria-pressed="false"><svg id="hlIcoPause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="#fff"/><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="#fff"/></svg><svg id="hlIcoPlay" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="display:none"><path d="M4 2.5v11l9-5.5z" fill="#fff"/></svg></button></div>
-    <button type="button" class="hl-btn" id="hlBtn">See a sample analysis. No signup</button>
-    <p class="hl-note">Click through the exact file shown here. No account required. Documents are read on your device and never uploaded. Planning estimates only. Final approval is always the lender's decision.</p></div>
+    <p class="lede startline">Start with your numbers below.<a href="#analyzer" id="sampleLink" hidden>see a sample analysis</a></p>
+    <div class="heroloop" id="heroLoop"><button type="button" class="hl-bar" id="hlBar" aria-label="Show the 15-second demo"><i>▶</i> Show the 15-second demo</button><div class="hl-vid" id="hlVid"><video id="hlVideo" poster="/hero-poster.jpg" autoplay loop muted playsinline preload="metadata" aria-label="Silent 15-second demo: a pay stub, credit report and bank statement are read on the device, a late payment, a large deposit and a cash shortfall are flagged, and a finished report is ready to save as a PDF"><source src="/hero-loop.mp4" type="video/mp4"></video><button type="button" class="hl-pp" id="hlPP" aria-label="Pause video" aria-pressed="false"><svg id="hlIcoPause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="#fff"/><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="#fff"/></svg><svg id="hlIcoPlay" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="display:none"><path d="M4 2.5v11l9-5.5z" fill="#fff"/></svg></button></div>
+    <div class="hl-row"><button type="button" class="hl-btn" id="hlBtn">See a sample analysis. No signup</button>
+    <p class="hl-note">Open a full sample report and click through it. No account required. Documents are read on your device and never uploaded. Planning estimates only. Final approval is always the lender's decision.</p></div></div>
     </div>
   </div>
   <div class="qs" id="qs"><h2>Try it now. No signup.</h2>
@@ -2226,7 +2232,10 @@ header .tag{color:#94A3B8!important}
   function tr(n){try{if(typeof gtag==="function")gtag("event",n,{})}catch(e){}}
   function go(){tr("click_hero_loop_sample");var l=document.getElementById("sampleLink");if(l)l.click()}
   function icons(){var p=v.paused;document.getElementById("hlIcoPause").style.display=p?"none":"";document.getElementById("hlIcoPlay").style.display=p?"":"none";pp.setAttribute("aria-label",p?"Play video":"Pause video");pp.setAttribute("aria-pressed",p?"true":"false")}
-  function toggle(e){if(e)e.stopPropagation();if(v.paused){userPaused=false;try{v.play()}catch(x){}tr("hero_loop_resume")}else{userPaused=true;v.pause();tr("hero_loop_pause")}icons()}
+  var box=document.getElementById("heroLoop"),bar=document.getElementById("hlBar");
+  function setCollapsed(c){if(box)box.classList.toggle("collapsed",c)}
+  function toggle(e){if(e)e.stopPropagation();if(v.paused){userPaused=false;setCollapsed(false);try{v.play()}catch(x){}tr("hero_loop_resume")}else{userPaused=true;v.pause();setCollapsed(true);tr("hero_loop_pause")}icons()}
+  if(bar)bar.addEventListener("click",function(){userPaused=false;setCollapsed(false);try{v.play()}catch(x){}tr("hero_loop_resume");icons()});
   if(b)b.addEventListener("click",go);
   if(w)w.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("#hlPP"))return;toggle()});
   if(pp)pp.addEventListener("click",toggle);
