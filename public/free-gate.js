@@ -1,3 +1,4 @@
+/* © 2026 Voklogik LLC. All rights reserved. Proprietary and confidential. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. */
 /* Free report rules, shared by the payment analyzer and the Affordability check.
    - Preview is always free and carries the Voklogik watermark.
    - A visitor's first clean report (save or print, no watermark) is free once they ask for a summary by email.

@@ -1,3 +1,4 @@
+/* © 2026 Voklogik LLC. All rights reserved. Proprietary and confidential. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. */
 /* Voklogik EN | ES. Translates the page in place from a dictionary (/i18n-es.js).
    English stays the source text. Numbers are kept as typed and slotted into the Spanish sentence.
    Choice is remembered in this browser (localStorage "voklogik:lang"); ?lang=es or ?lang=en sets it. No auto-switching. */

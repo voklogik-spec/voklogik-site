@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- © 2026 Voklogik LLC. All rights reserved. Proprietary software; see /LICENSE.txt. -->
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Topaz Level by Voklogik</title>
@@ -478,4 +479,6 @@ if(rt){show("w");forms("fReset")}else
 api("me",null,true).then(function(m){if(m.ok)render(m.account,/[?&]new=1/.test(location.search)||(m.account.plan==="none"&&m.account.used===0&&false));else show("w")}).catch(function(){show("w")});
 if(/[?&]paid=1/.test(location.search)){var n=0,t=setInterval(function(){api("me",null,true).then(function(m){if(m.ok){render(m.account,false);if(m.account.plan!=="none"||++n>12)clearInterval(t)}})},2500)}
 })();
-</script></body></html>
+</script>
+<div style="max-width:960px;margin:28px auto 18px;padding:0 16px;text-align:center;font:12px/1.5 Inter,system-ui,sans-serif;color:#64748B">© 2026 Voklogik LLC. All rights reserved. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. <a href="https://voklogik.com/terms.html" target="_blank" rel="noopener" style="color:inherit">Terms</a> · <a href="https://voklogik.com/privacy.html" target="_blank" rel="noopener" style="color:inherit">Privacy</a></div>
+</body></html>

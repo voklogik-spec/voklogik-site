@@ -1,3 +1,4 @@
+/* © 2026 Voklogik LLC. All rights reserved. Proprietary and confidential. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. */
 /* Affordability inside a member's Opal page (/affordability.html?w=<page-name>[&embed=1]).
    Adds the member's card at the top, a link back to the payment estimate, and a form that
    sends the member a summary. Does nothing on the normal Affordability page. */

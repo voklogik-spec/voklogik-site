@@ -1,3 +1,4 @@
+/* © 2026 Voklogik LLC. All rights reserved. Proprietary and confidential. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. */
 /* Voklogik document reader (pay stubs and bank statements).
    Loaded only when someone taps an upload button. Everything runs in the browser:
    the file is read from memory, text is pulled out with pdf.js, a few numbers are

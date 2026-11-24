@@ -1,3 +1,4 @@
+/* © 2026 Voklogik LLC. All rights reserved. Proprietary and confidential. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. */
 /* "Add to home screen" reminder in the footer. Shows steps for the visitor's device. Hidden once the app is installed. */
 (function(){
   var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;

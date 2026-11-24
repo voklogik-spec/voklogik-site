@@ -1,3 +1,4 @@
+/* © 2026 Voklogik LLC. All rights reserved. Proprietary and confidential. Voklogik™, Topaz™ and Opal™ are trademarks of Voklogik LLC. */
 /* Topaz / Opal branding for reports. Loaded by the calculator and Affordability pages.
    Only does anything when the visitor signed in on /topaz.html on this device. */
 (function(){

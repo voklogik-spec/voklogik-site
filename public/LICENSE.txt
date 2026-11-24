@@ -1,0 +1,14 @@
+Copyright (c) 2026 Voklogik LLC. All rights reserved.
+
+This website, its software, source code, design, text, graphics, calculations,
+logos and other content (the "Software") are the proprietary and confidential
+property of Voklogik LLC. No license or right is granted to copy, modify,
+distribute, sell, sublicense, scrape, reverse engineer or create derivative works
+of the Software, or to use the Voklogik, Topaz or Opal names or logos, without the
+prior written permission of Voklogik LLC.
+
+Third-party components included with the Software (for example pdf.js, jsPDF and
+the QR code generator) remain under their own licenses.
+
+Voklogik(TM), Topaz(TM) and Opal(TM) are trademarks of Voklogik LLC.
+Contact: hello@voklogik.com
