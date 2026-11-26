@@ -116,6 +116,31 @@ html.emb .calc>.stat:nth-child(n+3){border-top:1px solid var(--line)!important}
 @media(max-width:520px){.dr-wide{grid-template-columns:1fr}}
 
 @media print{.docbox,#docPayOut,#docBankOut,#docCredOut{display:none!important}}
+.agent{border:2px dashed #9AA3B2;border-radius:14px;padding:20px 18px;margin:0 0 18px;background:#F8FAFC;text-align:center;transition:border-color .15s,background .15s}
+.agent.over{border-color:#FF5500;background:#FFF4EC}
+.agent .aglogo{display:block;margin:0 auto 6px;width:226px;max-width:70%;height:auto;mix-blend-mode:multiply}
+.agent h3{margin:0 0 4px;font-size:1.12rem;color:#0F172A}
+.agent .agsub{margin:0 auto 12px;max-width:560px;font-size:.86rem;line-height:1.45;color:#475569}
+.agent .agbtn{font-weight:700;padding:12px 22px;border-radius:10px;background:#FF5500;color:#fff;border:0;font-size:.98rem;cursor:pointer;font-family:inherit}
+.agent .agbtn:hover{background:#E64D00}
+.agent .aghint{display:block;margin-top:8px;font-size:.78rem;color:#64748B}
+.aglist{margin:14px 0 0;text-align:left;display:grid;gap:8px}
+.aglist:empty{display:none}
+.agrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;border:1px solid #E2E8F0;border-radius:10px;background:#fff}
+.agrow .agn{flex:1;min-width:140px;font-size:.88rem;font-weight:600;color:#0F172A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agrow select{width:auto!important;flex:0 0 auto;min-width:150px;max-width:100%;font:inherit;font-size:.86rem;padding:6px 8px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;color:#0F172A}
+.agrow .ags{font-size:.8rem;color:#475569}
+.agrow .ags.ok{color:#15803D;font-weight:700}.agrow .ags.bad{color:#B91C1C;font-weight:700}
+.agrow .agx{border:0;background:transparent;color:#64748B;font-size:1.1rem;cursor:pointer;padding:2px 6px}
+.agsec{margin:14px 0 0;text-align:left}
+.agsec .aghd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 6px;font-size:.84rem;font-weight:700;color:#0F172A}
+.agsec .aghd select{width:auto!important;font:inherit;font-size:.84rem;padding:5px 8px;border:1px solid #CBD5E1;border-radius:8px}
+.agent.hosted{border:0;background:none;padding:0;margin:0 0 10px}
+.agent.hosted>.aglogo,.agent.hosted>h3,.agent.hosted>.agsub,.agent.hosted>.agbtn,.agent.hosted>.aghint{display:none}
+.agent.hosted:not(.has){display:none}
+.agent.hosted .aglist{margin-top:0}
+@media print{.agent{display:none!important}}
+
 </style>
 <script src="/topaz-brand.js"></script>
 <script src="/free-gate.js"></script>
@@ -445,6 +470,17 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   <p id="sampleMsg"><strong>New here?</strong> See how it works in 10 seconds. Load a sample scenario, then change any number to try your own.</p>
   <button type="button" class="bubble" id="sampleBtn">Try a sample scenario</button>
   <button type="button" class="editlink" id="sampleClear" hidden>Clear the sample and start with my numbers</button>
+</div>
+
+<div class="agent" id="agent">
+  <img class="aglogo" src="/vorelia-logo.png" alt="Vorelia" width="226" height="78">
+  <h3>Drop all your documents here</h3>
+  <p class="agsub">Vorelia sorts your pay stubs, credit report, bank statements and tax returns, in any order, and reads each one on your device. Nothing is uploaded. You check every number before it is used.</p>
+  <button type="button" class="agbtn" id="agBtn">Choose files</button>
+  <span class="aghint">or drag them onto this box. PDF only.</span>
+  <input type="file" id="agFile" accept="application/pdf,.pdf" multiple hidden>
+  <div class="aglist" id="agList" aria-live="polite"></div>
+  <div id="agOut"></div>
 </div>
 
 <p class="k embnote" id="embNote" hidden>Enter your home price, down payment and rate in the form on the left. Your ratios, reserves and cash to close appear here.</p>
@@ -1978,6 +2014,106 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     docRun("bank",fl,$("docBankOut"),docApi);$("docBankFile").value="";
   });
 
+
+  // ---- one drop zone: sort each file by type, then hand it to the matching reader above ----
+  (function(){
+    var box=$("agent");if(!box)return;
+    var KINDS=[["pay","Pay stub"],["credit","Credit report"],["bank","Bank statement"],["tax","Tax return"],["skip","Skip this file"]];
+    var items=[],seq=0,MAXF=10;
+    var RX={
+      tax:[/form\s*(1040|1120s?|1065)\b/g,/schedule\s*(c|e|k-?1)\b/g,/internal revenue service/g,/department of the treasury/g,/\bk-?1\b/g],
+      credit:[/credit (report|score|file)/g,/\bfico\b|vantagescore/g,/trade ?lines?|creditors?\b/g,/payment history/g,/collections?\b|charge[- ]?offs?/g,/\bequifax\b|\bexperian\b|\btransunion\b/g,/(30|60|90)[ -]days? late|days past due/g,/revolving|installment/g],
+      bank:[/statement period|statement date|account summary/g,/(beginning|opening|previous) balance/g,/(ending|closing|new) balance/g,/deposits?( and| &)? (other )?(credits|additions)|total deposits/g,/withdrawals|total debits|checks paid/g,/\b(checking|savings)\b/g,/available balance|daily (ending )?balance/g],
+      pay:[/gross pay|gross earnings/g,/net pay|take[- ]?home/g,/earnings statement|pay ?stub|paycheck|pay advice/g,/pay period|pay date|period (beginning|ending)/g,/\bytd\b|year[- ]to[- ]date/g,/regular (pay|earnings)|hourly|salary/g,/federal (income )?(tax|withholding)|\bfica\b|medicare/g,/deductions/g]
+    };
+    function count(t,list){var n=0;list.forEach(function(r){var m=t.match(r);if(m)n+=Math.min(m.length,2)});return n}
+    function classify(text){
+      var t=text.toLowerCase(),sc={};
+      Object.keys(RX).forEach(function(k){sc[k]=count(t,RX[k])});
+      if(/form\s*(1040|1120s?|1065)\b/.test(t))sc.tax+=4;
+      var best="",bv=0,second=0;
+      Object.keys(sc).forEach(function(k){if(sc[k]>bv){second=bv;bv=sc[k];best=k}else if(sc[k]>second)second=sc[k]});
+      return(bv>=3&&bv>second)?best:"";
+    }
+    function borrowers(){
+      var seen={},out=[];
+      document.querySelectorAll("[data-docpayfile]").forEach(function(f){var v=f.getAttribute("data-docpayfile")||"";if(!seen[v]){seen[v]=1;out.push(v)}});
+      if(!seen[""])out.unshift("");
+      return out;
+    }
+    function bsel(){
+      var b=borrowers(),sl=document.createElement("select");sl.setAttribute("aria-label","Apply to which borrower");
+      b.forEach(function(v,i){var o=document.createElement("option");o.value=v;o.textContent="Borrower "+(i+1);sl.appendChild(o)});
+      return b.length>1?sl:null;
+    }
+    function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+    function track(n){try{if(typeof gtag==="function")gtag("event",n,{})}catch(e){}}
+
+    function sniff(file){
+      return docLoad().then(function(m){return m.readPages(file,3)}).then(function(pg){
+        var t="";pg.forEach(function(p){t+=p.lines.join(" ")+" "});return{kind:classify(t)};
+      }).catch(function(e){return{kind:"",err:(e&&e.code)||"bad",msg:(e&&e.message)||"This file could not be read."}});
+    }
+    function render(){
+      var list=$("agList");list.textContent="";box.classList.toggle("has",items.length>0);
+      items.forEach(function(it){
+        var r=mk("div","agrow"),n=mk("span","agn",it.file.name);n.title=it.file.name;r.appendChild(n);
+        if(it.err){r.appendChild(mk("span","ags bad",it.msg))}
+        else if(it.busy){r.appendChild(mk("span","ags","Checking..."))}
+        else{
+          var sl=document.createElement("select");sl.setAttribute("aria-label","Document type");
+          if(!it.kind){var o0=document.createElement("option");o0.value="";o0.textContent="What is this?";sl.appendChild(o0)}
+          KINDS.forEach(function(k){var o=document.createElement("option");o.value=k[0];o.textContent=k[1];sl.appendChild(o)});
+          sl.value=it.kind||"";
+          sl.addEventListener("change",function(){it.kind=sl.value;it.auto=false;render();readAll()});
+          r.appendChild(sl);
+          r.appendChild(mk("span","ags"+(it.kind&&it.kind!=="skip"?" ok":""),it.kind==="skip"?"Skipped":it.kind?(it.auto?"Sorted":"Set by you"):"Tell us what it is"));
+        }
+        var x=mk("button","agx","×");x.type="button";x.setAttribute("aria-label","Remove "+it.file.name);
+        x.addEventListener("click",function(){items=items.filter(function(i){return i!==it});render();readAll()});
+        r.appendChild(x);list.appendChild(r);
+      });
+    }
+    function sec(title){
+      var s=mk("div","agsec"),h=mk("div","aghd"),t=mk("span","",title);h.appendChild(t);s.appendChild(h);
+      var o=mk("div");o.setAttribute("aria-live","polite");s.appendChild(o);$("agOut").appendChild(s);return{head:h,out:o};
+    }
+    var running=0;
+    function readAll(){
+      var my=++running;$("agOut").textContent="";
+      var by={pay:[],credit:[],bank:[],tax:[]};
+      items.forEach(function(it){if(by[it.kind]&&!it.err&&!it.busy)by[it.kind].push(it.file)});
+      by.pay.forEach(function(f,i){
+        var s=sec(by.pay.length>1?"Pay stub "+(i+1):"Pay stub"),sl=bsel(),P="";
+        if(sl){s.head.appendChild(mk("span","","Apply to:"));s.head.appendChild(sl);sl.selectedIndex=Math.min(i,sl.options.length-1)}
+        var api=Object.assign({},docApi,{applyPay:function(x){docApi.applyPay(x,sl?sl.value:"")}});
+        docRun("pay",[f],s.out,api);
+      });
+      if(by.credit.length){var s=sec("Credit report");docRun("credit",by.credit.slice(0,3),s.out,docApi);if(by.credit.length>3)s.head.appendChild(mk("span","ags","Only the first 3 credit files are read."))}
+      if(by.bank.length){var s2=sec("Bank statements");docRun("bank",by.bank.slice(0,3),s2.out,docApi);if(by.bank.length>3)s2.head.appendChild(mk("span","ags","Only the first 3 statements are read."))}
+      if(by.tax.length){
+        var s3=sec("Tax returns"),sl3=bsel();
+        if(sl3){s3.head.appendChild(mk("span","","Apply to:"));s3.head.appendChild(sl3)}
+        var api3=Object.assign({},docApi,{applyTax:function(x){docApi.applyTax(x,sl3?sl3.value:"")}});
+        docRun("tax",by.tax,s3.out,api3);
+      }
+    }
+    function add(files){
+      var fl=Array.prototype.slice.call(files||[]);if(!fl.length)return;
+      fl=fl.slice(0,Math.max(0,MAXF-items.length));
+      var fresh=fl.map(function(f){var it={file:f,id:++seq,kind:"",busy:true,auto:true};items.push(it);return it});
+      track("agent_drop");render();
+      Promise.all(fresh.map(function(it){return sniff(it.file).then(function(r){it.busy=false;if(r.err){it.err=r.err;it.msg=r.msg}else it.kind=r.kind})})).then(function(){render();readAll()});
+    }
+    window.vkAgentAdd=add;
+    function hosting(){var h=false;try{h=window.parent!==window&&!!parent.document.getElementById("vkAgentStrip")&&parent.matchMedia("(min-width:821px)").matches}catch(e){}box.classList.toggle("hosted",h)}
+    hosting();try{parent.addEventListener("resize",hosting)}catch(e){}
+    $("agBtn").addEventListener("click",function(){$("agFile").value="";$("agFile").click()});
+    $("agFile").addEventListener("change",function(){add($("agFile").files)});
+    ["dragenter","dragover"].forEach(function(ev){box.addEventListener(ev,function(e){e.preventDefault();box.classList.add("over")})});
+    ["dragleave","drop"].forEach(function(ev){box.addEventListener(ev,function(e){e.preventDefault();if(ev==="drop"||e.target===box)box.classList.remove("over")})});
+    box.addEventListener("drop",function(e){if(e.dataTransfer)add(e.dataTransfer.files)});
+  })();
   $("assetsList").addEventListener("input",function(){recompute()});
   $("assetsList").addEventListener("change",function(){recompute()});
   $("resUpbList").addEventListener("input",function(e){var m=/^resUpb(\d+)$/.exec(e.target.id);if(m){var o=$("own"+m[1]+"Upb");if(o)o.value=e.target.value}});

@@ -728,6 +728,43 @@ header .tag{color:#94A3B8!important}
 .heroloop .hl-row{display:none}
 }
 </style>
+<style id="ratios-top-css">
+.vk-agent{display:none}
+@keyframes vkfade{from{opacity:0}to{opacity:1}}
+.ratioband.vk-anim .stat,.ratioband.vk-anim .ratnote{animation:vkfade .4s ease}
+.ratioband.compact{padding:4px 10px!important}
+.ratioband.compact .stat{flex-direction:row!important;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;padding:12px 14px!important}
+.ratioband.compact .stathead{flex-direction:row!important;gap:10px!important;align-items:center!important;justify-content:center;flex-wrap:wrap}
+.ratioband.compact .stathead .rowlabel{min-height:0!important;font-size:.95rem}
+.ratioband.compact .statpct,.ratioband.compact .stactions,.ratioband.compact .infobox,.ratioband.compact .infobtn,.ratioband.compact .logicbtn,.ratioband.compact .ratnote,.ratioband.compact .stat>.k{display:none!important}
+@media (min-width:821px){
+html body .hero>.ratioband{grid-row:2!important;margin-bottom:6px}
+html body .hero>.vk-agent{display:block;grid-column:1 / -1;grid-row:3;border:2px dashed #9AA3B2;border-radius:14px;background:#F8FAFC;padding:14px 20px;transition:border-color .15s,background .15s}
+html body .hero>.vk-agent.over{border-color:#FF5500;background:#FFF4EC}
+html body .hero>.calc[role="group"],html body .hero>.sample-hero{grid-row:4!important}
+html body .hero>.clearrow,html body .hero.wide>.clearrow{grid-row:5!important}
+html body .hero>.midband,html body .hero.wide>.midband{grid-row:6!important}
+.vk-agent .va-main{display:flex;align-items:center;gap:18px}
+.vk-agent .va-logo{display:block;width:190px;height:auto;mix-blend-mode:multiply;flex:0 0 auto}
+.vk-agent .va-arrow{flex:0 0 auto;width:54px;height:24px}
+.vk-agent .va-drop{flex:1;min-width:0}
+.vk-agent .va-drop b{display:block;font:700 1.15rem "Bricolage Grotesque",Inter,sans-serif;color:#0F172A}
+.vk-agent .va-drop span{display:block;margin-top:2px;font-size:.84rem;color:#475569}
+.vk-agent .va-btn{flex:0 0 auto;font-weight:700;padding:12px 22px;border-radius:10px;background:#FF5500;color:#fff;border:0;font-size:.98rem;cursor:pointer;font-family:inherit}
+.vk-agent .va-btn:hover{background:#E64D00}
+.vk-agent .va-more{flex:0 0 auto;font:700 .84rem inherit;font-family:inherit;color:#0F172A;background:#fff;border:1px solid #CBD5E1;border-radius:8px;padding:9px 12px;cursor:pointer}
+.vk-agent .va-more:hover,.vk-agent .va-more:focus-visible{border-color:#FF5500;outline:0}
+.vk-agent .va-more i{font-style:normal;display:inline-block;margin-left:4px;transition:transform .15s}
+.vk-agent .va-more[aria-expanded="true"] i{transform:rotate(180deg)}
+.vk-agent .va-drawer{margin:12px 0 0;padding:16px 20px;background:#0F172A;border:1px solid #1E293B;border-radius:8px;color:#E2E8F0;font:400 .84rem/1.75 var(--mono,"Geist Mono",monospace);letter-spacing:-.01em}
+.vk-agent .va-drawer[hidden]{display:none}
+.vk-agent .va-drawer p{margin:0 0 8px}.vk-agent .va-drawer p:last-child{margin:0}
+.vk-agent .va-drawer b{color:#fff;font-weight:600}
+.vk-agent .va-drawer .va-c{color:#64748B}
+}
+@media (max-width:820px){.vk-agent{display:none!important}}
+@media print{.vk-agent{display:none!important}}
+</style>
 </head>
 <body>
 <div class="prwm" aria-hidden="true">Voklogik</div>
@@ -769,6 +806,20 @@ header .tag{color:#94A3B8!important}
 <p class="fine">Free preview. <a href="#analyzer" id="qsSample">See a sample analysis</a></p></div>
   <div class="sample-hero" id="analyzer"><iframe id="affFrame" src="/affordability.html?embed=1" title="Affordability analyzer" loading="eager"></iframe></div>
 
+  <div class="vk-agent" id="vkAgentStrip" role="region" aria-label="Vorelia document assistant">
+    <div class="va-main">
+      <img class="va-logo" src="/vorelia-logo.png" alt="Vorelia" width="190" height="66">
+      <svg class="va-arrow" viewBox="0 0 54 24" aria-hidden="true"><path d="M2 12h44M36 3l12 9-12 9" fill="none" stroke="#FF5500" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="va-drop"><b>Drop all your documents here</b><span>Pay stubs, credit report, bank statements and tax returns, in any order. PDF only.</span></div>
+      <button type="button" class="va-btn" id="vaBtn">Choose files</button>
+      <button type="button" class="va-more" id="vaMore" aria-expanded="false" aria-controls="vaDrawer">How Vorelia works<i>&#9662;</i></button>
+    </div>
+    <div class="va-drawer" id="vaDrawer" hidden>
+      <p><b>Vorelia sorts your pay stubs, credit report, bank statements and tax returns, in any order, and reads each one on your device.</b></p>
+      <p>Nothing is uploaded. Vorelia then fills in your income, debts and assets, and flags late payments and large deposits. You check every number before it is used.</p>
+    </div>
+    <input type="file" id="vaFile" accept="application/pdf,.pdf" multiple hidden>
+  </div>
   <div class="calc" role="group" aria-label="Mortgage analyzer">
     <p class="k" id="prepPrint"></p>
     <div id="inputsArea">
@@ -2070,7 +2121,14 @@ header .tag{color:#94A3B8!important}
     var inc=0;try{inc=parseFloat(String((d.getElementById("incomeSummary")||{}).textContent||"").replace(/[^0-9.]/g,""))||0}catch(e){}
     var payOk=loanReady()&&$("rate").value!=="",wait=[!(payOk&&inc>0),!(payOk&&inc>0),!loanReady(),!loanReady()],sig=wait.join();
     if(h===rLast&&sig===rSig)return;rLast=h;rSig=sig;
+    var wasC=band.classList.contains("compact"),h0=band.offsetHeight,seen=band._vkSeen;
     band.innerHTML=h+'<p class="k ratnote">If either ratio looks high, try a smaller loan amount or a lower rate.</p>';
+    var nowC=wait.every(Boolean);band.classList.toggle("compact",nowC);band._vkSeen=true;
+    if(seen&&wasC!==nowC&&h0>0&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)){
+      band.style.height="auto";var h1=band.offsetHeight;band.style.height=h0+"px";band.style.overflow="hidden";band.classList.add("vk-anim");
+      void band.offsetHeight;band.style.transition="height .35s ease";band.style.height=h1+"px";
+      setTimeout(function(){band.style.height="";band.style.transition="";band.style.overflow="";band.classList.remove("vk-anim")},400);
+    }
     var ss=band.querySelectorAll(".stat");
     if(ss.length===4)ss.forEach(function(s,i){if(!wait[i])return;s.hidden=false;s.classList.add("waiting");var p=s.querySelector(".statpct"),w=s.querySelector(".statword");if(p)p.textContent="\u2014";if(w){w.textContent=T("Waiting for your numbers");w.className="statword wait"}});
     band.querySelectorAll(".stat").forEach(function(s,i){if(rOpen[i]){var ib=s.querySelector(".infobox");if(ib)ib.hidden=false}});
@@ -2263,6 +2321,24 @@ header .tag{color:#94A3B8!important}
     new IntersectionObserver(function(es){es.forEach(function(e){try{if(e.isIntersecting){if(!userPaused)v.play()}else v.pause()}catch(x){}})},{threshold:.25}).observe(v);
   }
   icons();
+})();
+</script>
+<script>
+(function(){
+  var strip=document.getElementById("vkAgentStrip"),f=document.getElementById("vaFile"),fr=document.getElementById("affFrame");
+  if(!strip||!f||!fr)return;
+  function send(files){
+    var fl=Array.prototype.slice.call(files||[]);if(!fl.length)return;
+    function go(){try{fr.contentWindow.vkAgentAdd(fl);var a=document.getElementById("analyzer");if(a)a.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}
+    if(fr.contentWindow&&typeof fr.contentWindow.vkAgentAdd==="function")go();else fr.addEventListener("load",function(){setTimeout(go,300)},{once:true});
+  }
+  document.getElementById("vaBtn").addEventListener("click",function(){f.value="";f.click()});
+  f.addEventListener("change",function(){send(f.files)});
+  var mb=document.getElementById("vaMore"),dr=document.getElementById("vaDrawer");
+  mb.addEventListener("click",function(){var o=dr.hidden;dr.hidden=!o;mb.setAttribute("aria-expanded",o?"true":"false")});
+  ["dragenter","dragover"].forEach(function(ev){strip.addEventListener(ev,function(e){e.preventDefault();strip.classList.add("over")})});
+  strip.addEventListener("dragleave",function(e){if(e.target===strip)strip.classList.remove("over")});
+  strip.addEventListener("drop",function(e){e.preventDefault();strip.classList.remove("over");if(e.dataTransfer)send(e.dataTransfer.files)});
 })();
 </script>
 </body>
