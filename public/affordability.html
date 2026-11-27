@@ -1139,7 +1139,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     h+='<p class="srctotal" id="'+p+kind+'Total"></p>';
     return h;
   }
-  function taxBox(p){return '<div class="docbox"><div class="dtx"><b>Have tax returns? Upload them to pre-fill.</b><span>PDF only, up to 3 files, one per tax year. Read on your device and never uploaded. Only the income and add-back figures are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-doctax="'+p+'">Upload tax returns</button><input type="file" data-doctaxfile="'+p+'" accept="application/pdf,.pdf" multiple hidden></div><div aria-live="polite"></div>'}
+  function taxBox(p){return '<div class="docbox"><div class="dtx"><b>Have tax returns or IRS transcripts? Upload them to pre-fill.</b><span>PDF only, up to 6 files. Form 1040, Schedule C, 1120-S, 1065, 1120 or IRS transcripts. Read on your device and never uploaded. Only the income and add-back figures are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-doctax="'+p+'">Upload tax returns</button><input type="file" data-doctaxfile="'+p+'" accept="application/pdf,.pdf" multiple hidden></div><div aria-live="polite"></div>'}
   function selfEmpHtml(p){return taxBox(p)+groupHtml(p,"bz",BIZ,"Select every kind of self-employment income you have, then enter the figures from your tax returns. Most lenders average two years and add back items like depreciation, which reduce your taxes but not your real cash flow.","Types of self-employment income")}
   function additionalHtml(p){return groupHtml(p,"ad",ADDL,"Select each type that applies. Bonus, commission, capital gains, and interest or dividends are usually averaged over two years, because lenders want income that is likely to continue.","Types of additional income")}
   $("srcSelfemp").innerHTML=selfEmpHtml("");
@@ -1928,9 +1928,14 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   }
   var docApi={
     income:function(){var t=$("incomeSummary");return t?(parseFloat(String(t.textContent).replace(/[^0-9.]/g,""))||0):0},
-    applyPay:function(o,P){P=P||"";$(P+"wageFreq").value=o.freq;docFire($(P+"wageFreq"));$(P+"wageAmt").value=o.amount;docFire($(P+"wageAmt"));docMark("pay",P,[P+"wageFreq",P+"wageAmt"]);recompute()},
+    srcOn:function(key,P){ // income only counts a source once its "+ ..." button is on: switch it on when documents fill it
+      var b=P?document.querySelector('.bubble[data-srcn="'+key+'"][data-prefix="'+P+'"]'):document.querySelector('.bubble[data-src="'+key+'"]');
+      if(b&&b.getAttribute("aria-pressed")!=="true")b.click();
+    },
+    applyPay:function(o,P){P=P||"";docApi.srcOn("employment",P);$(P+"wageFreq").value=o.freq;docFire($(P+"wageFreq"));$(P+"wageAmt").value=o.amount;docFire($(P+"wageAmt"));docMark("pay",P,[P+"wageFreq",P+"wageAmt"]);recompute()},
     applyTax:function(list,P){
       P=P||"";var gotSc=false,tids=[];
+      if(list.some(function(x){return $(P+"bz_"+x.key+"_on")}))docApi.srcOn("selfemp",P);
       list.forEach(function(x){
         if(x.key==="sc")gotSc=true;
         var base=P+"bz_"+x.key,on=$(base+"_on");if(!on)return;
@@ -2021,7 +2026,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var KINDS=[["pay","Pay stub"],["credit","Credit report"],["bank","Bank statement"],["tax","Tax return"],["skip","Skip this file"]];
     var items=[],seq=0,MAXF=10;
     var RX={
-      tax:[/form\s*(1040|1120s?|1065)\b/g,/schedule\s*(c|e|k-?1)\b/g,/internal revenue service/g,/department of the treasury/g,/\bk-?1\b/g],
+      tax:[/(tax return|tax account|wage and income|record of account) transcript|tax period (ending|requested)/g,/wages, salaries, tips|adjusted gross income/g,/form\s*(1040|1120s?|1065)\b/g,/schedule\s*(c|e|k-?1)\b/g,/internal revenue service/g,/department of the treasury/g,/\bk-?1\b/g],
       credit:[/credit (report|score|file)/g,/\bfico\b|vantagescore/g,/trade ?lines?|creditors?\b/g,/payment history/g,/collections?\b|charge[- ]?offs?/g,/\bequifax\b|\bexperian\b|\btransunion\b/g,/(30|60|90)[ -]days? late|days past due/g,/revolving|installment/g],
       bank:[/statement period|statement date|account summary/g,/(beginning|opening|previous) balance/g,/(ending|closing|new) balance/g,/deposits?( and| &)? (other )?(credits|additions)|total deposits/g,/withdrawals|total debits|checks paid/g,/\b(checking|savings)\b/g,/available balance|daily (ending )?balance/g],
       pay:[/gross pay|gross earnings/g,/net pay|take[- ]?home/g,/earnings statement|pay ?stub|paycheck|pay advice/g,/pay period|pay date|period (beginning|ending)/g,/\bytd\b|year[- ]to[- ]date/g,/regular (pay|earnings)|hourly|salary/g,/federal (income )?(tax|withholding)|\bfica\b|medicare/g,/deductions/g]
@@ -2030,7 +2035,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     function classify(text){
       var t=text.toLowerCase(),sc={};
       Object.keys(RX).forEach(function(k){sc[k]=count(t,RX[k])});
-      if(/form\s*(1040|1120s?|1065)\b/.test(t))sc.tax+=4;
+      if(/form\s*(1040|1120s?|1065)\b/.test(t)||/(tax return|tax account|wage and income|record of account) transcript/.test(t))sc.tax+=4;
       var best="",bv=0,second=0;
       Object.keys(sc).forEach(function(k){if(sc[k]>bv){second=bv;bv=sc[k];best=k}else if(sc[k]>second)second=sc[k]});
       return(bv>=3&&bv>second)?best:"";
