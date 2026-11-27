@@ -321,9 +321,9 @@ async function runPay(file, out, api) {
 
 async function runBank(files, out, api, keep) {  // keep: what the person already changed, when the panel is rebuilt after income changes
   msg(out, "Reading your statements on this device...");
-  var inc = api.income(), threshold = inc > 0 ? inc * 0.5 : 0, parsed = [], bad = null;
+  var inc = api.income(), threshold = inc > 0 ? inc * 0.5 : 0, parsed = [], bad = null, stLines = [];
   for (var i = 0; i < Math.min(files.length, 3); i++) {
-    try { parsed.push(parseStmt(await readStmtLines(files[i]), threshold)); } catch (e) { bad = bad || e; }
+    try { var SL = await readStmtLines(files[i]); parsed.push(parseStmt(SL, threshold)); stLines.push(SL); } catch (e) { bad = bad || e; }
   }
   var ok = parsed.filter(function (x) { return x.accounts.length; });
   if (!ok.length) { msg(out, bad ? errText(bad, "bank") : "We could not find an ending balance on this file. Please type it in."); return; }
@@ -383,7 +383,26 @@ async function runBank(files, out, api, keep) {  // keep: what the person alread
     var list = [], amap = {}; rowsA.forEach(function (r, ri) { if (r.inc.checked && toNum(r.b.value) > 0) amap[ri] = Object.keys(amap).length; });
     rowsA.forEach(function (r) { if (r.inc.checked && toNum(r.b.value) > 0) list.push({ type: r.t.value, amount: round2(toNum(r.b.value)) }); });
     api.applyAssets(list, rowsD.length > 0, rowsD.map(function (r) { var k = amap[+r.a.value]; return { date: r.d.date, amt: r.d.amt, st: r.s.value, acct: k == null ? null : k }; }));
-    msg(out, "Added to your assets. You can still change it above.", "ok");
+    // Keep checking large deposits against whatever income is on the page, after this panel is gone too.
+    var depsFor = function (th) {
+      var seen = {}, res = [];
+      stLines.forEach(function (L) { var x; try { x = parseStmt(L, th); } catch (e) { return; } if (!x.accounts.length) return; x.deposits.forEach(function (d) { var k = d.date + "|" + d.amt; if (!seen[k] && res.length < 8) { seen[k] = 1; res.push(d); } }); });
+      return res;
+    };
+    if (window.vkBankWatch) clearInterval(window.vkBankWatch);
+    var owned = {}, lastInc = api.income(), cand = null, candAt = 0;
+    rowsD.forEach(function (r) { owned[r.d.date + "|" + r.d.amt] = 1; });
+    msg(out, "Added to your assets. You can still change it above. " + (lastInc > 0 ? "Large deposits are checked against your current income, and again whenever it changes." : "Large deposits will be checked as soon as income is entered, and again whenever it changes."), "ok");
+    window.vkBankWatch = setInterval(function () {
+      var cur = api.income();
+      if (cur === lastInc) { cand = null; return; }
+      if (cur !== cand) { cand = cur; candAt = Date.now(); return; }
+      if (Date.now() - candAt < 1200) return;
+      lastInc = cur; cand = null;
+      var found = cur > 0 ? depsFor(cur * 0.5) : [];
+      if (api.syncDeposits) api.syncDeposits(found, owned);
+      if (out.isConnected) msg(out, "Added to your assets. You can still change it above. " + (found.length ? "Checked against your current income: large deposits found. Review them under Total Assets." : "Checked against your current income: no large deposits found."), "ok");
+    }, 700);
   }, out);
   rowsA.forEach(function (r) { r.inc.addEventListener("change", calc); r.b.addEventListener("input", calc); });
   rowsD.forEach(function (r) { r.s.addEventListener("change", calc); });

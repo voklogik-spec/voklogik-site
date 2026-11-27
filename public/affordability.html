@@ -1966,6 +1966,15 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(crInfo.coll){var r=document.querySelector('input[name="pubRec"][value="yes"]');if(r){r.checked=true;docFire(r)}}
       crRender();recompute();affSaveSoon();
     },
+    syncDeposits:function(deps,owned){ // large deposits follow the income that is on the page now; owned = the deposits these statements added
+      var keep={};deps.forEach(function(d){keep[d.date+"|"+d.amt]=1});
+      ldList=ldList.filter(function(x){var k=x.date+"|"+x.amt;return !(owned[k]&&!keep[k])});
+      Object.keys(owned).forEach(function(k){if(!keep[k])delete owned[k]});
+      deps.forEach(function(d){var k=d.date+"|"+d.amt,f=null;ldList.forEach(function(x){if(x.date===d.date&&x.amt===d.amt)f=x});if(!f){ldList.push({date:d.date,amt:d.amt,st:"tbv",ast:null});owned[k]=1}});
+      var yes=document.querySelector('input[name="largeDep"][value="yes"]'),no=document.querySelector('input[name="largeDep"][value="no"]');
+      if(ldList.length){if(yes&&!yes.checked){yes.checked=true;docFire(yes)}}else if(no&&!no.checked){no.checked=true;docFire(no)}
+      recompute();
+    },
     applyAssets:function(list,ld,deps){
       var aids=[];
       var lids=[];
@@ -2267,6 +2276,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       +(gift>0?mr("Less gift to be received at closing",usd.format(gift)):'')
       +(cred>0?mr("Less seller / closing credit"+(cm==="pct"?" ("+cv+"% of purchase price)":""),usd.format(cred)):'')
       +mr("Cash still needed at closing",usd.format(need),1)
+      +(need<=0&&gross>0&&(earn+gift+cred)>0?'<p class="k" style="margin:8px 0 0"><b>Your earnest money, gift and credits cover all of the cash needed.</b> Many loan programs still require some of your own funds at closing, and credits are limited by the program and the actual costs. Confirm with your lender.</p>':'')
       +(cred>0?'<p class="k" style="margin:8px 0 0">Credits are limited by the loan program and the actual closing costs. Your lender confirms what is allowed.</p>':'')
       +(cashInfo.earnPending>0&&!refi?'<p class="k" style="margin:8px 0 0">Earnest money not yet paid ('+usd.format(cashInfo.earnPending)+') is not credited until it is paid and cleared.</p>':'')
       +(cashInfo.giftPending>0&&!refi?'<p class="k" style="margin:8px 0 0">A gift not received at closing ('+usd.format(cashInfo.giftPending)+') is not credited. To credit it, choose Yes under \u201cGift to be received at closing?\u201d in Total Assets.</p>':'');
@@ -2407,7 +2417,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var refi=subjTxn()==="refi",price=n("propValue"),appr=refi?0:n("propAppr"),liens=n("propLiens"),loan=n("pLoan");
     $("propValueLbl").textContent=refi?"Current value ($)":"Purchase price ($)";
     $("apprField").hidden=refi;
-    var base=refi?price:(appr>0&&price>0?Math.min(price,appr):(price>0?price:appr)),on=base>0&&loan>0,basis="";
+    var base=refi?price:(appr>0&&price>0?Math.min(price,appr):(price>0?price:appr)),on=base>0&&loan>0&&loan<=base*3,basis="";
     if(refi)basis="Based on the current value.";
     else if(appr>0&&price>0)basis="LTV/CLTV are based on the lower of the purchase price and the appraised value ("+usd.format(base)+").";
     else if(price>0)basis="Appraised value left blank, so LTV/CLTV use the purchase price. They are based on the lower of the two once both are entered.";
