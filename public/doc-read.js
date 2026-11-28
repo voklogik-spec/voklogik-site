@@ -42,7 +42,7 @@ async function readPages(file, limit) {
       items.push({ x: x, y: y, s: it.str.trim() });
       for (var i = 0; i < rows.length; i++) if (Math.abs(rows[i].y - y) <= 2.5) { r = rows[i]; break; }
       if (!r) { r = { y: y, it: [] }; rows.push(r); }
-      r.it.push({ x: x, s: it.str });
+      r.it.push({ x: x, s: it.str, r: x + (it.width || 0) });
     });
     rows.sort(function (a, b) { return b.y - a.y; });
     var lines = [];
@@ -51,7 +51,7 @@ async function readPages(file, limit) {
       var s = r.it.map(function (t) { return t.s.trim(); }).join(" ").replace(/\s+/g, " ").trim();
       if (s) { lines.push(s); chars += s.length; }
     });
-    pages.push({ lines: lines, items: items, rows: rows.map(function (r) { return r.it.map(function (t) { return { x: t.x, s: t.s.trim() }; }).filter(function (t) { return t.s; }); }), w: (page.view && page.view[2]) || 612 });
+    pages.push({ lines: lines, items: items, rows: rows.map(function (r) { return r.it.map(function (t) { return { x: t.x, s: t.s.trim(), r: t.r }; }).filter(function (t) { return t.s; }); }), w: (page.view && page.view[2]) || 612 });
     page.cleanup();
   }
   try { doc.destroy(); } catch (e) {}
@@ -458,35 +458,27 @@ function lineVal1(pg, re, lineNo, frac) {
   }
   return { found: false, v: 0 };
 }
-// Schedule E, Part I: the amounts at the end of a line, one per rental property (columns A, B, C). Blank columns have no number.
-function trailAmts(line, lineNo) {
-  var t = line.split(/\s+/), vals = [];
-  for (var i = t.length - 1; i >= 0; i--) { if (!/^\(?-?\$?\d[\d,]*(?:\.\d+)?\)?-?$/.test(t[i])) break; vals.unshift(t[i]); }
+// Schedule E, Part I: one amount per rental property (columns A, B, C), matched to its column by position.
+var SE_MONEY = /^\(?-?\$?\d[\d,]*(?:\.\d+)?\)?-?$/;
+function seRowAmts(row, lineNo) {
+  var v = [];
+  for (var i = row.length - 1; i >= 0; i--) { if (!SE_MONEY.test(row[i].s)) break; v.unshift(row[i]); }
   var boxed = false;
-  if (vals.length && vals[0] === String(lineNo) && (vals.length > 1 || /[A-Za-z]/.test(line))) { boxed = true; vals.shift(); }
-  return { boxed: boxed, vals: vals.map(moneyOf).filter(function (v) { return v !== null; }) };
+  if (v.length && v[0].s === String(lineNo) && (v.length > 1 || row.length > 1)) { boxed = true; v.shift(); }
+  return { boxed: boxed, items: v.map(function (t) { return { r: t.r != null ? t.r : t.x, v: moneyOf(t.s) }; }).filter(function (t) { return t.v !== null; }) };
 }
-function seLine(pg, re, lineNo) {
+function seLineItems(pg, re, lineNo) {
   var rows = pg.rows || [];
   for (var i = 0; i < rows.length; i++) {
     if (!re.test(rowText(rows[i], pg.w, 0))) continue;
     for (var k = i; k < Math.min(rows.length, i + 3); k++) {
-      var r = trailAmts(rowText(rows[k], pg.w, 0), lineNo);
-      if (k === i && (r.vals.length || r.boxed)) return { found: true, v: r.vals.reduce(function (a, b) { return a + b; }, 0), n: r.vals.length };
-      if (k > i) { if (r.boxed || r.vals.length) return { found: true, v: r.vals.reduce(function (a, b) { return a + b; }, 0), n: r.vals.length }; break; }
+      var r = seRowAmts(rows[k], lineNo);
+      if (k === i && (r.items.length || r.boxed)) return { found: true, items: r.items };
+      if (k > i) { if (r.boxed || r.items.length) return { found: true, items: r.items }; break; }
     }
-    return { found: true, v: 0, n: 0 };
+    return { found: true, items: [] };
   }
-  return { found: false, v: 0, n: 0 };
-}
-function seDays(L) {
-  var days = [];
-  for (var i = 0; i < L.length; i++) {
-    if (!/fair rental days/i.test(L[i])) continue;
-    for (var k = i; k < Math.min(L.length, i + 6); k++) { var m = /^\s*([ABC])\s+(\d{1,3})(?:\s+(\d{1,3}))?\s*$/.exec(L[k]); if (m) days.push(+m[2]); }
-    if (days.length) break;
-  }
-  return days;
+  return { found: false, items: [] };
 }
 function seAddrs(L) {
   var out = [];
@@ -497,11 +489,45 @@ function seAddrs(L) {
       if (/^(1b|2|3)\b/.test(t) && !/^[ABC]\b/.test(t)) break;
       if (/type of property|fair rental days/i.test(t)) break;
       var m = /^([ABC])[\s:.)\-]+(\S.*)$/.exec(t);
-      if (m && !/^\d{1,3}(?:\s+\d{1,3})?$/.test(m[2]) && /[A-Za-z]/.test(m[2])) out.push(m[2].replace(/\s+/g, " ").trim());
+      if (m && !/^\d{1,3}(?:\s+\d{1,3})?$/.test(m[2]) && /[A-Za-z]/.test(m[2])) out.push({ L: m[1], addr: m[2].replace(/\s+/g, " ").trim() });
     }
     break;
   }
   return out;
+}
+function seDays(L) {
+  var days = [];
+  for (var i = 0; i < L.length; i++) {
+    if (!/fair rental days/i.test(L[i])) continue;
+    for (var k = i; k < Math.min(L.length, i + 6); k++) { var m = /^\s*([ABC])\s+(\d{1,3})(?:\s+(\d{1,3}))?\s*$/.exec(L[k]); if (m) days.push({ L: m[1], d: +m[2] }); }
+    if (days.length) break;
+  }
+  return days;
+}
+function parseSchedE(pg) {
+  var L = pg.lines, defs = [["rents", /^3\b.*rents received/i, 3], ["ins", /^9\b.*insurance/i, 9], ["int", /^12\b.*mortgage interest/i, 12], ["tax", /^16\b.*taxes/i, 16], ["dep", /^18\b.*depreciation/i, 18], ["exp", /^20\b.*total expenses/i, 20]];
+  var got = {}, rights = [];
+  defs.forEach(function (d) { var r = seLineItems(pg, d[1], d[2]); got[d[0]] = r; r.items.forEach(function (t) { rights.push(t.r); }); });
+  rights.sort(function (a, b) { return a - b; });
+  var cl = [];
+  rights.forEach(function (x) { if (cl.length && x - cl[cl.length - 1].hi < 20) { cl[cl.length - 1].hi = x; cl[cl.length - 1].n++; } else cl.push({ lo: x, hi: x, n: 1 }); });
+  var cols = cl.length <= 3 ? cl.map(function (c) { return (c.lo + c.hi) / 2; }) : null;
+  var addrs = seAddrs(L), days = seDays(L), nP = Math.max(cols ? cols.length : 0, addrs.length, days.length);
+  var props = [];
+  for (var p = 0; p < Math.min(nP, 3); p++) {
+    var o = { L: "ABC"[p], addr: "", days: null, rents: null, ins: null, int: null, tax: null, dep: null, exp: null };
+    var ad = addrs.filter(function (a) { return a.L === o.L; })[0]; if (ad) o.addr = ad.addr; else if (addrs.length === nP && addrs[p]) o.addr = addrs[p].addr;
+    var dy = days.filter(function (a) { return a.L === o.L; })[0]; if (dy) o.days = dy.d;
+    defs.forEach(function (d) {
+      var items = got[d[0]].items, val = null;
+      if (cols) { var best = null; items.forEach(function (t) { var dist = Math.abs(t.r - cols[p]); if (dist < 30 && (best === null || dist < best.dist)) best = { dist: dist, v: t.v }; }); if (best) val = best.v; }
+      else if (items[p]) val = items[p].v;
+      if (val === null && got[d[0]].found) val = 0;
+      o[d[0]] = val;
+    });
+    if (o.addr || o.rents || o.exp) props.push(o);
+  }
+  return props;
 }
 function taxYear(lines) {
   for (var i = 0; i < Math.min(lines.length, 18); i++) {
@@ -631,10 +657,7 @@ function parseTaxPages(pages) {
     if (/Schedule K-1/i.test(top) && /Shareholder.s Share of Current Year Income/i.test(T)) { out.sco.k1s.push(parseK1(pg, "sco")); if (!out.sco.year) out.sco.year = taxYear(L); return; }
     if (/Schedule K-1/i.test(top) && /Partner.s Share of Current Year Income/i.test(T)) { out.pt.k1s.push(parseK1(pg, "pt")); if (!out.pt.year) out.pt.year = taxYear(L); return; }
     if (/Schedule E/i.test(top) && /Income or Loss From Rental Real Estate and Royalties/i.test(T)) {
-      var se = { year: taxYear(L), rents: seLine(pg, /^3\b.*rents received/i, 3), roy: seLine(pg, /^4\b.*royalties received/i, 4), ins: seLine(pg, /^9\b.*insurance/i, 9),
-        int: seLine(pg, /^12\b.*mortgage interest/i, 12), tax: seLine(pg, /^16\b.*taxes/i, 16), dep: seLine(pg, /^18\b.*depreciation/i, 18), exp: seLine(pg, /^20\b.*total expenses/i, 20), days: seDays(L), addrs: seAddrs(L) };
-      se.n = Math.max(se.rents.n, se.exp.n, se.int.n, se.dep.n, se.days.length);
-      if (se.rents.found || se.exp.found) out.se.push(se);
+      var sp = parseSchedE(pg); if (sp.length) out.se.push({ year: taxYear(L), props: sp });
       return;
     }
     if (/Schedule C/i.test(top) && /Profit or Loss From Business/i.test(T)) {
@@ -686,11 +709,7 @@ async function runTax(files, out, api) {
       else { tot = { net: 0, dep: 0, depl: 0 }; res.sc.forEach(function (c) { tot.net = sum(tot.net, c.net.v); tot.dep = sum(tot.dep, c.dep.v); tot.depl = sum(tot.depl, c.depl.v); }); }
       put("sc", yr, { net: tot.net, dep: tot.dep, depl: tot.depl, count: res.sc.length });
     }
-    if (res.se.length) {
-      var seT = { rents: 0, roy: 0, ins: 0, int: 0, tax: 0, dep: 0, exp: 0, n: 0, days: [], addrs: [] };
-      res.se.forEach(function (e) { ["rents", "roy", "ins", "int", "tax", "dep", "exp"].forEach(function (k) { seT[k] += e[k].v; }); seT.n += e.n; seT.days = seT.days.concat(e.days); seT.addrs = seT.addrs.concat(e.addrs); });
-      put("se", res.se[0].year, seT);
-    }
+    if (res.se.length) { var allP = []; res.se.forEach(function (e) { allP = allP.concat(e.props); }); put("se", res.se[0].year, { props: allP }); }
     res.pers.forEach(function (pp) { put("p", pp.year, pp); });
     if (res.sco.biz || res.sco.k1s.length) {
       var b = res.sco.biz, da = b ? sum(b.dep.v, b.depl.v, res.amort || 0) : null;
@@ -718,7 +737,7 @@ async function runTax(files, out, api) {
     box.appendChild(top);
     var spec = { key: key, inc: inc, yrs: yrs, f: {}, k1sel: {}, own: null };
     var hdr = h("div", "dr-row dr-wide dr-yhead"); hdr.appendChild(h("span", "", "")); var cell = h("div", "dr-ycells");
-    yrs.forEach(function (y, idx) { cell.appendChild(h("span", "", /^file/.test(y) ? "Year " + (idx + 1) : "Tax year " + y)); }); hdr.appendChild(cell); box.appendChild(hdr);
+    yrs.forEach(function (y, idx) { cell.appendChild(h("span", "", /^file/.test(y) ? "Year " + (idx + 1) : "Tax year " + y)); }); hdr.appendChild(cell); if (key !== "se") box.appendChild(hdr);
     function frow(id, label, sub, vals) {
       var r = h("div", "dr-row dr-wide"), d = h("div"); d.appendChild(h("span", "", label)); if (sub) d.appendChild(h("small", "", sub)); r.appendChild(d);
       var c = h("div", "dr-ycells"); spec.f[id] = [];
@@ -733,34 +752,30 @@ async function runTax(files, out, api) {
       frow("agi", "Adjusted gross income (line 11)", "", D.map(function (d) { return d.agi; }));
       box.appendChild(h("div", "dr-note", "These figures are shown for your records and to check against your other documents. Wage income comes from your pay stubs. Self-employed income is added from the Schedule C or business return."));
     } else if (key === "se") {
-      var seN = D.reduce(function (a, d) { return Math.max(a, d.n || 0); }, 0);
-      frow("rents", "Rents received (line 3)", seN > 1 ? seN + " rental properties on the return, added together" : "", D.map(function (d) { return d.rents; }));
-      frow("roy", "Royalties received (line 4)", "", D.map(function (d) { return d.roy; }));
-      frow("exp", "Total expenses (line 20)", "", D.map(function (d) { return d.exp; }));
-      frow("dep", "Depreciation (line 18)", "", D.map(function (d) { return d.dep; }));
-      frow("int", "Mortgage interest (line 12)", "", D.map(function (d) { return d.int; }));
-      frow("tax", "Taxes (line 16)", "", D.map(function (d) { return d.tax; }));
-      frow("ins", "Insurance (line 9)", "", D.map(function (d) { return d.ins; }));
-      frow("hoa", "HOA dues", "type it in if it is not on the return", D.map(function () { return null; }));
-      frow("add", "Other add-backs", "amortization, casualty loss or one-time expenses (Form 1038)", D.map(function () { return null; }));
-      var dMax = 0; D.forEach(function (d, ix) { if (ix === 0) (d.days || []).forEach(function (x) { if (x > dMax) dMax = x; }); });
-      var one = yrs.length < 2, mo = dMax > 0 ? Math.max(1, Math.min(12, Math.round(dMax / 30.4))) : 12;
-      var ms = sel([["tax", "Tax returns: average of the years above (2 years)"], ["one", "Owned less than a year: one year, spread over the months rented"]], one ? "one" : "tax"); ms.classList.add("dr-found"); spec.mode = ms;
-      var mi = field(String(mo)); if (dMax > 0) mi.classList.add("dr-found"); spec.months = mi;
-      box.appendChild(row("How to average the rental income", "Fannie Mae Form 1038", ms));
-      box.appendChild(row("Months rented in the most recent year", dMax > 0 ? "from the days rented on the return" : "type it in", mi));
-      var addrs = (D[0] && D[0].addrs) || [];
-      if (addrs.length) {
-        var al = h("label", "dr-inc"), ac = h("input"); ac.type = "checkbox"; ac.checked = true; al.appendChild(ac);
-        al.appendChild(h("span", "", (addrs.length > 1 ? "Add these " + addrs.length + " properties" : "Add this property") + " under Additional Properties Owned: " + addrs.slice(0, 10).join("; "))); box.appendChild(al); spec.addProps = ac; spec.addrs = addrs.slice(0, 10);
-      } else if (seN > 0) {
-        var bl = h("label", "dr-inc"), bc = h("input"); bc.type = "checkbox"; bc.checked = true; bl.appendChild(bc);
-        bl.appendChild(h("span", "", "We could not read the addresses. Add " + Math.min(seN, 10) + (seN > 1 ? " rental properties" : " rental property") + " under Additional Properties Owned anyway, and type each address")); box.appendChild(bl);
-        spec.addProps = bc; spec.addrs = []; for (var q = 0; q < Math.min(seN, 10); q++) spec.addrs.push("");
-      } else box.appendChild(h("div", "dr-note", "We could not read the property addresses. Add each rental under Additional Properties Owned."));
-      var seMsg = h("div", "dr-note", "Rental income follows Fannie Mae Form 1038: rents less expenses, adding back depreciation, interest, taxes, insurance and HOA dues, then subtracting the monthly payment. For a new or listed property with no tax return, use 75% of the lease or market rent on the Self-employed income tab.");
-      box.appendChild(seMsg);
-      if (seN > 10) box.appendChild(h("div", "dr-note", "These returns show " + seN + " rental properties. Vorelia accepts up to 10 rental (investment) properties."));
+      // one block per rental property: the figures are checked on its card under Additional Properties Owned
+      var norm = function (x) { return String(x || "").split(",")[0].toLowerCase().replace(/[^a-z0-9]/g, ""); };
+      var latest = D[0].props || [], prior = (D[1] && D[1].props) || [], SEK = ["rents", "exp", "dep", "int", "tax", "ins"];
+      var list = latest.slice(0, 10).map(function (pp, ix) {
+        var pr = null; if (norm(pp.addr)) prior.forEach(function (q) { if (!pr && norm(q.addr) === norm(pp.addr)) pr = q; }); if (!pr && prior.length === latest.length && !norm(pp.addr)) pr = prior[ix] || null;
+        return { cur: pp, prev: pr };
+      });
+      spec.props = list.map(function (it, ix) {
+        var pp = it.cur, one = !it.prev, dy = pp.days, mo = dy > 0 ? Math.max(1, Math.min(12, Math.round(dy / 30.4))) : 12;
+        var net = function (q) { return q ? (q.rents || 0) - (q.exp || 0) + (q.dep || 0) + (q.int || 0) + (q.tax || 0) + (q.ins || 0) : null; };
+        var blk = h("div", "dr-acct"), tl = h("div", "dr-inc"); tl.appendChild(h("span", "", "Rental property " + pp.L)); if (pp.addr) tl.appendChild(h("span", "dr-bal", pp.addr)); blk.appendChild(tl);
+        blk.appendChild(row("Rents received", /^file/.test(yrs[0]) ? "" : "tax year " + yrs[0], h("div", "dr-ro", usd(pp.rents || 0))));
+        if (it.prev) blk.appendChild(row("Rents received", /^file/.test(yrs[1] || "") ? "" : "tax year " + (yrs[1] || ""), h("div", "dr-ro", usd(it.prev.rents || 0))));
+        var ms = sel([["tax", "Tax returns: average of two years (Fannie Mae Form 1038)"], ["one", "Owned less than a year: one year, spread over the months rented"]], one ? "one" : "tax"); ms.classList.add("dr-found");
+        var mi = field(String(mo)); if (dy > 0) mi.classList.add("dr-found");
+        blk.appendChild(row("How to average the rental income", "Fannie Mae Form 1038", ms));
+        blk.appendChild(row("Months rented in the most recent year", dy > 0 ? "from the days rented on the return" : "type it in", mi));
+        box.appendChild(blk);
+        return { pp: pp, prev: it.prev, ms: ms, mi: mi };
+      });
+      box.appendChild(h("div", "dr-note", "These " + list.length + (list.length === 1 ? " rental property was" : " rental properties were") + " added under Additional Properties Owned, one card each. Rental income follows Fannie Mae Form 1038: rents less expenses, adding back depreciation, interest, taxes, insurance and HOA dues, then subtracting that property's monthly payment. Enter the full payment (PITIA) on each card. Add HOA dues and other add-backs there too. For a new or listed property with no tax return, use 75% of the lease or market rent on its card."));
+      if (latest.length > 10) box.appendChild(h("div", "dr-note", "These returns show " + latest.length + " rental properties. Vorelia accepts up to 10 rental (investment) properties."));
+      spec.rentOnly = true;
+      if (api.addRentals) { try { api.addRentals(spec.props.map(function (x) { return { addr: x.pp.addr, label: x.pp.L }; }), false); } catch (e) {} }
     } else if (key === "sc") {
       frow("net", "Net profit (line 31)", D.some(function (d) { return d.count > 1; }) ? "more than one Schedule C: added together" : "", D.map(function (d) { return d.net; }));
       frow("dep", "Depreciation (line 13)", "", D.map(function (d) { return d.dep; }));
@@ -795,10 +810,10 @@ async function runTax(files, out, api) {
       box.appendChild(row("Your ownership share (%)", ownVal === null ? (Object.keys(spec.k1sel).length ? "set when you choose your K-1" : "not found, please check") : "from the K-1", oi));
     }
     if (key === "cc") { var oi2 = field("100"); spec.ownInp = oi2; box.appendChild(row("Your ownership share (%)", "type it in, it is not on the return", oi2)); }
-    if (yrs.length >= 3 && key !== "p") { var sl = h("label", "dr-inc"), c3 = h("input"); c3.type = "checkbox"; c3.checked = true; sl.appendChild(c3); sl.appendChild(h("span", "", "Use a 3-year average (you uploaded 3 years)")); box.appendChild(sl); spec.c3 = c3; }
+    if (yrs.length >= 3 && key !== "p" && key !== "se") { var sl = h("label", "dr-inc"), c3 = h("input"); c3.type = "checkbox"; c3.checked = true; sl.appendChild(c3); sl.appendChild(h("span", "", "Use a 3-year average (you uploaded 3 years)")); box.appendChild(sl); spec.c3 = c3; }
     var dupN = yrs.filter(function (y) { return found[key][y].dup; }).length;
     if (dupN) box.appendChild(h("div", "dr-note", "The same tax year appeared in more than one file. We used the first one."));
-    if (yrs.length < 2 && key !== "p") box.appendChild(h("div", "dr-note", "Only one year was found. Lenders usually want two years of returns."));
+    if (yrs.length < 2 && key !== "p" && key !== "se") box.appendChild(h("div", "dr-note", "Only one year was found. Lenders usually want two years of returns."));
     blocks.push(spec); p.appendChild(box);
   });
   p.appendChild(h("div", "dr-note", "This is an estimate for planning. It follows the usual add-backs, but your lender decides what income counts, and may use other figures or ask for more."));
@@ -818,12 +833,17 @@ async function runTax(files, out, api) {
     blocks.forEach(function (b) {
       if (b.key === "p" || !b.inc.checked) return;
       if (Object.keys(b.k1sel).some(function (i) { return !b.k1sel[i].s.value; })) return;
+      if (b.key === "se") {
+        var fig = function (q) { return q ? { rents: q.rents, exp: q.exp, dep: q.dep, int: q.int, tax: q.tax, ins: q.ins } : null; };
+        payload.push({ key: "rentprops", props: b.props.map(function (x) { return { addr: x.pp.addr, label: x.pp.L, days: x.pp.days, mode: x.ms.value, months: toNum(x.mi.value), years: [fig(x.pp), fig(x.prev)] }; }) });
+        return;
+      }
       var rows = {};
       Object.keys(b.f).forEach(function (id) { rows[id] = b.f[id].map(function (i) { return i.value.trim() === "" ? null : toNum(i.value) * (/^\s*[-(]/.test(i.value) ? -1 : 1); }); });
-      payload.push({ key: b.key === "se" ? "rent" : b.key, rows: rows, own: b.ownInp ? toNum(b.ownInp.value) : null, three: !!(b.c3 && b.c3.checked), years: b.yrs.length, mode: b.mode ? b.mode.value : null, months: b.months ? toNum(b.months.value) : null, props: b.addProps && b.addProps.checked ? b.addrs : [] });
+      payload.push({ key: b.key === "se" ? "rent" : b.key, rows: rows, own: b.ownInp ? toNum(b.ownInp.value) : null, three: !!(b.c3 && b.c3.checked), years: b.yrs.length });
     });
-    var res = api.applyTax(payload) || {}, hasRent = payload.some(function (x) { return x.key === "rent"; });
-    msg(out, res.added ? "Added to your self-employed income as Rents or royalties, and " + res.added + (res.added === 1 ? " property" : " properties") + " under Additional Properties Owned. Enter the full monthly payment (PITIA) on each one so the rental income is shown after it." + (res.capped ? " Vorelia accepts up to 10 rental (investment) properties, so the rest were not added." : "") : hasRent ? "Added to your self-employed income as Rents or royalties. Add each rental property under Additional Properties Owned to subtract its payment. You can still change it above." : "Added to your self-employed income. You can still change it above.", "ok");
+    var res = api.applyTax(payload) || {}, hasRent = payload.some(function (x) { return x.key === "rentprops"; }), others = payload.some(function (x) { return x.key !== "rentprops"; });
+    msg(out, (others ? "Added to your self-employed income. " : "") + (hasRent ? "The rental figures were filled in on each property card under Additional Properties Owned. Enter the full monthly payment (PITIA) on each one to see its net rental income or loss." + (res.capped ? " Vorelia accepts up to 10 rental (investment) properties, so the rest were not added." : "") : "You can still change it above."), "ok");
   }, out);
   blocks.forEach(function (b) { b.inc.addEventListener("change", calc); Object.keys(b.k1sel).forEach(function (i) { b.k1sel[i].s.addEventListener("change", calc); }); });
   calc();
@@ -938,11 +958,13 @@ async function runCredit(files, out, api) {
       ch.forEach(function (c) { opts.push([String(c.id), c.name]); });
       opts.push(["new", "A property not listed yet (add it)"], ["subj", "The home I am buying or refinancing"]);
       link = sel(opts, ""); box.appendChild(row("Which property is this mortgage for?", "its payment and balance go to that property", link));
-      var refresh = function () { if (!api.ownedChoices) return; var cur = link.value, ch2 = api.ownedChoices(), o2 = [["", "Not linked"]]; ch2.forEach(function (c) { o2.push([String(c.id), c.name]); }); o2.push(["new", "A property not listed yet (add it)"], ["subj", "The home I am buying or refinancing"]);
+      var refresh = function () { if (!api.ownedChoices) return; var cur = link.value, ch2 = api.ownedChoices(), taken = {};
+        rows.forEach(function (r) { if (r.link && r.link !== link && r.link.value && /^\d+$/.test(r.link.value)) taken[r.link.value] = 1; });
+        var o2 = [["", "Not linked"]]; ch2.forEach(function (c) { if (!taken[String(c.id)]) o2.push([String(c.id), c.name]); }); o2.push(["new", "A property not listed yet (add it)"], ["subj", "The home I am buying or refinancing"]);
         link.innerHTML = ""; o2.forEach(function (o) { var op = h("option", "", o[1]); op.value = o[0]; link.appendChild(op); }); link.value = o2.some(function (o) { return o[0] === cur; }) ? cur : ""; };
       link.addEventListener("mousedown", refresh); link.addEventListener("focus", refresh);
       if (!api.applyMortgages) box.appendChild(h("div", "dr-note dr-alert", "This page is out of date, so mortgages cannot be linked to properties yet. Refresh the page (Ctrl+Shift+R, or Cmd+Shift+R on a Mac) and upload the credit report again."));
-      link.addEventListener("change", function () { var on = !!link.value; inc.disabled = on; if (on) inc.checked = false; calc(); });
+      link.addEventListener("change", function () { var on = !!link.value; inc.disabled = on; if (on) inc.checked = false; rows.forEach(function (r) { if (r.link && r.link !== link && r.link.value && r.link.value === link.value && /^\d+$/.test(link.value)) { r.link.value = ""; r.inc.disabled = false; } }); calc(); });
     }
     if (housing) box.appendChild(h("div", "dr-note", a.type === "mortgage" ? "Choose the property to move this payment to Additional Properties Owned. A linked mortgage is not counted again as a debt. Credit reports usually show principal and interest only, so add taxes, insurance and HOA dues there." : "Housing payments are entered with your properties, not under debts. Tick the box only if this payment is not counted anywhere else."));
     if (a.lates) box.appendChild(row("Late payments on the report", a.late12 ? "At least one in the last 12 months" : (a.undated ? "Dates not found" : "None in the last 12 months"), h("div", "dr-ro bad", a.lates + (a.worst ? " (up to " + a.worst + " days)" : ""))));

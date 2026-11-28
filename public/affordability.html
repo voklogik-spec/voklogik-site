@@ -570,6 +570,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
 
       <!-- Additional income (built by script) -->
       <div class="source" id="srcAdditional" hidden></div>
+      <div class="debtwrap" id="rentalIncRow" hidden style="margin:14px 0">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Net rental income (Form 1038)</strong><strong id="rentalIncAmt">$0/mo</strong></div>
+        <div id="rentalIncList"></div>
+      </div>
       <div class="dedbox" id="b1Ded" hidden></div>
       </div>
 
@@ -651,6 +655,11 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       <div class="debtwrap" id="ownedDebtRow" hidden style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Payments on other properties</strong><strong id="ownedDebtAmt">$0/mo</strong></div>
         <p class="k" id="ownedDebtNote" style="margin:6px 0 0"></p>
+      </div>
+      <div class="debtwrap" id="rentalPropsRow" hidden style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Rental properties (Fannie Mae Form 1038)</strong></div>
+        <p class="k" style="margin:6px 0 10px">Each rental is figured on its own: average monthly rental income, less that property's payment (PITIA). A net loss counts as a monthly debt. A net profit counts as income.</p>
+        <div id="rentalPropsList"></div>
       </div>
       <div class="debtwrap" id="rentalLossRow" hidden style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><strong>Rental loss (Schedule E)</strong><strong id="rentalLossAmt">$0/mo</strong></div>
@@ -1683,6 +1692,50 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   // ---- additional properties owned ----
   var MAXINV=10, ownedLines=[], ownedSeq=0, ownedInfo={debt:0,items:[]};
   var OCC={primary:"Primary residence",secondary:"Second home",pied:"Pied-\u00e0-terre",investment:"Investment property"};
+  var RROWS=BIZ.filter(function(c){return c.key==="rent"})[0].rows.filter(function(r){return r.id!=="roy"});
+  function rentCardHtml(t){
+    var h='<div class="f" style="max-width:520px;margin-bottom:12px"><label for="'+t+'RMode">How should the rental income be averaged?</label><select id="'+t+'RMode"><option value="tax">Tax returns: 2-year average (Fannie Mae Form 1038)</option><option value="one">Owned less than a year: 1 year, spread over the months rented</option><option value="lease">New or listed property: 75% of the lease or market rent</option></select></div>'
+      +'<div class="f" id="'+t+'RMonthsF" hidden style="max-width:260px;margin-bottom:12px"><label for="'+t+'RMonths">Months rented in the year (1 to 12)</label><input id="'+t+'RMonths" type="number" inputmode="numeric" min="1" max="12" step="1" value="12"></div>'
+      +'<div id="'+t+'RLeaseF" hidden style="margin-bottom:12px"><div class="grid" style="max-width:520px"><div class="f"><label for="'+t+'RLease">Monthly lease or market rent ($)</label><input id="'+t+'RLease" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div><div class="f"><label for="'+t+'RLpct">Percent counted (%)</label><input id="'+t+'RLpct" type="number" inputmode="decimal" min="0" max="100" step="1" value="75"></div></div><p class="k" style="margin:6px 0 0">Use a signed lease or an appraiser\'s market rent. Lenders usually count 75% to allow for vacancy and upkeep, then subtract the full monthly payment.</p></div>'
+      +'<div class="ytable" id="'+t+'RTable" style="--yc:2"><div class="yrow yhead"><span></span><span>'+YCAP[0]+'</span><span>'+YCAP[1]+'</span></div>';
+    RROWS.forEach(function(r){
+      h+='<div class="yrow"><label class="rl" for="'+t+'R_'+r.id+'_1">'+esc(r.label)+'</label>';
+      for(var y=1;y<=2;y++)h+='<div class="yc"><span class="ycap" aria-hidden="true">'+YCAP[y-1]+'</span><input id="'+t+'R_'+r.id+'_'+y+'" type="number" inputmode="decimal" step="100" min="0" placeholder="0" aria-label="'+esc(r.label+', '+YCAP[y-1])+'"></div>';
+      h+='</div>';
+    });
+    h+='</div><div id="'+t+'RYrs" style="margin:14px 0 0;max-width:460px;font-size:.95rem"></div><p class="srctotal" id="'+t+'RNet" style="margin:8px 0 0"></p><div class="note" id="'+t+'RNote" hidden style="margin-top:8px"></div>';
+    return h;
+  }
+  // Fannie Mae Form 1038 for one property: average monthly qualifying income, less this property's own payment
+  function cardRent(t,pay){
+    var mode=$(t+"RMode").value,lease=0,lpct=75,months=12,msgs=[],warn=false;
+    $(t+"RMonthsF").hidden=mode!=="one";$(t+"RLeaseF").hidden=mode!=="lease";$(t+"RTable").hidden=mode==="lease";$(t+"RYrs").hidden=mode==="lease";
+    var yd=function(y){var sum=0,any=false;RROWS.forEach(function(r){var x=numOrNull(t+"R_"+r.id+"_"+y,false);if(x===null)return;any=true;sum+=r.s*x});return {sum:sum,any:any}};
+    var y1=yd(1),y2=yd(2),avg=0,span="",hasData=false;
+    if(mode==="lease"){
+      lease=n(t+"RLease");lpct=Math.max(0,Math.min(100,n(t+"RLpct")));avg=lease*lpct/100;hasData=lease>0;span=lpct+"% of lease or market rent";
+      msgs.push("With no tax history, lenders use the lease or market rent, usually at 75%, and subtract the full monthly payment. A lease agreement or an appraiser's market rent report is normally required.");
+    }else if(mode==="one"){
+      months=Math.max(1,Math.min(12,Math.round(n(t+"RMonths"))||12));avg=y1.sum/months;hasData=y1.any;span="1 year, "+months+" months";
+      msgs.push("Fannie Mae allows one year of rental income when you have owned the property less than a year. The year's figures are divided by the months it was rented.");
+    }else{
+      avg=(y1.sum+y2.sum)/24;hasData=y1.any||y2.any;span="2-year average";
+      if(y1.any&&!y2.any)msgs.push("Only one year is filled in, so it is spread over two years. Enter the prior year too, or choose the one-year option if you have owned it less than a year.");
+      if(y2.any&&y1.sum<y2.sum){msgs.push(DECL_BIZ);warn=true}
+    }
+    if(mode!=="lease"){
+      var rs="display:flex;justify-content:space-between;gap:12px;padding:3px 0";
+      var yh='<div style="'+rs+'"><span>'+YCAP[0]+'</span><b>'+usd.format(y1.sum)+'</b></div>';
+      if(mode==="tax")yh+='<div style="'+rs+'"><span>'+YCAP[1]+'</span><b>'+usd.format(y2.sum)+'</b></div>';
+      yh+='<div style="'+rs+';margin-top:6px;padding-top:8px;border-top:1px solid var(--line)"><span><b>'+span+' used</b></span><b style="color:var(--accent)">'+usd.format(avg)+'/mo</b></div>';
+      $(t+"RYrs").innerHTML=yh;
+    }
+    if(y1.sum<0||y2.sum<0){msgs.push("At least one year shows a loss. Lenders subtract losses from your income and may ask you to explain them.");warn=true}
+    var net=avg-pay;
+    $(t+"RNet").textContent=(hasData||pay>0)?("Rental income "+usd.format(avg)+"/mo, less payment "+usd.format(pay)+"/mo = "+(net>=0?"net rental income "+usd.format(net)+"/mo, counted as income":"net rental loss "+usd.format(-net)+"/mo, counted as a debt")):"";
+    var nt=$(t+"RNote");if(msgs.length){nt.hidden=false;nt.className="note"+(warn?" warn":"");nt.textContent=msgs.join(" ")}else nt.hidden=true;
+    return {avg:avg,net:net,pay:pay,span:span,hasData:hasData,mode:mode};
+  }
   function ownedTemplate(id){
     var t="own"+id;
     return ''
@@ -1701,12 +1754,14 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       +'<p class="k" style="margin:6px 0 14px">Include principal, interest, taxes, insurance and any HOA dues (PITIA). The unpaid principal balance is optional. It is used under Reserves if your lender bases reserves on a percentage of it.</p>'
       +'<div id="'+t+'SchQ"><div class="f"><label>Is this property listed on your Schedule E?</label>'
       +'<div class="seg"><label><input type="radio" name="'+t+'Sche" value="no" checked>No</label><label><input type="radio" name="'+t+'Sche" value="yes">Yes</label></div></div>'
-      +'<div id="'+t+'SchBox" hidden style="margin-top:14px"><div class="f"><label>How is the payment handled?</label>'
-      +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="complete" checked><span>Complete Schedule E: the payment is netted in my rental income, so exclude it from my debts</span></label>'
+      +'<div id="'+t+'SchBox" hidden style="margin-top:14px"><div class="f"><label>How is this rental figured?</label>'
+      +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="own" checked><span>Figure this property\'s rental income here (Fannie Mae Form 1038). Its payment is subtracted below.</span></label>'
+      +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="complete"><span>Complete Schedule E: the payment is netted in a Rents or royalties entry under Self-employed income, so exclude it from my debts</span></label>'
       +'<div class="f" id="'+t+'TgtWrap" style="margin:10px 0 0 28px"><label for="'+t+'Tgt">Which Rents or royalties entry is it on?</label><select id="'+t+'Tgt"></select></div>'
       +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="incomplete"><span>The payment is not reflected on Schedule E, so count it as a debt</span></label></div>'
+      +'<div id="'+t+'RentBox" hidden style="margin-top:14px">'+rentCardHtml(t)+'</div>'
       +'<p class="note" id="'+t+'IncNote" hidden style="margin:10px 0 0"></p>'
-      +'<p class="k" style="margin:10px 0 0">Enter this property\'s rents and expenses under Self-employed income, Rents or royalties. Its payment and address are linked there automatically and subtracted from the rental income.</p></div></div>'
+      +'<p class="k" id="'+t+'LegacyK" hidden style="margin:10px 0 0">Enter this property\'s rents and expenses under Self-employed income, Rents or royalties. Its payment and address are linked there automatically and subtracted from the rental income.</p></div></div>'
       +'</div>';
   }
   function addOwned(primary){
@@ -1746,7 +1801,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     return out;
   }
   function ownedCalc(){
-    var debt=0,items=[],excl=0,targets=rentTargets(),links={},unlinked=0;
+    var debt=0,items=[],excl=0,targets=rentTargets(),links={},unlinked=0,rentals=[];
     var tkey=targets.map(function(x){return x.base+"|"+x.label}).join("~");
     var li=0;
     ownedLines.forEach(function(id){
@@ -1756,7 +1811,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       $(t+"SchQ").hidden=isPrim;
       var sche=!isPrim&&sel(t+"Sche")==="yes";
       $(t+"SchBox").hidden=!sche;
-      var declared=sche&&sel(t+"Sch")==="complete";
+      var schMode=sel(t+"Sch"),ownAn=sche&&schMode==="own";
+      $(t+"RentBox").hidden=!ownAn;$(t+"LegacyK").hidden=!(sche&&schMode==="complete");
+      var declared=sche&&schMode==="complete";
       var tg=null;
       if(declared){
         var tsel=$(t+"Tgt");
@@ -1769,24 +1826,28 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         tg=targets.filter(function(x){return x.base===tsel.value})[0]||targets[0]||null;
         $(t+"TgtWrap").hidden=!targets.length;
       }else $(t+"TgtWrap").hidden=true;
-      var netted=!!(declared&&tg);
+      var netted=!!(ownAn||(declared&&tg)),rr=null;
       $(t+"PayNote").hidden=!(netted&&!(pay>0));
       $(t+"IncNote").hidden=true;
       var crv=$(t+"Pay").getAttribute("data-cr");$(t+"PayHint").hidden=!(crv!==null&&pay>0&&Math.abs(parseFloat(crv)-pay)<0.005);
       var addr=$(t+"Addr").value.trim(),name=addr||(inHost?"Primary residence":"Property "+li);
       $(t+"Title").textContent=inHost?"Primary residence":"Property "+li;
       var occ=$(t+"Occ").value;
-      if(netted){
+      if(ownAn){
+        excl+=pay;
+        rr=cardRent(t,pay);rr.name=name;rr.id=id;rentals.push(rr);
+      }else if(netted){
         excl+=pay;
         (links[tg.base]=links[tg.base]||[]).push({name:name,pay:pay,id:id});
       }else{
         debt+=pay;
         if(declared)unlinked++;
       }
-      items.push({id:id,upb:n(t+"Upb"),host:inHost,name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,target:tg?tg.label:""});
+      items.push({id:id,upb:n(t+"Upb"),host:inHost,name:name,addr:addr,occ:OCC[occ],pay:pay,sche:sche,declared:declared,complete:netted,own:ownAn,rent:rr,target:tg?tg.label:""});
     });
     ownedLinks=links;
-    ownedInfo={debt:debt,items:items,excl:excl};
+    var rIn=0,rLoss=0;rentals.forEach(function(r){if(r.net<0)rLoss+=-r.net;else rIn+=r.net});
+    ownedInfo={debt:debt,items:items,excl:excl,rentals:rentals,rentIncome:rIn,rentLoss:rLoss};
     var listN=items.length;
     $("ownedSummary").textContent=listN?(listN+(listN===1?" property":" properties")):"None";
     var hostCard=items.filter(function(x){return x.host})[0];
@@ -1941,6 +2002,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var inc={},ast={},dbt={},anyInc=null,anyAst=null,anyDbt=null;
     docTrack.forEach(function(t){
       var ed=$(t.id).value!==t.v;
+      if(t.kind==="prop")return;
       if(t.kind==="credit"){var md=/^debt(\d+)/.exec(t.id),kd=md?md[1]:"";dbt[kd]=dbt[kd]||{ed:false};if(ed)dbt[kd].ed=true;anyDbt=anyDbt||{ed:false};if(ed)anyDbt.ed=true;return}
       if(t.kind==="bank"||t.kind==="retire"){var m=/^ast(\d+)/.exec(t.id);var k=m?m[1]:"";ast[k]=ast[k]||{ed:false};ast[k].r=t.kind==="retire";if(ed)ast[k].ed=true;anyAst=anyAst||{ed:false};if(ed)anyAst.ed=true;return}
       var mm=/^(b\d+)/.exec(t.P||""),key=mm?mm[1]:"b1";inc[key]=inc[key]||{kinds:{},ed:false};inc[key].kinds[t.kind]=1;if(ed)inc[key].ed=true;anyInc=anyInc||{ed:false};if(ed)anyInc.ed=true;
@@ -1991,18 +2053,18 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         var rmd=$(base+"_mode");
         if(rmd&&x.mode){rmd.value=x.mode;docFire(rmd);tids.push(rmd.id);var rmo=$(base+"_months");if(rmo&&x.mode==="one"&&x.months>0){rmo.value=Math.max(1,Math.min(12,Math.round(x.months)));docFire(rmo);tids.push(rmo.id)}}
         Object.keys(x.rows).forEach(function(id){
-          for(var y=1;y<=3;y++){var el=$(base+"_"+id+"_"+y);if(!el)continue;var v=x.rows[id][y-1];el.value=(v===undefined||v===null)?"":String(v);docFire(el);tids.push(el.id)}
+          for(var y=1;y<=3;y++){var el=$(base+"_"+id+"_"+y);if(!el)continue;var v=x.rows[id][y-1];el.value=(v===undefined||v===null)?"":String(v);docFire(el);if(v!==undefined&&v!==null&&v!=="")tids.push(el.id)}
         });
         var ow=$(base+"_own");if(ow&&x.own!=null){ow.value=x.own;docFire(ow);tids.push(ow.id)}
       });
       // the Schedule C panel starts on with example numbers: switch it off if it is still untouched and we filled another type
-      if(!gotSc&&list.length){
+      if(!gotSc&&list.some(function(x){return x.key!=="rentprops"})){
         var sc=$(P+"bz_sc_on"),def={net:[85000,72000],dep:[6000,5000],depl:[0,0]},same=true;
         ["net","dep","depl"].forEach(function(id){[1,2].forEach(function(y){var el=$(P+"bz_sc_"+id+"_"+y);if(el&&parseFloat(el.value)!==def[id][y-1])same=false})});
         if(sc&&sc.checked&&same){sc.checked=false;docFire(sc)}
       }
       var res={added:0,capped:false};
-      list.forEach(function(x){if(x.key==="rent"&&x.props&&x.props.length){var r=docApi.addRentals(x.props,P+"bz_rent");res.added+=r.added;res.capped=res.capped||r.capped}});
+      list.forEach(function(x){if(x.key==="rentprops"&&x.props&&x.props.length){var r=docApi.addRentals(x.props,true);res.added+=r.added;res.capped=res.capped||r.capped}});
       docMark("tax",P,tids);recompute();
       return res;
     },
@@ -2017,33 +2079,36 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       docMark("credit","",ids);recompute();affSaveSoon();
       return {linked:n};
     },
-    addRentals:function(addrs,base){ // one Additional Properties Owned card per Schedule E property: investment, on Schedule E, linked to the rental income entry
-      var added=0,capped=false,norm=function(a){return String(a||"").split(",")[0].toLowerCase().replace(/[^a-z0-9]/g,"")};
-      var linkedN=ownedLines.filter(function(x){var y=document.querySelector('input[name="own'+x+'Sche"]:checked'),tg=$("own"+x+"Tgt");return y&&y.value==="yes"&&tg&&tg.value===base}).length,blankSeen=0;
-      addrs.forEach(function(a){
-        var key=norm(a),blank=!key;
-        if(blank){blankSeen++;if(blankSeen<=linkedN)return}
-        var id=null;if(!blank)ownedLines.forEach(function(x){if(id===null&&norm($("own"+x+"Addr").value)===key)id=x});
+    addRentals:function(props,fill){ // one Additional Properties Owned card per Schedule E property: investment, on Schedule E, figured on its own card
+      var added=0,capped=false,norm=function(a){return String(a||"").split(",")[0].toLowerCase().replace(/[^a-z0-9]/g,"")},ids=[];
+      props.forEach(function(p){
+        var key=norm(p.addr),id=null;
+        ownedLines.forEach(function(x){if(id!==null)return;var w=$("own"+x+"Wrap");
+          if(key?norm($("own"+x+"Addr").value)===key:w.getAttribute("data-rl")===String(p.label))id=x});
         var fresh=false;
-        if(id===null&&!blank){ownedLines.forEach(function(x){if(id===null&&!$("own"+x+"Addr").value.trim()&&$("own"+x+"Pay").getAttribute("data-cr")!==null&&$("own"+x+"Wrap").parentNode===$("ownedList")){id=x;$("own"+x+"Addr").value=a;docFire($("own"+x+"Addr"))}})}
         if(id===null){
           var inv=ownedLines.filter(function(x){return $("own"+x+"Occ").value==="investment"}).length;
           if(inv>=MAXINV){capped=true;return}
           addOwned();id=ownedLines[ownedLines.length-1];fresh=true;
+          if(key){$("own"+id+"Addr").value=p.addr;docFire($("own"+id+"Addr"))}else $("own"+id+"Wrap").setAttribute("data-rl",String(p.label));
         }
-        var t="own"+id;
-        if(fresh&&!blank){$(t+"Addr").value=a;docFire($(t+"Addr"))}
-        var oc=$(t+"Occ");
+        var t="own"+id,oc=$(t+"Occ");
         if(oc.value!=="investment"&&oc.value!=="primary"){oc.value="investment";docFire(oc);if(oc.value!=="investment"){capped=true;if(fresh)removeCard(id);return}}
         var yes=document.querySelector('input[name="'+t+'Sche"][value="yes"]');
         if(yes&&!yes.checked){yes.checked=true;docFire(yes)}
-        var cp=document.querySelector('input[name="'+t+'Sch"][value="complete"]');
-        if(cp&&!cp.checked){cp.checked=true;docFire(cp)}
-        recompute();
-        var tg=$(t+"Tgt");if(tg&&base&&Array.prototype.some.call(tg.options,function(o){return o.value===base})){tg.value=base;docFire(tg)}
+        var ow=document.querySelector('input[name="'+t+'Sch"][value="own"]');
+        if(ow&&!ow.checked){ow.checked=true;docFire(ow)}
         if(fresh)added++;
+        if(fill){
+          var md=$(t+"RMode");if(p.mode){md.value=p.mode;docFire(md)}
+          if(p.mode==="one"&&p.months>0){var mo=$(t+"RMonths");mo.value=Math.max(1,Math.min(12,Math.round(p.months)));docFire(mo)}
+          (p.years||[]).forEach(function(yr,yi){if(!yr)return;
+            RROWS.forEach(function(r){var v=yr[r.id];if(v===undefined||v===null)return;var el=$(t+"R_"+r.id+"_"+(yi+1));if(el){el.value=String(v);docFire(el);ids.push(el.id)}})});
+        }
+        recompute();
       });
-      recompute();
+      if(fill)docMark("prop","",ids);
+      recompute();affSaveSoon();
       return {added:added,capped:capped};
     },
     applyDebts:function(list,info){
@@ -2638,6 +2703,32 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   document.addEventListener("change",function(e){var t=e.target;if(!t||!t.getAttribute||t.getAttribute("data-ld")===null)return;var d=ldList[+t.getAttribute("data-ld")];if(d){d.st=t.value;recompute();affSaveSoon()}});
   document.addEventListener("change",function(e){var t=e.target;if(!t||!t.getAttribute||t.getAttribute("data-lda")===null)return;var d=ldList[+t.getAttribute("data-lda")];if(d){d.ast=+t.value;recompute();affSaveSoon()}});
   function ldepUpdate(){var el=$("largeDepNote");if(el)el.hidden=true;ldRender();renderLdLogic()}
+  function renderRentals(){
+    var rs=ownedInfo.rentals||[],pr=$("rentalPropsRow"),ir=$("rentalIncRow");
+    pr.hidden=!rs.length;
+    var L=$("rentalPropsList"),I=$("rentalIncList");L.innerHTML="";I.innerHTML="";
+    var rowTop="display:flex;justify-content:space-between;align-items:baseline;gap:12px",inc=0,any=false;
+    rs.forEach(function(r){
+      var loss=r.net<0,b=document.createElement("div");b.style.cssText="padding:10px 0;border-top:1px solid var(--line)";
+      var top=document.createElement("div");top.style.cssText=rowTop;
+      var nm=document.createElement("strong");nm.textContent=r.name;
+      var am=document.createElement("strong");am.textContent=(loss?"Net rental loss ":"Net rental income ")+usd.format(Math.abs(r.net))+"/mo";
+      top.appendChild(nm);top.appendChild(am);b.appendChild(top);
+      var k=document.createElement("p");k.className="k";k.style.margin="4px 0 0";
+      k.textContent=(r.hasData||r.pay>0?"Rental income "+usd.format(r.avg)+"/mo, less payment (PITIA) "+usd.format(r.pay)+"/mo. "+(loss?"Counted as a monthly debt.":"Counted as income."):"Enter this property\u2019s rental figures and payment on its card under Additional Properties Owned.");
+      b.appendChild(k);L.appendChild(b);
+      if(!loss&&(r.hasData||r.pay>0)){
+        any=true;inc+=r.net;
+        var d=document.createElement("div");d.style.cssText=rowTop+";padding:6px 0";
+        var n1=document.createElement("span");n1.textContent=r.name;var a1=document.createElement("b");a1.textContent=usd.format(r.net)+"/mo";d.appendChild(n1);d.appendChild(a1);I.appendChild(d);
+      }else if(loss&&(r.hasData||r.pay>0)){
+        any=true;
+        var d2=document.createElement("div");d2.style.cssText=rowTop+";padding:6px 0";
+        var n2=document.createElement("span");n2.textContent=r.name;var a2=document.createElement("span");a2.className="k";a2.textContent="Net rental loss, see Other Monthly Debts";d2.appendChild(n2);d2.appendChild(a2);I.appendChild(d2);
+      }
+    });
+    ir.hidden=!any;$("rentalIncAmt").textContent=usd.format(inc)+"/mo";
+  }
   function recompute(){
     s2Sync();
     var income=0;
@@ -2657,6 +2748,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       renderDed(b,v);
       income+=v;bvals.push({b:b,v:v,g:g});
     });
+    (ownedInfo.rentals||[]).forEach(function(r){if(r.net<0){rentalLoss+=-r.net;rentalLossItems.push({label:r.name,amt:-r.net,card:true})}});
+    income+=ownedInfo.rentIncome||0;
     income=Math.max(income,0);
     incomeBorrowers=borrowerHeads(bvals);
     $("pubRecNote").hidden=sel("pubRec")!=="yes";
@@ -2669,14 +2762,16 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
 
     var oc=ownedInfo, dt=debtTotals(), debts=dt.counted+rentalLoss+oc.debt;
     $("debtsSummary").textContent=usd.format(debts)+"/mo";
-    var rlr=$("rentalLossRow");rlr.hidden=!(rentalLoss>0);
-    if(rentalLoss>0){
-      $("rentalLossAmt").textContent=usd.format(rentalLoss)+"/mo";
-      $("rentalLossNote").textContent=(rentalLossItems.length>1
-        ?"Added from "+rentalLossItems.length+" rental entries that lose money: "+rentalLossItems.map(function(x){return usd.format(x.amt)}).join(" + ")+". "
+    var bizItems=rentalLossItems.filter(function(x){return !x.card}),bizLoss=bizItems.reduce(function(a,x){return a+x.amt},0);
+    var rlr=$("rentalLossRow");rlr.hidden=!(bizLoss>0);
+    if(bizLoss>0){
+      $("rentalLossAmt").textContent=usd.format(bizLoss)+"/mo";
+      $("rentalLossNote").textContent=(bizItems.length>1
+        ?"Added from "+bizItems.length+" rental entries that lose money: "+bizItems.map(function(x){return usd.format(x.amt)}).join(" + ")+". "
         :"")+"This comes from your Schedule E rental income, after the rental payment. A rental that earns a profit stays in your income. To change this, edit the rental figures under Self-employed income.";
     }
     $("debtsTotalLine").textContent="Total other monthly debts: "+usd.format(debts)+"/mo"+(dt.excluded>0?" (leaving out "+usd.format(dt.excluded)+"/mo you marked)":"")+(rentalLoss>0?" (includes "+usd.format(rentalLoss)+"/mo rental loss from Schedule E)":"")+(oc.debt>0?" (includes "+usd.format(oc.debt)+"/mo payments on other properties)":"")+(dt.moved>0?" (leaving out "+usd.format(dt.moved)+"/mo you chose to deduct from income)":"");
+    renderRentals();
     var shortPct = income>0 ? dt.shortTotal/income*100 : 0;
     var sw=$("debtsShortWarn");
     if(dt.shortTotal>0&&shortPct>SHORT_DEBT_WARN_PCT){
@@ -2927,6 +3022,11 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
           if(borrowers.length===1)inc.push(R("Income after deductions",usdNet(sub)+"/mo"));
           inc.push(Sm("Payments chosen to be deducted from income reduce this borrower\u2019s income instead of counting as a monthly debt. Your lender decides which method applies."));
         }
+      });
+      (ownedInfo.rentals||[]).forEach(function(r){
+        if(!(r.hasData||r.pay>0))return;
+        inc.push(R("Rental property: "+r.name,(r.net>=0?usd.format(r.net):"$0.00")+"/mo"));
+        inc.push(Sm("Fannie Mae Form 1038 ("+r.span+"): average rental income "+usd.format(r.avg)+"/mo, less payment (PITIA) "+usd.format(r.pay)+"/mo = "+(r.net>=0?"net rental income "+usd.format(r.net)+"/mo, counted as income.":"net rental loss "+usd.format(-r.net)+"/mo, counted as a monthly debt.")));
       });
       inc.push(R("Gross monthly income",income,1));
       if(borrowers.length>1&&incomeBorrowers>0)inc.push(Sm("Income of "+incomeBorrowers+" borrower"+(incomeBorrowers===1?"":"s")+" is included."));
