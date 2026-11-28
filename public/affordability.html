@@ -2019,18 +2019,20 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     },
     addRentals:function(addrs,base){ // one Additional Properties Owned card per Schedule E property: investment, on Schedule E, linked to the rental income entry
       var added=0,capped=false,norm=function(a){return String(a||"").split(",")[0].toLowerCase().replace(/[^a-z0-9]/g,"")};
+      var linkedN=ownedLines.filter(function(x){var y=document.querySelector('input[name="own'+x+'Sche"]:checked'),tg=$("own"+x+"Tgt");return y&&y.value==="yes"&&tg&&tg.value===base}).length,blankSeen=0;
       addrs.forEach(function(a){
-        var key=norm(a);if(!key)return;
-        var id=null;ownedLines.forEach(function(x){if(id===null&&norm($("own"+x+"Addr").value)===key)id=x});
+        var key=norm(a),blank=!key;
+        if(blank){blankSeen++;if(blankSeen<=linkedN)return}
+        var id=null;if(!blank)ownedLines.forEach(function(x){if(id===null&&norm($("own"+x+"Addr").value)===key)id=x});
         var fresh=false;
-        if(id===null){ownedLines.forEach(function(x){if(id===null&&!$("own"+x+"Addr").value.trim()&&$("own"+x+"Pay").getAttribute("data-cr")!==null&&$("own"+x+"Wrap").parentNode===$("ownedList")){id=x;$("own"+x+"Addr").value=a;docFire($("own"+x+"Addr"))}})}
+        if(id===null&&!blank){ownedLines.forEach(function(x){if(id===null&&!$("own"+x+"Addr").value.trim()&&$("own"+x+"Pay").getAttribute("data-cr")!==null&&$("own"+x+"Wrap").parentNode===$("ownedList")){id=x;$("own"+x+"Addr").value=a;docFire($("own"+x+"Addr"))}})}
         if(id===null){
           var inv=ownedLines.filter(function(x){return $("own"+x+"Occ").value==="investment"}).length;
           if(inv>=MAXINV){capped=true;return}
           addOwned();id=ownedLines[ownedLines.length-1];fresh=true;
         }
         var t="own"+id;
-        if(fresh){$(t+"Addr").value=a;docFire($(t+"Addr"))}
+        if(fresh&&!blank){$(t+"Addr").value=a;docFire($(t+"Addr"))}
         var oc=$(t+"Occ");
         if(oc.value!=="investment"&&oc.value!=="primary"){oc.value="investment";docFire(oc);if(oc.value!=="investment"){capped=true;if(fresh)removeCard(id);return}}
         var yes=document.querySelector('input[name="'+t+'Sche"][value="yes"]');

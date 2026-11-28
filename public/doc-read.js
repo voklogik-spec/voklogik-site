@@ -491,11 +491,12 @@ function seDays(L) {
 function seAddrs(L) {
   var out = [];
   for (var i = 0; i < L.length; i++) {
-    if (!/^1a\b.*physical address/i.test(L[i].trim())) continue;
-    for (var k = i + 1; k < Math.min(L.length, i + 8); k++) {
+    if (!/physical address of each property/i.test(L[i])) continue;
+    for (var k = i + 1; k < Math.min(L.length, i + 10); k++) {
       var t = L[k].trim();
-      if (/^(1b|2|3)\b/.test(t) && !/^[ABC]\s/.test(t)) break;
-      var m = /^([ABC])\s+(\S.*)$/.exec(t);
+      if (/^(1b|2|3)\b/.test(t) && !/^[ABC]\b/.test(t)) break;
+      if (/type of property|fair rental days/i.test(t)) break;
+      var m = /^([ABC])[\s:.)\-]+(\S.*)$/.exec(t);
       if (m && !/^\d{1,3}(?:\s+\d{1,3})?$/.test(m[2]) && /[A-Za-z]/.test(m[2])) out.push(m[2].replace(/\s+/g, " ").trim());
     }
     break;
@@ -752,6 +753,10 @@ async function runTax(files, out, api) {
       if (addrs.length) {
         var al = h("label", "dr-inc"), ac = h("input"); ac.type = "checkbox"; ac.checked = true; al.appendChild(ac);
         al.appendChild(h("span", "", (addrs.length > 1 ? "Add these " + addrs.length + " properties" : "Add this property") + " under Additional Properties Owned: " + addrs.slice(0, 10).join("; "))); box.appendChild(al); spec.addProps = ac; spec.addrs = addrs.slice(0, 10);
+      } else if (seN > 0) {
+        var bl = h("label", "dr-inc"), bc = h("input"); bc.type = "checkbox"; bc.checked = true; bl.appendChild(bc);
+        bl.appendChild(h("span", "", "We could not read the addresses. Add " + Math.min(seN, 10) + (seN > 1 ? " rental properties" : " rental property") + " under Additional Properties Owned anyway, and type each address")); box.appendChild(bl);
+        spec.addProps = bc; spec.addrs = []; for (var q = 0; q < Math.min(seN, 10); q++) spec.addrs.push("");
       } else box.appendChild(h("div", "dr-note", "We could not read the property addresses. Add each rental under Additional Properties Owned."));
       var seMsg = h("div", "dr-note", "Rental income follows Fannie Mae Form 1038: rents less expenses, adding back depreciation, interest, taxes, insurance and HOA dues, then subtracting the monthly payment. For a new or listed property with no tax return, use 75% of the lease or market rent on the Self-employed income tab.");
       box.appendChild(seMsg);
@@ -933,6 +938,10 @@ async function runCredit(files, out, api) {
       ch.forEach(function (c) { opts.push([String(c.id), c.name]); });
       opts.push(["new", "A property not listed yet (add it)"], ["subj", "The home I am buying or refinancing"]);
       link = sel(opts, ""); box.appendChild(row("Which property is this mortgage for?", "its payment and balance go to that property", link));
+      var refresh = function () { if (!api.ownedChoices) return; var cur = link.value, ch2 = api.ownedChoices(), o2 = [["", "Not linked"]]; ch2.forEach(function (c) { o2.push([String(c.id), c.name]); }); o2.push(["new", "A property not listed yet (add it)"], ["subj", "The home I am buying or refinancing"]);
+        link.innerHTML = ""; o2.forEach(function (o) { var op = h("option", "", o[1]); op.value = o[0]; link.appendChild(op); }); link.value = o2.some(function (o) { return o[0] === cur; }) ? cur : ""; };
+      link.addEventListener("mousedown", refresh); link.addEventListener("focus", refresh);
+      if (!api.applyMortgages) box.appendChild(h("div", "dr-note dr-alert", "This page is out of date, so mortgages cannot be linked to properties yet. Refresh the page (Ctrl+Shift+R, or Cmd+Shift+R on a Mac) and upload the credit report again."));
       link.addEventListener("change", function () { var on = !!link.value; inc.disabled = on; if (on) inc.checked = false; calc(); });
     }
     if (housing) box.appendChild(h("div", "dr-note", a.type === "mortgage" ? "Choose the property to move this payment to Additional Properties Owned. A linked mortgage is not counted again as a debt. Credit reports usually show principal and interest only, so add taxes, insurance and HOA dues there." : "Housing payments are entered with your properties, not under debts. Tick the box only if this payment is not counted anywhere else."));
@@ -946,7 +955,7 @@ async function runCredit(files, out, api) {
   if (coll.length) p.appendChild(h("div", "dr-note dr-alert", (coll.length === 1 ? "1 collection or charge-off was found." : coll.length + " collections or charge-offs were found.") + ' "Do you have any tax liens, judgments, collections or charge-offs?" will be set to Yes.'));
   if (closed > 0) p.appendChild(row("Closed or paid accounts", "Left out", h("div", "dr-ro", String(closed))));
   var ft;
-  function calc() { var tot = 0, nl = 0; rows.forEach(function (r) { if (r.link && r.link.value && r.link.value !== "subj") nl++; if (r.inc.checked && !(r.link && r.link.value)) tot += toNum(r.b.value); }); ft.summary.textContent = "Added to debts: " + usd(tot) + " a month" + (nl ? ". " + nl + (nl === 1 ? " mortgage moves" : " mortgages move") + " to Additional Properties Owned." : ""); }
+  function calc() { var tot = 0, nl = 0, nu = 0; rows.forEach(function (r) { if (r.link && r.link.value && r.link.value !== "subj") nl++; if (r.link && !r.link.value && !r.inc.checked) nu++; if (r.inc.checked && !(r.link && r.link.value)) tot += toNum(r.b.value); }); ft.summary.textContent = "Added to debts: " + usd(tot) + " a month" + (nl ? ". " + nl + (nl === 1 ? " mortgage moves" : " mortgages move") + " to Additional Properties Owned." : "") + (nu ? ". " + nu + (nu === 1 ? " mortgage is not linked and will not be counted." : " mortgages are not linked and will not be counted.") : ""); }
   ft = foot(p, "", function () {
     var list = [], mt = [];
     rows.forEach(function (r) {
@@ -956,7 +965,8 @@ async function runCredit(files, out, api) {
     });
     api.applyDebts(list, { coll: coll.length, housingLate: hl, lateAccts: nl });
     var mr = mt.length && api.applyMortgages ? api.applyMortgages(mt) : { linked: 0 };
-    msg(out, mr.linked ? "Added to your debts, and " + mr.linked + (mr.linked === 1 ? " mortgage" : " mortgages") + " moved to Additional Properties Owned. Check the payment on each property. You can still change them below." : "Added to your debts. You can still change them below.", "ok");
+    var nu2 = rows.filter(function (r) { return r.link && !r.link.value && !r.inc.checked; }).length;
+    msg(out, (mr.linked ? "Added to your debts, and " + mr.linked + (mr.linked === 1 ? " mortgage" : " mortgages") + " moved to Additional Properties Owned. Check the payment on each property. You can still change them below." : "Added to your debts. You can still change them below.") + (nu2 ? " " + nu2 + (nu2 === 1 ? " mortgage was not added" : " mortgages were not added") + ". Link each one to a property, or tick Include to count it as a debt." : ""), nu2 ? "" : "ok");
   }, out);
   rows.forEach(function (r) { r.inc.addEventListener("change", calc); r.b.addEventListener("input", calc); });
   calc();
