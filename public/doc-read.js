@@ -326,6 +326,7 @@ async function runBank(files, out, api, keep) {  // keep: what the person alread
     try { var SL = await readStmtLines(files[i]); parsed.push(parseStmt(SL, threshold)); stLines.push(SL); } catch (e) { bad = bad || e; }
   }
   var ok = parsed.filter(function (x) { return x.accounts.length; });
+  if (!ok.length && !bad && stLines.some(function (L) { return parseRetire(L); })) { return runRetire(files, out, api); }
   if (!ok.length) { msg(out, bad ? errText(bad, "bank") : "We could not find an ending balance on this file. Please type it in."); return; }
   ok.sort(function (a, b) { return (a.period ? +a.period.end : 0) - (b.period ? +b.period.end : 0); });
   var latest = ok[ok.length - 1], p = panel(out, "We found " + latest.accounts.length + (latest.accounts.length === 1 ? " account" : " accounts") + " on " + ok.length + (ok.length === 1 ? " statement" : " statements") + ". Check each one.");
@@ -457,6 +458,50 @@ function lineVal1(pg, re, lineNo, frac) {
   }
   return { found: false, v: 0 };
 }
+// Schedule E, Part I: the amounts at the end of a line, one per rental property (columns A, B, C). Blank columns have no number.
+function trailAmts(line, lineNo) {
+  var t = line.split(/\s+/), vals = [];
+  for (var i = t.length - 1; i >= 0; i--) { if (!/^\(?-?\$?\d[\d,]*(?:\.\d+)?\)?-?$/.test(t[i])) break; vals.unshift(t[i]); }
+  var boxed = false;
+  if (vals.length && vals[0] === String(lineNo) && (vals.length > 1 || /[A-Za-z]/.test(line))) { boxed = true; vals.shift(); }
+  return { boxed: boxed, vals: vals.map(moneyOf).filter(function (v) { return v !== null; }) };
+}
+function seLine(pg, re, lineNo) {
+  var rows = pg.rows || [];
+  for (var i = 0; i < rows.length; i++) {
+    if (!re.test(rowText(rows[i], pg.w, 0))) continue;
+    for (var k = i; k < Math.min(rows.length, i + 3); k++) {
+      var r = trailAmts(rowText(rows[k], pg.w, 0), lineNo);
+      if (k === i && (r.vals.length || r.boxed)) return { found: true, v: r.vals.reduce(function (a, b) { return a + b; }, 0), n: r.vals.length };
+      if (k > i) { if (r.boxed || r.vals.length) return { found: true, v: r.vals.reduce(function (a, b) { return a + b; }, 0), n: r.vals.length }; break; }
+    }
+    return { found: true, v: 0, n: 0 };
+  }
+  return { found: false, v: 0, n: 0 };
+}
+function seDays(L) {
+  var days = [];
+  for (var i = 0; i < L.length; i++) {
+    if (!/fair rental days/i.test(L[i])) continue;
+    for (var k = i; k < Math.min(L.length, i + 6); k++) { var m = /^\s*([ABC])\s+(\d{1,3})(?:\s+(\d{1,3}))?\s*$/.exec(L[k]); if (m) days.push(+m[2]); }
+    if (days.length) break;
+  }
+  return days;
+}
+function seAddrs(L) {
+  var out = [];
+  for (var i = 0; i < L.length; i++) {
+    if (!/^1a\b.*physical address/i.test(L[i].trim())) continue;
+    for (var k = i + 1; k < Math.min(L.length, i + 8); k++) {
+      var t = L[k].trim();
+      if (/^(1b|2|3)\b/.test(t) && !/^[ABC]\s/.test(t)) break;
+      var m = /^([ABC])\s+(\S.*)$/.exec(t);
+      if (m && !/^\d{1,3}(?:\s+\d{1,3})?$/.test(m[2]) && /[A-Za-z]/.test(m[2])) out.push(m[2].replace(/\s+/g, " ").trim());
+    }
+    break;
+  }
+  return out;
+}
 function taxYear(lines) {
   for (var i = 0; i < Math.min(lines.length, 18); i++) {
     var m = /(?:^|[^\d-])(20[12]\d)(?:$|[^\d-])/.exec(lines[i]);
@@ -571,7 +616,7 @@ function isTranscript(pages) {
 }
 // What each page is, and the figures on it
 function parseTaxPages(pages) {
-  var out = { sc: [], pers: [], sco: { year: null, biz: null, k1s: [] }, pt: { year: null, biz: null, k1s: [] }, cc: { year: null, biz: null }, amort: null, years: [] };
+  var out = { sc: [], se: [], pers: [], sco: { year: null, biz: null, k1s: [] }, pt: { year: null, biz: null, k1s: [] }, cc: { year: null, biz: null }, amort: null, years: [] };
   if (pages.length && isTranscript(pages)) {
     var tr = parseTranscript(pages);
     if (tr.wages !== null || tr.biz !== null || tr.total !== null || tr.agi !== null || tr.w2 !== null || tr.nec !== null)
@@ -584,6 +629,13 @@ function parseTaxPages(pages) {
     var L = pg.lines, T = L.join("\n"), top = L.slice(0, 22).join("\n");
     if (/Schedule K-1/i.test(top) && /Shareholder.s Share of Current Year Income/i.test(T)) { out.sco.k1s.push(parseK1(pg, "sco")); if (!out.sco.year) out.sco.year = taxYear(L); return; }
     if (/Schedule K-1/i.test(top) && /Partner.s Share of Current Year Income/i.test(T)) { out.pt.k1s.push(parseK1(pg, "pt")); if (!out.pt.year) out.pt.year = taxYear(L); return; }
+    if (/Schedule E/i.test(top) && /Income or Loss From Rental Real Estate and Royalties/i.test(T)) {
+      var se = { year: taxYear(L), rents: seLine(pg, /^3\b.*rents received/i, 3), roy: seLine(pg, /^4\b.*royalties received/i, 4), ins: seLine(pg, /^9\b.*insurance/i, 9),
+        int: seLine(pg, /^12\b.*mortgage interest/i, 12), tax: seLine(pg, /^16\b.*taxes/i, 16), dep: seLine(pg, /^18\b.*depreciation/i, 18), exp: seLine(pg, /^20\b.*total expenses/i, 20), days: seDays(L), addrs: seAddrs(L) };
+      se.n = Math.max(se.rents.n, se.exp.n, se.int.n, se.dep.n, se.days.length);
+      if (se.rents.found || se.exp.found) out.se.push(se);
+      return;
+    }
     if (/Schedule C/i.test(top) && /Profit or Loss From Business/i.test(T)) {
       var y = taxYear(L);
       out.sc.push({ year: y, net: lineVal(pg, /^31\b.*net profit/i, 31), dep: lineVal(pg, /^13\b.*depreciation/i, 13, 0.52), depl: lineVal(pg, /^12\b.*depletion/i, 12, 0.52) });
@@ -618,7 +670,7 @@ function parseTaxPages(pages) {
   });
   return out;
 }
-var TAXTITLE = { p: "Personal return or IRS transcript (Form 1040)", sc: "Sole proprietor (Schedule C)", sco: "S Corp (Form 1120-S and K-1)", pt: "Partnership (Form 1065 and K-1)", cc: "C Corp (Form 1120)" };
+var TAXTITLE = { se: "Rental properties (Schedule E)", p: "Personal return or IRS transcript (Form 1040)", sc: "Sole proprietor (Schedule C)", sco: "S Corp (Form 1120-S and K-1)", pt: "Partnership (Form 1065 and K-1)", cc: "C Corp (Form 1120)" };
 
 async function runTax(files, out, api) {
   msg(out, "Reading your tax returns on this device...");
@@ -632,6 +684,11 @@ async function runTax(files, out, api) {
       if (res.sc.length === 1) tot = { net: res.sc[0].net.v, dep: res.sc[0].dep.v, depl: res.sc[0].depl.v };
       else { tot = { net: 0, dep: 0, depl: 0 }; res.sc.forEach(function (c) { tot.net = sum(tot.net, c.net.v); tot.dep = sum(tot.dep, c.dep.v); tot.depl = sum(tot.depl, c.depl.v); }); }
       put("sc", yr, { net: tot.net, dep: tot.dep, depl: tot.depl, count: res.sc.length });
+    }
+    if (res.se.length) {
+      var seT = { rents: 0, roy: 0, ins: 0, int: 0, tax: 0, dep: 0, exp: 0, n: 0, days: [], addrs: [] };
+      res.se.forEach(function (e) { ["rents", "roy", "ins", "int", "tax", "dep", "exp"].forEach(function (k) { seT[k] += e[k].v; }); seT.n += e.n; seT.days = seT.days.concat(e.days); seT.addrs = seT.addrs.concat(e.addrs); });
+      put("se", res.se[0].year, seT);
     }
     res.pers.forEach(function (pp) { put("p", pp.year, pp); });
     if (res.sco.biz || res.sco.k1s.length) {
@@ -648,7 +705,7 @@ async function runTax(files, out, api) {
     }
   }
   var keys = Object.keys(found);
-  if (!keys.length) { msg(out, bad ? errText(bad, "tax preparer or the IRS") : "We could not find a Schedule C, 1120-S, 1065 or 1120 in these files. Please type your figures in."); return; }
+  if (!keys.length) { msg(out, bad ? errText(bad, "tax preparer or the IRS") : "We could not find a Schedule C, Schedule E, 1120-S, 1065 or 1120 in these files. Please type your figures in."); return; }
   var onlyP = keys.length === 1 && keys[0] === "p", hasP = keys.indexOf("p") >= 0;
   var p = panel(out, onlyP ? "We found your personal tax return. Check each figure." : "We found " + keys.length + (hasP ? (keys.length === 1 ? " tax record" : " tax records") : (keys.length === 1 ? " business return" : " business returns")) + ". Check each one.");
   var blocks = [];
@@ -674,6 +731,31 @@ async function runTax(files, out, api) {
       frow("total", "Total income (line 9)", "", D.map(function (d) { return d.total; }));
       frow("agi", "Adjusted gross income (line 11)", "", D.map(function (d) { return d.agi; }));
       box.appendChild(h("div", "dr-note", "These figures are shown for your records and to check against your other documents. Wage income comes from your pay stubs. Self-employed income is added from the Schedule C or business return."));
+    } else if (key === "se") {
+      var seN = D.reduce(function (a, d) { return Math.max(a, d.n || 0); }, 0);
+      frow("rents", "Rents received (line 3)", seN > 1 ? seN + " rental properties on the return, added together" : "", D.map(function (d) { return d.rents; }));
+      frow("roy", "Royalties received (line 4)", "", D.map(function (d) { return d.roy; }));
+      frow("exp", "Total expenses (line 20)", "", D.map(function (d) { return d.exp; }));
+      frow("dep", "Depreciation (line 18)", "", D.map(function (d) { return d.dep; }));
+      frow("int", "Mortgage interest (line 12)", "", D.map(function (d) { return d.int; }));
+      frow("tax", "Taxes (line 16)", "", D.map(function (d) { return d.tax; }));
+      frow("ins", "Insurance (line 9)", "", D.map(function (d) { return d.ins; }));
+      frow("hoa", "HOA dues", "type it in if it is not on the return", D.map(function () { return null; }));
+      frow("add", "Other add-backs", "amortization, casualty loss or one-time expenses (Form 1038)", D.map(function () { return null; }));
+      var dMax = 0; D.forEach(function (d, ix) { if (ix === 0) (d.days || []).forEach(function (x) { if (x > dMax) dMax = x; }); });
+      var one = yrs.length < 2, mo = dMax > 0 ? Math.max(1, Math.min(12, Math.round(dMax / 30.4))) : 12;
+      var ms = sel([["tax", "Tax returns: average of the years above (2 years)"], ["one", "Owned less than a year: one year, spread over the months rented"]], one ? "one" : "tax"); ms.classList.add("dr-found"); spec.mode = ms;
+      var mi = field(String(mo)); if (dMax > 0) mi.classList.add("dr-found"); spec.months = mi;
+      box.appendChild(row("How to average the rental income", "Fannie Mae Form 1038", ms));
+      box.appendChild(row("Months rented in the most recent year", dMax > 0 ? "from the days rented on the return" : "type it in", mi));
+      var addrs = (D[0] && D[0].addrs) || [];
+      if (addrs.length) {
+        var al = h("label", "dr-inc"), ac = h("input"); ac.type = "checkbox"; ac.checked = true; al.appendChild(ac);
+        al.appendChild(h("span", "", (addrs.length > 1 ? "Add these " + addrs.length + " properties" : "Add this property") + " under Additional Properties Owned: " + addrs.slice(0, 10).join("; "))); box.appendChild(al); spec.addProps = ac; spec.addrs = addrs.slice(0, 10);
+      } else box.appendChild(h("div", "dr-note", "We could not read the property addresses. Add each rental under Additional Properties Owned."));
+      var seMsg = h("div", "dr-note", "Rental income follows Fannie Mae Form 1038: rents less expenses, adding back depreciation, interest, taxes, insurance and HOA dues, then subtracting the monthly payment. For a new or listed property with no tax return, use 75% of the lease or market rent on the Self-employed income tab.");
+      box.appendChild(seMsg);
+      if (seN > 10) box.appendChild(h("div", "dr-note", "These returns show " + seN + " rental properties. Vorelia accepts up to 10 rental (investment) properties."));
     } else if (key === "sc") {
       frow("net", "Net profit (line 31)", D.some(function (d) { return d.count > 1; }) ? "more than one Schedule C: added together" : "", D.map(function (d) { return d.net; }));
       frow("dep", "Depreciation (line 13)", "", D.map(function (d) { return d.dep; }));
@@ -733,10 +815,10 @@ async function runTax(files, out, api) {
       if (Object.keys(b.k1sel).some(function (i) { return !b.k1sel[i].s.value; })) return;
       var rows = {};
       Object.keys(b.f).forEach(function (id) { rows[id] = b.f[id].map(function (i) { return i.value.trim() === "" ? null : toNum(i.value) * (/^\s*[-(]/.test(i.value) ? -1 : 1); }); });
-      payload.push({ key: b.key, rows: rows, own: b.ownInp ? toNum(b.ownInp.value) : null, three: !!(b.c3 && b.c3.checked), years: b.yrs.length });
+      payload.push({ key: b.key === "se" ? "rent" : b.key, rows: rows, own: b.ownInp ? toNum(b.ownInp.value) : null, three: !!(b.c3 && b.c3.checked), years: b.yrs.length, mode: b.mode ? b.mode.value : null, months: b.months ? toNum(b.months.value) : null, props: b.addProps && b.addProps.checked ? b.addrs : [] });
     });
-    api.applyTax(payload);
-    msg(out, "Added to your self-employed income. You can still change it above.", "ok");
+    var res = api.applyTax(payload) || {}, hasRent = payload.some(function (x) { return x.key === "rent"; });
+    msg(out, res.added ? "Added to your self-employed income as Rents or royalties, and " + res.added + (res.added === 1 ? " property" : " properties") + " under Additional Properties Owned. Enter the full monthly payment (PITIA) on each one so the rental income is shown after it." + (res.capped ? " Vorelia accepts up to 10 rental (investment) properties, so the rest were not added." : "") : hasRent ? "Added to your self-employed income as Rents or royalties. Add each rental property under Additional Properties Owned to subtract its payment. You can still change it above." : "Added to your self-employed income. You can still change it above.", "ok");
   }, out);
   blocks.forEach(function (b) { b.inc.addEventListener("change", calc); Object.keys(b.k1sel).forEach(function (i) { b.k1sel[i].s.addEventListener("change", calc); }); });
   calc();
@@ -845,10 +927,18 @@ async function runCredit(files, out, api) {
     box.appendChild(top);
     if (!housing) box.appendChild(row("Type", "", t));
     box.appendChild(row("Monthly payment", a.pay != null ? "" : "Not shown on the report. Check your latest statement.", b));
-    if (housing) box.appendChild(h("div", "dr-note", "Housing payments are entered with your properties, not under debts. Tick the box only if this payment is not counted anywhere else."));
+    var link = null;
+    if (housing && a.type === "mortgage") {
+      var ch = (api.ownedChoices ? api.ownedChoices() : []), opts = [["", "Not linked"]];
+      ch.forEach(function (c) { opts.push([String(c.id), c.name]); });
+      opts.push(["new", "A property not listed yet (add it)"], ["subj", "The home I am buying or refinancing"]);
+      link = sel(opts, ""); box.appendChild(row("Which property is this mortgage for?", "its payment and balance go to that property", link));
+      link.addEventListener("change", function () { var on = !!link.value; inc.disabled = on; if (on) inc.checked = false; calc(); });
+    }
+    if (housing) box.appendChild(h("div", "dr-note", a.type === "mortgage" ? "Choose the property to move this payment to Additional Properties Owned. A linked mortgage is not counted again as a debt. Credit reports usually show principal and interest only, so add taxes, insurance and HOA dues there." : "Housing payments are entered with your properties, not under debts. Tick the box only if this payment is not counted anywhere else."));
     if (a.lates) box.appendChild(row("Late payments on the report", a.late12 ? "At least one in the last 12 months" : (a.undated ? "Dates not found" : "None in the last 12 months"), h("div", "dr-ro bad", a.lates + (a.worst ? " (up to " + a.worst + " days)" : ""))));
     else box.appendChild(row("Late payments on the report", "", h("div", "dr-ro good", "None found")));
-    p.appendChild(box); rows.push({ a: a, inc: inc, t: t, b: b });
+    p.appendChild(box); rows.push({ a: a, inc: inc, t: t, b: b, link: link });
   });
   var hl = open.some(function (a) { return (a.type === "mortgage" || a.type === "rent") && (a.late12 || (a.lates && a.undated)); });
   var nl = open.filter(function (a) { return a.lates > 0; }).length;
@@ -856,15 +946,108 @@ async function runCredit(files, out, api) {
   if (coll.length) p.appendChild(h("div", "dr-note dr-alert", (coll.length === 1 ? "1 collection or charge-off was found." : coll.length + " collections or charge-offs were found.") + ' "Do you have any tax liens, judgments, collections or charge-offs?" will be set to Yes.'));
   if (closed > 0) p.appendChild(row("Closed or paid accounts", "Left out", h("div", "dr-ro", String(closed))));
   var ft;
-  function calc() { var tot = 0; rows.forEach(function (r) { if (r.inc.checked) tot += toNum(r.b.value); }); ft.summary.textContent = "Added to debts: " + usd(tot) + " a month"; }
+  function calc() { var tot = 0, nl = 0; rows.forEach(function (r) { if (r.link && r.link.value && r.link.value !== "subj") nl++; if (r.inc.checked && !(r.link && r.link.value)) tot += toNum(r.b.value); }); ft.summary.textContent = "Added to debts: " + usd(tot) + " a month" + (nl ? ". " + nl + (nl === 1 ? " mortgage moves" : " mortgages move") + " to Additional Properties Owned." : ""); }
   ft = foot(p, "", function () {
-    var list = []; rows.forEach(function (r) { if (r.inc.checked && toNum(r.b.value) > 0) list.push({ type: r.t.value, amount: round2(toNum(r.b.value)) }); });
+    var list = [], mt = [];
+    rows.forEach(function (r) {
+      if (r.link && r.link.value && r.link.value !== "subj") { mt.push({ to: r.link.value, pay: round2(toNum(r.b.value)), upb: r.a.bal || 0 }); return; }
+      if (r.link && r.link.value === "subj") return;
+      if (r.inc.checked && toNum(r.b.value) > 0) list.push({ type: r.t.value, amount: round2(toNum(r.b.value)) });
+    });
     api.applyDebts(list, { coll: coll.length, housingLate: hl, lateAccts: nl });
-    msg(out, "Added to your debts. You can still change them below.", "ok");
+    var mr = mt.length && api.applyMortgages ? api.applyMortgages(mt) : { linked: 0 };
+    msg(out, mr.linked ? "Added to your debts, and " + mr.linked + (mr.linked === 1 ? " mortgage" : " mortgages") + " moved to Additional Properties Owned. Check the payment on each property. You can still change them below." : "Added to your debts. You can still change them below.", "ok");
   }, out);
   rows.forEach(function (r) { r.inc.addEventListener("change", calc); r.b.addEventListener("input", calc); });
   calc();
 }
 
-export function run(kind, files, out, api) { return kind === "pay" ? runPay(files[0], out, api) : kind === "credit" ? runCredit(files, out, api) : kind === "tax" ? runTax(files, out, api) : runBank(files, out, api); }
-export { parsePay, parseStmt, readLines, readStmtLines, readPages, parseTaxPages, parseCredit };
+
+/* ---------- Social Security / pension award letters ---------- */
+function lineAmt(lines, re, span) {
+  for (var i = 0; i < lines.length; i++) {
+    if (!re.test(lines[i])) continue;
+    for (var j = i; j <= i + (span || 0) && j < lines.length; j++) { var n = nums(lines[j]); if (n.length) return n[n.length - 1].v; }
+  }
+  return null;
+}
+function parseBenefit(lines) {
+  var text = lines.join(" ");
+  if (!/social security|pension|annuity|retirement benefit|benefit (amount|letter)/i.test(text)) return null;
+  var gross = lineAmt(lines, /before (any )?deductions|gross (monthly )?(benefit|amount|pension)|(monthly|total) benefit amount/i, 1);
+  var med = lineAmt(lines, /medicare[^$]*premium|part b premium/i, 0);
+  var tax = lineAmt(lines, /(federal )?(income )?tax(es)? withheld|withholding amount/i, 0);
+  var net = lineAmt(lines, /amount we pay you|net (monthly )?(benefit|payment|amount)|amount (deposited|paid)|we (will )?(deposit|pay)/i, 0);
+  if (med !== null) med = Math.abs(med);
+  if (gross === null && net !== null) gross = net + (med || 0) + (tax || 0);
+  if (gross === null || !(gross > 0)) return null;
+  var taxZero = tax === 0 || (tax === null && /not withholding|no (federal )?tax(es)? (is|are|was|were) (being )?withheld/i.test(text));
+  return { gross: round2(gross), med: med, tax: tax, net: net, taxZero: taxZero, ss: /social security/i.test(text) };
+}
+async function runBenefit(files, out, api) {
+  msg(out, "Reading your award letter on this device...");
+  var lines;
+  try { lines = await readLines(files[0]); } catch (e) { msg(out, errText(e, "benefit")); return; }
+  var r = parseBenefit(lines); lines = null;
+  if (!r) { msg(out, "We could not find the monthly benefit on this file. Please type it in."); return; }
+  var p = panel(out, "We found these on your " + (r.ss ? "Social Security award letter" : "benefit letter") + ". Check each one.");
+  var fAmt = field(r.gross.toFixed(2)); fAmt.classList.add("dr-found");
+  var fTax = sel([["no", "None of it is taxable (gross it up)"], ["yes", "Part or all of it is taxable (no gross-up)"]], r.taxZero ? "no" : "yes"); fTax.classList.add("dr-found");
+  var fUp = field("25");
+  p.appendChild(row("Monthly benefit before deductions", "We use the gross amount, not what is deposited", fAmt));
+  if (r.med !== null) p.appendChild(row("Medicare premium deducted", "not subtracted from your income", h("div", "dr-ro", usd(r.med))));
+  p.appendChild(row("Federal income tax withheld", "", h("div", "dr-ro", r.tax !== null ? usd(r.tax) : (r.taxZero ? "None" : "Not shown"))));
+  if (r.net !== null) p.appendChild(row("Amount deposited", "a check only, not income", h("div", "dr-ro", usd(r.net))));
+  p.appendChild(row("Is this benefit taxable?", "", fTax));
+  var upRow = row("Gross-up rate (%)", "Conventional loans often use 25%, FHA often 15%. Your lender decides.", fUp); p.appendChild(upRow);
+  p.appendChild(h("div", "dr-note", "Please verify this. No tax withheld does not always mean the benefit is not taxable. Check your tax return and your SSA-1099, and expect your lender to ask for proof."));
+  var ft;
+  function calc() {
+    var amt = toNum(fAmt.value), up = Math.min(toNum(fUp.value), 50), nt = fTax.value === "no";
+    upRow.hidden = !nt;
+    ft.summary.textContent = amt > 0 ? "Counted as income: " + usd(round2(nt ? amt * (1 + up / 100) : amt)) + " a month" + (nt ? " (" + usd(amt) + " + " + up + "% gross-up)" : "") : "Enter the monthly benefit.";
+    ft.use.disabled = !(amt > 0);
+  }
+  ft = foot(p, "", function () {
+    api.applyBenefit({ amount: round2(toNum(fAmt.value)), nontax: fTax.value === "no", grossUp: Math.min(toNum(fUp.value), 50) });
+    msg(out, "Added to your income. Confirm on your tax return that it is not taxable. You can still change it above.", "ok");
+  }, out);
+  [fAmt, fTax, fUp].forEach(function (x) { x.addEventListener("input", calc); x.addEventListener("change", calc); });
+  calc();
+}
+/* ---------- retirement account statements (401(k), IRA, 403(b)) ---------- */
+function parseRetire(lines) {
+  var text = lines.join(" ");
+  var kind = /401\s*\(?k\)?/i.test(text) ? "401(k)" : /403\s*\(?b\)?/i.test(text) ? "403(b)" : /\b(roth )?ira\b/i.test(text) ? "IRA" : /thrift savings/i.test(text) ? "TSP" : /pension plan|retirement (savings )?(plan|account)/i.test(text) ? "retirement plan" : "";
+  var brok = false;
+  if (!kind && /brokerage|securities|portfolio (value|summary)|account value/i.test(text) && /(stocks?|equities|mutual funds?|etfs?|bonds?|holdings|positions)/i.test(text)) { kind = "brokerage"; brok = true; }
+  if (!kind) return null;
+  var vest = lineAmt(lines, /vested (account )?balance/i, 0);
+  var end = lineAmt(lines, /(ending|closing|current) (account )?(balance|value)|ending value/i, 1);
+  if (end === null) end = lineAmt(lines, /total account (value|balance)|total (vested )?balance|^total\b.*\$/i, 1);
+  if (end === null) end = lineAmt(lines, /\baccount value\b/i, 1);
+  var amt = vest !== null ? vest : end;
+  if (amt === null || !(amt > 0)) return null;
+  var d = /(?:ending|closing)[^()]*\((\d{1,2}\/\d{1,2}\/\d{4})\)/i.exec(text) || /(?:through|-)\s*((?:[A-Z][a-z]+) \d{1,2}, \d{4})/.exec(text);
+  return { amount: round2(amt), kind: kind, type: brok ? "stocks" : "retirement", asOf: d ? d[1] : "", vested: vest !== null };
+}
+async function runRetire(files, out, api) {
+  msg(out, "Reading your retirement statement on this device...");
+  var lines;
+  try { lines = await readLines(files[0]); } catch (e) { msg(out, errText(e, "retirement plan")); return; }
+  var r = parseRetire(lines); lines = null;
+  if (!r) { msg(out, "We could not find the account balance on this file. Please type it in."); return; }
+  var p = panel(out, "We found this on your " + r.kind + " statement. Check it.");
+  var fAmt = field(r.amount.toFixed(2)); fAmt.classList.add("dr-found");
+  p.appendChild(row(r.vested ? "Vested balance" : "Account balance", r.asOf ? "as of " + r.asOf : "", fAmt));
+  p.appendChild(h("div", "dr-note", r.type === "stocks" ? "Stocks and funds can count toward your reserves without being sold. We count 70% of the part you would not sell, and you can change that. Any part you would sell counts as liquid for cash to close. Set both on the Assets tab." : "Retirement accounts can count toward your reserves without being withdrawn. We count 60% of the part you would not withdraw, and you can change that. Any part you would withdraw counts as liquid, before taxes and penalties. Set both on the Assets tab."));
+  var ft = foot(p, "", function () {
+    api.applyAssets([{ type: r.type, amount: round2(toNum(fAmt.value)) }], false, [], "retire");
+    msg(out, "Added to your assets. You can still change it above.", "ok");
+  }, out);
+  function calc() { var a = toNum(fAmt.value); ft.summary.textContent = a > 0 ? "Added to assets: " + usd(a) : "Enter the balance."; ft.use.disabled = !(a > 0); }
+  fAmt.addEventListener("input", calc); calc();
+}
+
+export function run(kind, files, out, api) { return kind === "benefit" ? runBenefit(files, out, api) : kind === "retire" ? runRetire(files, out, api) : kind === "pay" ? runPay(files[0], out, api) : kind === "credit" ? runCredit(files, out, api) : kind === "tax" ? runTax(files, out, api) : runBank(files, out, api); }
+export { parsePay, parseStmt, readLines, readStmtLines, readPages, parseTaxPages, parseCredit, parseBenefit, parseRetire };

@@ -530,6 +530,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
 
       <!-- Retirement / SS / Pension -->
       <div class="source" id="srcRetirement" hidden>
+        <div class="docbox"><div class="dtx"><b>Have a Social Security award letter or pension letter? Upload it to pre-fill.</b><span>PDF only. Read on your device and never uploaded. Only the benefit amounts are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-docben="">Upload award letter</button><input type="file" data-docbenfile="" accept="application/pdf,.pdf" hidden></div><div aria-live="polite"></div>
         <div class="grid">
           <div class="f"><label for="retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="retAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 2500"></div>
           <div class="f"><label for="retFreq">Paid</label>
@@ -1068,7 +1069,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       {id:"depl",label:"Depletion & amortization (rare)",sh:"depletion & amortization",s:1}]},
     {key:"rent",label:"Rents or royalties (Schedule E)",
      extra:"Monthly payment still owed on these rentals: principal, interest, taxes and insurance ($/mo)",
-     help:"Rents and royalties minus expenses, then adding back depreciation, mortgage interest, taxes and insurance. If you still owe a mortgage on the property, its monthly payment is subtracted. A net loss counts as a monthly debt, not as negative income.",
+     help:"Fannie Mae Form 1038 method: rents and royalties minus expenses, then adding back depreciation, mortgage interest, taxes, insurance and HOA dues. If you still owe a mortgage on the property, its monthly payment is subtracted. A net loss counts as a monthly debt, not as negative income.",
      rows:[
       {id:"rents",label:"Rents received, Line 3",sh:"rents",s:1},
       {id:"roy",label:"Royalties received, Line 4",sh:"royalties",s:1},
@@ -1076,7 +1077,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       {id:"dep",label:"Depreciation, Line 18",sh:"depreciation",s:1},
       {id:"int",label:"Mortgage interest, Line 12",sh:"mortgage interest",s:1},
       {id:"tax",label:"Taxes, Line 16",sh:"taxes",s:1},
-      {id:"ins",label:"Insurance, Line 9",sh:"insurance",s:1}]}
+      {id:"ins",label:"Insurance, Line 9",sh:"insurance",s:1},
+      {id:"hoa",label:"HOA dues (if you pay them)",sh:"HOA dues",s:1},
+      {id:"add",label:"Other add-backs: amortization, casualty loss, one-time expenses",sh:"other add-backs",s:1}]}
   ];
   var ADDL=[
     {key:"bonus",label:"Bonus",timing:1,
@@ -1100,6 +1103,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     if(c.help)h+='<p class="k" style="margin:0 0 12px">'+esc(c.help)+'</p>';
     if(c.otherLabel)h+='<div class="f" style="margin-bottom:12px"><label for="'+base+'_label">Describe this income</label><input id="'+base+'_label" type="text" placeholder="e.g. overtime, side contract work"></div>';
     if(c.own)h+='<div class="f" style="max-width:260px;margin-bottom:12px"><label for="'+base+'_own">Your ownership share (%)</label><input id="'+base+'_own" type="number" inputmode="decimal" min="0" max="100" step="1" value="100"></div>';
+    if(c.extra)h+='<div class="f" style="max-width:460px;margin-bottom:12px"><label for="'+base+'_mode">How should this rental income be figured?</label><select id="'+base+'_mode"><option value="tax">Tax returns: 2-year average (Fannie Mae Form 1038)</option><option value="one">Owned less than a year: 1 year, spread over the months rented</option><option value="lease">New or listed property: 75% of the lease or market rent</option></select></div>'
+      +'<div class="f" id="'+base+'_monthsF" hidden style="max-width:260px;margin-bottom:12px"><label for="'+base+'_months">Months rented in the year (1 to 12)</label><input id="'+base+'_months" type="number" inputmode="numeric" min="1" max="12" step="1" value="12"></div>'
+      +'<div id="'+base+'_leaseF" hidden style="margin-bottom:12px"><div class="grid" style="max-width:520px"><div class="f"><label for="'+base+'_lease">Monthly lease or market rent ($)</label><input id="'+base+'_lease" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div><div class="f"><label for="'+base+'_lpct">Percent counted (%)</label><input id="'+base+'_lpct" type="number" inputmode="decimal" min="0" max="100" step="1" value="75"></div></div><p class="k" style="margin:6px 0 0">Use a signed lease or an appraiser\'s market rent. Lenders usually count 75% to allow for vacancy and upkeep, then subtract the full monthly payment.</p></div>';
     h+='<div class="ytable" style="--yc:2"><div class="yrow yhead"><span></span>';
     for(var y=1;y<=3;y++)h+='<span'+(y===3?' class="c3" hidden':'')+'>'+YCAP[y-1]+'</span>';
     h+='</div>';
@@ -1124,8 +1130,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       +'<div class="seg"><label><input type="radio" name="'+p+'bonusTiming" value="dec" checked>In December, for that same year</label>'
       +'<label><input type="radio" name="'+p+'bonusTiming" value="janmar">In Jan&ndash;Mar, for the prior year\'s work</label></div></div>'
       +'<div id="'+base+'_tnote" class="note" hidden></div>';
-    h+='<label class="chk"><input type="checkbox" id="'+base+'_3"> Use a 3-year average (non-standard)</label>';
-    h+='<p class="k" style="margin:4px 0 0">Most lenders average two years. A third year is less common and is mainly used when a lender asks for it, for example when income swings widely from year to year.</p>';
+    h+='<div id="'+base+'_3w"><label class="chk"><input type="checkbox" id="'+base+'_3"> Use a 3-year average (non-standard)</label>';
+    h+='<p class="k" style="margin:4px 0 0">Most lenders average two years. A third year is less common and is mainly used when a lender asks for it, for example when income swings widely from year to year.</p></div>';
     h+='<div id="'+base+'_note" class="note" hidden></div><p class="srctotal" id="'+base+'_total"></p></div>';
     return h;
   }
@@ -1139,7 +1145,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     h+='<p class="srctotal" id="'+p+kind+'Total"></p>';
     return h;
   }
-  function taxBox(p){return '<div class="docbox"><div class="dtx"><b>Have tax returns or IRS transcripts? Upload them to pre-fill.</b><span>PDF only, up to 6 files. Form 1040, Schedule C, 1120-S, 1065, 1120 or IRS transcripts. Read on your device and never uploaded. Only the income and add-back figures are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-doctax="'+p+'">Upload tax returns</button><input type="file" data-doctaxfile="'+p+'" accept="application/pdf,.pdf" multiple hidden></div><div aria-live="polite"></div>'}
+  function taxBox(p){return '<div class="docbox"><div class="dtx"><b>Have tax returns or IRS transcripts? Upload them to pre-fill.</b><span>PDF only, up to 6 files. Form 1040, Schedule C, Schedule E, 1120-S, 1065, 1120 or IRS transcripts. Read on your device and never uploaded. Only the income and add-back figures are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-doctax="'+p+'">Upload tax returns</button><input type="file" data-doctaxfile="'+p+'" accept="application/pdf,.pdf" multiple hidden></div><div aria-live="polite"></div>'}
   function selfEmpHtml(p){return taxBox(p)+groupHtml(p,"bz",BIZ,"Select every kind of self-employment income you have, then enter the figures from your tax returns. Most lenders average two years and add back items like depreciation, which reduce your taxes but not your real cash flow.","Types of self-employment income")}
   function additionalHtml(p){return groupHtml(p,"ad",ADDL,"Select each type that applies. Bonus, commission, capital gains, and interest or dividends are usually averaged over two years, because lenders want income that is likely to continue.","Types of additional income")}
   $("srcSelfemp").innerHTML=selfEmpHtml("");
@@ -1156,7 +1162,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       panel.hidden=!on;
       if(!on)return;
       count++;
-      var use3=$(base+"_3").checked;
+      var rmode=c.extra?$(base+"_mode").value:"tax",use3=$(base+"_3").checked&&rmode==="tax";
       panel.querySelector(".ytable").style.setProperty("--yc",use3?3:2);
       panel.querySelectorAll(".c3").forEach(function(e){e.hidden=!use3});
       var own=c.own?Math.min(n(base+"_own"),100)/100:1;
@@ -1170,16 +1176,26 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         });
         return {sum:sum,any:any};
       };
-      var yrs=[yd(1),yd(2)],msgs=[],warn=false;
+      var yrs=[yd(1),yd(2)],msgs=[],warn=false,rmonths=12,lease=0,lpct=75;
+      if(c.extra){
+        $(base+"_monthsF").hidden=rmode!=="one";$(base+"_leaseF").hidden=rmode!=="lease";$(base+"_3w").hidden=rmode!=="tax";
+        panel.querySelector(".ytable").hidden=rmode==="lease";$(base+"_yrs").hidden=rmode==="lease";
+        if(rmode==="one"){yrs=[yd(1)];rmonths=Math.max(1,Math.min(12,Math.round(n(base+"_months"))||12))}
+        else if(rmode==="lease"){lease=n(base+"_lease");lpct=Math.max(0,Math.min(100,n(base+"_lpct")));yrs=[{sum:0,any:lease>0}]}
+      }
       if(use3){
         var d3=yd(3);
         if(d3.any)yrs.push(d3);
         else msgs.push("Enter the third year's figures to use a 3-year average. Until then this uses two years.");
       }
-      var v=yrs.reduce(function(a,y){return a+y.sum},0)/(12*yrs.length);
-      if(!yrs[1].any&&yrs[0].any)msgs.push("Only one year is filled in, so it is spread over two years. Enter the prior year too.");
-      if(yrs[0].sum<yrs[1].sum){msgs.push(isAdd?DECL_ADD:DECL_BIZ);warn=true}
-      else if(yrs[1].sum>0&&yrs[0].sum>yrs[1].sum*1.5)msgs.push(isAdd?GROW_ADD:GROW_BIZ);
+      var den=rmode==="one"?rmonths:12*yrs.length;
+      var v=rmode==="lease"?lease*lpct/100:yrs.reduce(function(a,y){return a+y.sum},0)/den;
+      if(rmode==="tax"){
+        if(!yrs[1].any&&yrs[0].any)msgs.push("Only one year is filled in, so it is spread over two years. Enter the prior year too.");
+        if(yrs[0].sum<yrs[1].sum){msgs.push(isAdd?DECL_ADD:DECL_BIZ);warn=true}
+        else if(yrs[1].sum>0&&yrs[0].sum>yrs[1].sum*1.5)msgs.push(isAdd?GROW_ADD:GROW_BIZ);
+      }else if(rmode==="one")msgs.push("Fannie Mae allows one year of rental income when you have owned the property less than a year. The year's figures are divided by the months it was rented.");
+      else msgs.push("With no tax history, lenders use the lease or market rent, usually at 75%, and subtract the full monthly payment. A lease agreement or an appraiser's market rent report is normally required.");
       if(yrs.some(function(y){return y.sum<0})){msgs.push("At least one year shows a loss. Lenders subtract losses from your income and may ask you to explain them.");warn=true}
       if(c.dist){
         var sd=0,anyd=false,sk=0;
@@ -1199,10 +1215,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         }else bt.hidden=true;
       }
       var label=c.otherLabel?($(base+"_label").value.trim()||"Other income"):c.label;
-      var span=yrs.length+"-year average", contribute=v, text, small=[];
+      var span=rmode==="lease"?lpct+"% of lease or market rent":(rmode==="one"?"1 year, "+rmonths+" months":yrs.length+"-year average"), contribute=v, text, small=[];
       var tsum=yrs.reduce(function(a,y){return a+y.sum},0);
       if(c.own&&own<1)small.push("Ownership share of "+Math.round(own*100)+"% applied to the items marked as business totals.");
-      for(var yy=1;yy<=yrs.length;yy++){
+      for(var yy=1;yy<=(rmode==="lease"?0:yrs.length);yy++){
         var terms=[];
         for(var ri=0;ri<c.rows.length;ri++){
           var rw=c.rows[ri];
@@ -1215,11 +1231,12 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         if(terms.length===1&&terms[0].sg>0)small.push(YCAP[yy-1]+": "+terms[0].t);
         else small.push(YCAP[yy-1]+": "+(expr||"nothing entered")+" = "+usd.format(yrs[yy-1].sum));
       }
-      small.push("Total "+usd.format(tsum)+" ÷ "+(12*yrs.length)+" months = "+usd.format(v)+"/mo ("+span+")");
+      small.push("Total "+usd.format(tsum)+" ÷ "+den+" months = "+usd.format(v)+"/mo ("+span+")");
+      if(rmode==="lease")small=[usd.format(lease)+"/mo lease or market rent x "+lpct+"% = "+usd.format(v)+"/mo (no tax history)"];
       var yh="",rowS="display:flex;justify-content:space-between;gap:12px;padding:3px 0";
       yrs.forEach(function(y,i){yh+='<div style="'+rowS+'"><span>'+YCAP[i]+'</span><b>'+usd.format(y.sum)+'</b></div>'});
       yh+='<div style="'+rowS+';margin-top:6px;padding-top:8px;border-top:1px solid var(--line)"><span><b>'+span+' used</b></span><b style="color:var(--accent)">'+usd.format(v)+'/mo</b></div>'
-        +'<div class="k" style="margin:0">'+usd.format(tsum)+' &divide; '+(12*yrs.length)+' months</div>';
+        +'<div class="k" style="margin:0">'+usd.format(tsum)+' &divide; '+den+' months</div>';
       $(base+"_yrs").innerHTML=yh;
       if(c.extra){
         var pitEl=$(base+"_pitia"),lk=ownedLinks[base]||[],lsum=lk.reduce(function(a,x){return a+x.pay},0);
@@ -1235,8 +1252,11 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
           if(lk.length){lkEl.hidden=false;lkEl.textContent="Filled in from Additional Properties Owned: "+lk.map(function(x){return x.name+" "+usd.format(x.pay)+"/mo"}).join(", ")+". To change it, edit the payment under that property."}
           else lkEl.hidden=true;
         }
+        if(lk.length&&lk.some(function(x){return !(x.pay>0)})){msgs.push("Enter the full monthly payment (PITIA) on each rental under Additional Properties Owned. Until then the rental income is shown before that payment is subtracted.");warn=true}
         if(pit>0)small.push("Less "+usd.format(pit)+"/mo still owed on the rentals"+(lk.length?" ("+lk.map(function(x){return x.name+" "+usd.format(x.pay)}).join(", ")+")":"")+".");
         v-=pit;
+        lk.forEach(function(x){var el=$("own"+x.id+"IncNote");if(!el)return;el.hidden=false;
+          el.textContent="Qualifying rental income from "+label+": an average of "+usd.format(avgBefore)+"/mo before payments (all rentals on this entry). Payments on these rentals: "+usd.format(pit)+"/mo. Net: "+(v>=0?usd.format(v)+"/mo, counted as income.":usd.format(-v)+"/mo loss, counted as a debt.")});
         var hasAny=(avgBefore!==0||pit>0);
         $(base+"_cInc").checked=hasAny&&v>=0;$(base+"_cLoss").checked=hasAny&&v<0;
         $(base+"_net").textContent=!hasAny?"":(v>=0?"Net rental income: "+usd.format(v)+"/mo, added to your income":"Net rental loss: "+usd.format(-v)+"/mo, moved to Other monthly debts");
@@ -1304,6 +1324,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   }
   function retirementHtml(p){
     return ''
+      +'<div class="docbox"><div class="dtx"><b>Have a Social Security award letter or pension letter? Upload it to pre-fill.</b><span>PDF only. Read on your device and never uploaded. Only the benefit amounts are used, never your SSN, name or account numbers. You check every number first.</span></div><button type="button" class="bubble" data-docben="'+p+'">Upload award letter</button><input type="file" data-docbenfile="'+p+'" accept="application/pdf,.pdf" hidden></div><div aria-live="polite"></div>'
       +'<div class="grid">'
       +'<div class="f"><label for="'+p+'retAmt">Gross Retirement/Social Security/Pension income ($)</label><input id="'+p+'retAmt" type="number" inputmode="decimal" min="0" step="50" placeholder="e.g. 2500"></div>'
       +'<div class="f"><label for="'+p+'retFreq">Paid</label><select id="'+p+'retFreq">'
@@ -1660,7 +1681,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
 
 
   // ---- additional properties owned ----
-  var ownedLines=[], ownedSeq=0, ownedInfo={debt:0,items:[]};
+  var MAXINV=10, ownedLines=[], ownedSeq=0, ownedInfo={debt:0,items:[]};
   var OCC={primary:"Primary residence",secondary:"Second home",pied:"Pied-\u00e0-terre",investment:"Investment property"};
   function ownedTemplate(id){
     var t="own"+id;
@@ -1675,6 +1696,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       +'<div class="f"><label for="'+t+'Pay">Monthly payment ($)</label><input id="'+t+'Pay" type="number" inputmode="decimal" min="0" step="50" placeholder="0"></div>'
       +'<div class="f"><label for="'+t+'Upb">Unpaid principal balance, UPB ($)</label><input id="'+t+'Upb" type="number" inputmode="decimal" min="0" step="1000" placeholder="Optional"></div>'
       +'</div>'
+      +'<p class="k" id="'+t+'PayHint" hidden style="margin:0 0 10px">This payment came from your credit report. A credit report usually shows principal and interest only. Add the monthly property taxes, insurance and HOA dues to make it the full payment (PITIA). If it already includes them, leave it as it is.</p>'
+      +'<p class="note warn" id="'+t+'PayNote" hidden style="margin:0 0 10px">Enter the full monthly payment (PITIA) for this rental. Until you do, its rental income is shown before any payment is subtracted.</p>'
       +'<p class="k" style="margin:6px 0 14px">Include principal, interest, taxes, insurance and any HOA dues (PITIA). The unpaid principal balance is optional. It is used under Reserves if your lender bases reserves on a percentage of it.</p>'
       +'<div id="'+t+'SchQ"><div class="f"><label>Is this property listed on your Schedule E?</label>'
       +'<div class="seg"><label><input type="radio" name="'+t+'Sche" value="no" checked>No</label><label><input type="radio" name="'+t+'Sche" value="yes">Yes</label></div></div>'
@@ -1682,6 +1705,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="complete" checked><span>Complete Schedule E: the payment is netted in my rental income, so exclude it from my debts</span></label>'
       +'<div class="f" id="'+t+'TgtWrap" style="margin:10px 0 0 28px"><label for="'+t+'Tgt">Which Rents or royalties entry is it on?</label><select id="'+t+'Tgt"></select></div>'
       +'<label style="display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-weight:400;text-align:left;cursor:pointer"><input type="radio" style="width:auto;margin:4px 0 0;flex:none" name="'+t+'Sch" value="incomplete"><span>The payment is not reflected on Schedule E, so count it as a debt</span></label></div>'
+      +'<p class="note" id="'+t+'IncNote" hidden style="margin:10px 0 0"></p>'
       +'<p class="k" style="margin:10px 0 0">Enter this property\'s rents and expenses under Self-employed income, Rents or royalties. Its payment and address are linked there automatically and subtracted from the rental income.</p></div></div>'
       +'</div>';
   }
@@ -1691,6 +1715,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     $(primary===true?"primaryHost":"ownedList").appendChild(div.firstChild);
     ownedLines.push(id);
     if(primary===true)$("own"+id+"Occ").value="primary";
+    $("own"+id+"Occ").setAttribute("data-prev",$("own"+id+"Occ").value);
     $("own"+id+"Wrap").querySelector("[data-removeowned]").addEventListener("click",function(){
       ownedLines=ownedLines.filter(function(x){return x!==id});
       $("own"+id+"Wrap").remove();recompute();
@@ -1745,12 +1770,15 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         $(t+"TgtWrap").hidden=!targets.length;
       }else $(t+"TgtWrap").hidden=true;
       var netted=!!(declared&&tg);
+      $(t+"PayNote").hidden=!(netted&&!(pay>0));
+      $(t+"IncNote").hidden=true;
+      var crv=$(t+"Pay").getAttribute("data-cr");$(t+"PayHint").hidden=!(crv!==null&&pay>0&&Math.abs(parseFloat(crv)-pay)<0.005);
       var addr=$(t+"Addr").value.trim(),name=addr||(inHost?"Primary residence":"Property "+li);
       $(t+"Title").textContent=inHost?"Primary residence":"Property "+li;
       var occ=$(t+"Occ").value;
       if(netted){
         excl+=pay;
-        (links[tg.base]=links[tg.base]||[]).push({name:name,pay:pay});
+        (links[tg.base]=links[tg.base]||[]).push({name:name,pay:pay,id:id});
       }else{
         debt+=pay;
         if(declared)unlinked++;
@@ -1797,6 +1825,15 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var id=cardId(e.target);if(!id)return;
     var occ=e.target.value,so=$("subjOcc").value,w=$("own"+id+"Wrap");
     var inHost=w.parentNode===$("primaryHost");
+    if(occ==="investment"){
+      var invN=ownedLines.filter(function(x){return x!==id&&$("own"+x+"Occ").value==="investment"}).length;
+      if(invN>=MAXINV){
+        var pv=e.target.getAttribute("data-prev")||"secondary";e.target.value=pv==="investment"?"secondary":pv;
+        subjNote("You can list up to "+MAXINV+" rental (investment) properties. Remove one before adding another.");
+        return;
+      }
+    }
+    e.target.setAttribute("data-prev",e.target.value);
     if(occ==="primary"&&so==="primary"&&subjTxn()==="refi"){
       var a=$("own"+id+"Addr").value.trim();
       if(a)$("subjAddr").value=a;
@@ -1857,7 +1894,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
 
 
   // ---- assets and reserves ----
-  var assetLines=[], assetSeq=0, assetsInfo={liquid:0,nonliquid:0,items:[]};
+  var RDEF={stocks:70,mutual:70,retirement:60},assetLines=[], assetSeq=0, assetsInfo={liquid:0,nonliquid:0,items:[]};
   var ASSET={checking:["Checking",1],savings:["Savings",1],mmkt:["Money market / CD",1],earnest:["Earnest money deposit",2],gift:["Gift funds",3],retirement:["Retirement (401(k), IRA)",0],mutual:["Mutual funds",0],stocks:["Stocks / bonds",0],other:["Other",0]};
   function assetTemplate(id){
     var t="ast"+id;
@@ -1874,7 +1911,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       +'<div class="debtline astliq" id="'+t+'LiqField" hidden>'
       +'<div class="f"><label for="'+t+'LMode">If you would sell or withdraw some of it</label><select id="'+t+'LMode"><option value="none">Do not count it as liquid</option><option value="pct">Count a % of the balance</option><option value="amt">Count a dollar amount</option></select></div>'
       +'<div class="f" id="'+t+'LValF" hidden><label for="'+t+'LVal" id="'+t+'LValL">Percent of balance (%)</label><input id="'+t+'LVal" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 50"></div>'
-      +'<div class="f"><label>Counted as liquid</label><div class="ro" id="'+t+'LOut">$0</div></div></div>'
+      +'<div class="f"><label>Counted as liquid</label><div class="ro" id="'+t+'LOut">$0</div></div>'
+      +'<div class="f"><label for="'+t+'RPct">Count toward reserves (%)</label><input id="'+t+'RPct" type="number" inputmode="decimal" min="0" max="100" step="1" placeholder="e.g. 70"><small class="k" style="display:block;margin-top:4px">Applies to the part you would not sell. Lenders often count about 70% of stocks and funds and 60% of retirement accounts. Your lender decides.</small></div>'
+      +'<div class="f"><label>Counted for reserves</label><div class="ro" id="'+t+'ROut">$0</div></div></div>'
       +'<p class="k" id="'+t+'Note" style="margin:0"></p></div>';
   }
   function addAsset(skip){
@@ -1891,6 +1930,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   // ---- upload a pay stub or bank statements (read on this device by /doc-read.js) ----
   var docMod=null;
   function docLoad(){return docMod||(docMod=import("/doc-read.js").catch(function(e){docMod=null;throw e}))}
+  function round2c(v){return Math.round(v*100)/100}
   function docFire(el){el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))}
   var docTrack=[];
   function docMark(kind,P,ids){ids.forEach(function(id){var el=$(id);if(!el)return;docTrack=docTrack.filter(function(t){return t.id!==id});docTrack.push({id:id,v:el.value,kind:kind,P:P})});docBadges()}
@@ -1902,16 +1942,16 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     docTrack.forEach(function(t){
       var ed=$(t.id).value!==t.v;
       if(t.kind==="credit"){var md=/^debt(\d+)/.exec(t.id),kd=md?md[1]:"";dbt[kd]=dbt[kd]||{ed:false};if(ed)dbt[kd].ed=true;anyDbt=anyDbt||{ed:false};if(ed)anyDbt.ed=true;return}
-      if(t.kind==="bank"){var m=/^ast(\d+)/.exec(t.id);var k=m?m[1]:"";ast[k]=ast[k]||{ed:false};if(ed)ast[k].ed=true;anyAst=anyAst||{ed:false};if(ed)anyAst.ed=true;return}
+      if(t.kind==="bank"||t.kind==="retire"){var m=/^ast(\d+)/.exec(t.id);var k=m?m[1]:"";ast[k]=ast[k]||{ed:false};ast[k].r=t.kind==="retire";if(ed)ast[k].ed=true;anyAst=anyAst||{ed:false};if(ed)anyAst.ed=true;return}
       var mm=/^(b\d+)/.exec(t.P||""),key=mm?mm[1]:"b1";inc[key]=inc[key]||{kinds:{},ed:false};inc[key].kinds[t.kind]=1;if(ed)inc[key].ed=true;anyInc=anyInc||{ed:false};if(ed)anyInc.ed=true;
     });
     Object.keys(inc).forEach(function(key){
-      var o=inc[key],k=Object.keys(o.kinds).map(function(x){return x==="pay"?"pay stub":"tax return"}).join(" + "),txt=o.ed?"Edited after upload":"From "+k;
+      var o=inc[key],k=Object.keys(o.kinds).map(function(x){return x==="pay"?"pay stub":x==="benefit"?"award letter":"tax return"}).join(" + "),txt=o.ed?"Edited after upload":"From "+k;
       var tg=$(key+"Tgl"),h=key==="b1"?$("b1H3"):null;
       if(tg&&!tg.hidden){var sp=tg.firstElementChild;if(sp)tg.insertBefore(vkEl("vkb",txt,o.ed),sp.nextSibling)}
       else if(h&&h.parentNode)h.parentNode.insertBefore(vkEl("vkb",txt,o.ed),h.nextSibling);
     });
-    Object.keys(ast).forEach(function(k){var w=$("ast"+k+"Wrap");if(w)w.insertBefore(vkEl("vkb ln","From bank statement"+(ast[k].ed?" \u2013 edited":""),ast[k].ed),w.firstChild)});
+    Object.keys(ast).forEach(function(k){var w=$("ast"+k+"Wrap");if(w)w.insertBefore(vkEl("vkb ln","From "+(ast[k].r?"retirement":"bank")+" statement"+(ast[k].ed?" \u2013 edited":""),ast[k].ed),w.firstChild)});
     var il=document.querySelector('[data-row="rowIncome"] .rowlabel'),al=document.querySelector('[data-row="rowAssets"] .rowlabel');
     if(anyInc&&il)il.appendChild(vkEl("vkd",anyInc.ed?"Some numbers edited after upload":"Filled from a document",anyInc.ed));
     Object.keys(dbt).forEach(function(k){var w=$("debt"+k+"Wrap");if(w)w.insertBefore(vkEl("vkb ln","From credit report"+(dbt[k].ed?" \u2013 edited":""),dbt[k].ed),w.firstChild)});
@@ -1933,6 +1973,13 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(b&&b.getAttribute("aria-pressed")!=="true")b.click();
     },
     applyPay:function(o,P){P=P||"";docApi.srcOn("employment",P);$(P+"wageFreq").value=o.freq;docFire($(P+"wageFreq"));$(P+"wageAmt").value=o.amount;docFire($(P+"wageAmt"));docMark("pay",P,[P+"wageFreq",P+"wageAmt"]);recompute()},
+    applyBenefit:function(o,P){
+      P=P||"";docApi.srcOn("retirement",P);var ids=[P+"retFreq",P+"retAmt"];
+      $(P+"retFreq").value="monthly";docFire($(P+"retFreq"));$(P+"retAmt").value=o.amount;docFire($(P+"retAmt"));
+      var yn=document.querySelector('input[name="'+P+'nontax"][value="'+(o.nontax?"yes":"no")+'"]');if(yn){yn.checked=true;docFire(yn)}
+      if(o.nontax){var md=document.querySelector('input[name="'+P+'nontaxMode"][value="pct"]');if(md){md.checked=true;docFire(md)}
+        $(P+"nontaxPct").value=100;docFire($(P+"nontaxPct"));$(P+"grossUp").value=o.grossUp;docFire($(P+"grossUp"));ids.push(P+"nontaxPct",P+"grossUp")}
+      docMark("benefit",P,ids);recompute()},
     applyTax:function(list,P){
       P=P||"";var gotSc=false,tids=[];
       if(list.some(function(x){return $(P+"bz_"+x.key+"_on")}))docApi.srcOn("selfemp",P);
@@ -1941,6 +1988,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         var base=P+"bz_"+x.key,on=$(base+"_on");if(!on)return;
         on.checked=true;docFire(on);
         var c3=$(base+"_3");if(c3){c3.checked=!!(x.three&&x.years>=3);docFire(c3)}
+        var rmd=$(base+"_mode");
+        if(rmd&&x.mode){rmd.value=x.mode;docFire(rmd);tids.push(rmd.id);var rmo=$(base+"_months");if(rmo&&x.mode==="one"&&x.months>0){rmo.value=Math.max(1,Math.min(12,Math.round(x.months)));docFire(rmo);tids.push(rmo.id)}}
         Object.keys(x.rows).forEach(function(id){
           for(var y=1;y<=3;y++){var el=$(base+"_"+id+"_"+y);if(!el)continue;var v=x.rows[id][y-1];el.value=(v===undefined||v===null)?"":String(v);docFire(el);tids.push(el.id)}
         });
@@ -1952,7 +2001,48 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         ["net","dep","depl"].forEach(function(id){[1,2].forEach(function(y){var el=$(P+"bz_sc_"+id+"_"+y);if(el&&parseFloat(el.value)!==def[id][y-1])same=false})});
         if(sc&&sc.checked&&same){sc.checked=false;docFire(sc)}
       }
+      var res={added:0,capped:false};
+      list.forEach(function(x){if(x.key==="rent"&&x.props&&x.props.length){var r=docApi.addRentals(x.props,P+"bz_rent");res.added+=r.added;res.capped=res.capped||r.capped}});
       docMark("tax",P,tids);recompute();
+      return res;
+    },
+    ownedChoices:function(){ownedCalc();return ownedInfo.items.map(function(x){return {id:x.id,name:x.name}})},
+    applyMortgages:function(list){ // credit report mortgages: payment and balance go to the property they belong to
+      var by={},ids=[],n=0;
+      list.forEach(function(m){var k=m.to;if(k==="new"){addOwned();k=String(ownedLines[ownedLines.length-1])}
+        if(ownedLines.indexOf(+k)<0)return;(by[k]=by[k]||{pay:0,upb:0}); by[k].pay+=m.pay||0;by[k].upb+=m.upb||0;n++});
+      Object.keys(by).forEach(function(k){var t="own"+k,o=by[k];
+        if(o.pay>0){var p=$(t+"Pay");p.value=round2c(o.pay);p.setAttribute("data-cr",String(round2c(o.pay)));docFire(p);ids.push(p.id)}
+        if(o.upb>0){var u=$(t+"Upb");u.value=Math.round(o.upb);docFire(u);ids.push(u.id)}});
+      docMark("credit","",ids);recompute();affSaveSoon();
+      return {linked:n};
+    },
+    addRentals:function(addrs,base){ // one Additional Properties Owned card per Schedule E property: investment, on Schedule E, linked to the rental income entry
+      var added=0,capped=false,norm=function(a){return String(a||"").split(",")[0].toLowerCase().replace(/[^a-z0-9]/g,"")};
+      addrs.forEach(function(a){
+        var key=norm(a);if(!key)return;
+        var id=null;ownedLines.forEach(function(x){if(id===null&&norm($("own"+x+"Addr").value)===key)id=x});
+        var fresh=false;
+        if(id===null){ownedLines.forEach(function(x){if(id===null&&!$("own"+x+"Addr").value.trim()&&$("own"+x+"Pay").getAttribute("data-cr")!==null&&$("own"+x+"Wrap").parentNode===$("ownedList")){id=x;$("own"+x+"Addr").value=a;docFire($("own"+x+"Addr"))}})}
+        if(id===null){
+          var inv=ownedLines.filter(function(x){return $("own"+x+"Occ").value==="investment"}).length;
+          if(inv>=MAXINV){capped=true;return}
+          addOwned();id=ownedLines[ownedLines.length-1];fresh=true;
+        }
+        var t="own"+id;
+        if(fresh){$(t+"Addr").value=a;docFire($(t+"Addr"))}
+        var oc=$(t+"Occ");
+        if(oc.value!=="investment"&&oc.value!=="primary"){oc.value="investment";docFire(oc);if(oc.value!=="investment"){capped=true;if(fresh)removeCard(id);return}}
+        var yes=document.querySelector('input[name="'+t+'Sche"][value="yes"]');
+        if(yes&&!yes.checked){yes.checked=true;docFire(yes)}
+        var cp=document.querySelector('input[name="'+t+'Sch"][value="complete"]');
+        if(cp&&!cp.checked){cp.checked=true;docFire(cp)}
+        recompute();
+        var tg=$(t+"Tgt");if(tg&&base&&Array.prototype.some.call(tg.options,function(o){return o.value===base})){tg.value=base;docFire(tg)}
+        if(fresh)added++;
+      });
+      recompute();
+      return {added:added,capped:capped};
     },
     applyDebts:function(list,info){
       var dids=[];
@@ -1975,7 +2065,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(ldList.length){if(yes&&!yes.checked){yes.checked=true;docFire(yes)}}else if(no&&!no.checked){no.checked=true;docFire(no)}
       recompute();
     },
-    applyAssets:function(list,ld,deps){
+    applyAssets:function(list,ld,deps,kindName){
       var aids=[];
       var lids=[];
       list.forEach(function(a){
@@ -1983,7 +2073,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         if(id===null){addAsset(true);id=assetLines[assetLines.length-1]}
         $("ast"+id+"Type").value=a.type;docFire($("ast"+id+"Type"));$("ast"+id+"Amt").value=a.amount;docFire($("ast"+id+"Amt"));aids.push("ast"+id+"Type","ast"+id+"Amt");lids.push(id);
       });
-      docMark("bank","",aids);
+      docMark(kindName||"bank","",aids);
       if(deps&&deps.length){deps.forEach(function(d){var f=null;ldList.forEach(function(x){if(x.date===d.date&&x.amt===d.amt)f=x});var ai=(d.acct!=null&&lids[d.acct]!=null)?lids[d.acct]:null;if(f){f.st=d.st;f.ast=ai}else ldList.push({date:d.date,amt:d.amt,st:d.st||"tbv",ast:ai})})}
       if(ld){var r=document.querySelector('input[name="largeDep"][value="yes"]');if(r){r.checked=true;docFire(r)}}
       recompute();
@@ -2006,6 +2096,17 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     docRun("pay",fl,o,api);f.value="";
   });
   document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-docben]");if(!b)return;
+    var f=b.parentNode.querySelector("[data-docbenfile]");if(f){f.value="";f.click()}
+  });
+  document.addEventListener("change",function(e){
+    var f=e.target;if(!f.matches||!f.matches("[data-docbenfile]"))return;
+    var P=f.getAttribute("data-docbenfile")||"",fl=Array.prototype.slice.call(f.files||[]),box=f.closest(".docbox"),o=box&&box.nextElementSibling;
+    if(!fl.length||!o)return;
+    var api=Object.assign({},docApi,{applyBenefit:function(x){docApi.applyBenefit(x,P)}});
+    docRun("benefit",fl,o,api);f.value="";
+  });
+  document.addEventListener("click",function(e){
     var b=e.target.closest&&e.target.closest("[data-doctax]");if(!b)return;
     var f=b.parentNode.querySelector("[data-doctaxfile]");if(f){f.value="";f.click()}
   });
@@ -2013,7 +2114,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var f=e.target;if(!f.matches||!f.matches("[data-doctaxfile]"))return;
     var P=f.getAttribute("data-doctaxfile")||"",fl=Array.prototype.slice.call(f.files||[]),box=f.closest(".docbox"),o=box&&box.nextElementSibling;
     if(!fl.length||!o)return;
-    var api=Object.assign({},docApi,{applyTax:function(x){docApi.applyTax(x,P)}});
+    var api=Object.assign({},docApi,{applyTax:function(x){return docApi.applyTax(x,P)}});
     docRun("tax",fl,o,api);f.value="";
   });
   $("docCredBtn").addEventListener("click",function(){$("docCredFile").value="";$("docCredFile").click()});
@@ -2032,10 +2133,12 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   // ---- one drop zone: sort each file by type, then hand it to the matching reader above ----
   (function(){
     var box=$("agent");if(!box)return;
-    var KINDS=[["pay","Pay stub"],["credit","Credit report"],["bank","Bank statement"],["tax","Tax return"],["skip","Skip this file"]];
+    var KINDS=[["pay","Pay stub"],["credit","Credit report"],["bank","Bank statement"],["tax","Tax return"],["benefit","Social Security / pension letter"],["retire","Retirement / brokerage statement"],["skip","Skip this file"]];
     var items=[],seq=0,MAXF=10;
     var RX={
-      tax:[/(tax return|tax account|wage and income|record of account) transcript|tax period (ending|requested)/g,/wages, salaries, tips|adjusted gross income/g,/form\s*(1040|1120s?|1065)\b/g,/schedule\s*(c|e|k-?1)\b/g,/internal revenue service/g,/department of the treasury/g,/\bk-?1\b/g],
+      benefit:[/notice of award|award letter|benefit (verification|letter)/g,/social security (administration|benefits?|retirement)/g,/medicare (part b )?premium|part b premium/g,/before (any )?deductions|monthly benefit|benefit amount/g,/cost-of-living|pension (benefit|award)|annuity/g,/withheld|withholding/g],
+      retire:[/401\s*\(?k\)?|403\s*\(?b\)?|\bira\b|thrift savings|retirement (savings )?(plan|account)/g,/brokerage|securities|portfolio (value|summary)|account value/g,/\b(stocks?|equities|mutual funds?|etfs?|bonds?|holdings|positions)\b/g,/vested|vesting/g,/participant|recordkeeper|beneficiary/g,/investment (holdings|options)|target (retirement|date)|stable value|index fund/g,/(quarterly|annual) (account )?statement|account summary/g,/contributions?|distributions?/g],
+      tax:[/(tax return|tax account|wage and income|record of account) transcript|tax period (ending|requested)/g,/wages, salaries, tips|adjusted gross income/g,/form\s*(1040|1120s?|1065)\b/g,/schedule\s*(c|e|k-?1)\b/g,/supplemental income and loss|rental real estate/g,/internal revenue service/g,/department of the treasury/g,/\bk-?1\b/g],
       credit:[/credit (report|score|file)/g,/\bfico\b|vantagescore/g,/trade ?lines?|creditors?\b/g,/payment history/g,/collections?\b|charge[- ]?offs?/g,/\bequifax\b|\bexperian\b|\btransunion\b/g,/(30|60|90)[ -]days? late|days past due/g,/revolving|installment/g],
       bank:[/statement period|statement date|account summary/g,/(beginning|opening|previous) balance/g,/(ending|closing|new) balance/g,/deposits?( and| &)? (other )?(credits|additions)|total deposits/g,/withdrawals|total debits|checks paid/g,/\b(checking|savings)\b/g,/available balance|daily (ending )?balance/g],
       pay:[/gross pay|gross earnings/g,/net pay|take[- ]?home/g,/earnings statement|pay ?stub|paycheck|pay advice/g,/pay period|pay date|period (beginning|ending)/g,/\bytd\b|year[- ]to[- ]date/g,/regular (pay|earnings)|hourly|salary/g,/federal (income )?(tax|withholding)|\bfica\b|medicare/g,/deductions/g]
@@ -2095,7 +2198,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var running=0;
     function readAll(){
       var my=++running;$("agOut").textContent="";
-      var by={pay:[],credit:[],bank:[],tax:[]};
+      var by={pay:[],credit:[],bank:[],tax:[],benefit:[],retire:[]};
       items.forEach(function(it){if(by[it.kind]&&!it.err&&!it.busy)by[it.kind].push(it.file)});
       by.pay.forEach(function(f,i){
         var s=sec(by.pay.length>1?"Pay stub "+(i+1):"Pay stub"),sl=bsel(),P="";
@@ -2108,9 +2211,16 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(by.tax.length){
         var s3=sec("Tax returns"),sl3=bsel();
         if(sl3){s3.head.appendChild(mk("span","","Apply to:"));s3.head.appendChild(sl3)}
-        var api3=Object.assign({},docApi,{applyTax:function(x){docApi.applyTax(x,sl3?sl3.value:"")}});
+        var api3=Object.assign({},docApi,{applyTax:function(x){return docApi.applyTax(x,sl3?sl3.value:"")}});
         docRun("tax",by.tax,s3.out,api3);
       }
+      by.benefit.forEach(function(f,i){
+        var s4=sec(by.benefit.length>1?"Social Security / pension letter "+(i+1):"Social Security / pension letter"),sl4=bsel();
+        if(sl4){s4.head.appendChild(mk("span","","Apply to:"));s4.head.appendChild(sl4);sl4.selectedIndex=Math.min(i,sl4.options.length-1)}
+        var api4=Object.assign({},docApi,{applyBenefit:function(x){docApi.applyBenefit(x,sl4?sl4.value:"")}});
+        docRun("benefit",[f],s4.out,api4);
+      });
+      if(by.retire.length){var s5=sec("Retirement / brokerage account");docRun("retire",by.retire.slice(0,3),s5.out,docApi);if(by.retire.length>3)s5.head.appendChild(mk("span","ags","Only the first 3 statements are read."))}
     }
     function add(files){
       var fl=Array.prototype.slice.call(files||[]);if(!fl.length)return;
@@ -2135,9 +2245,9 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
   $("rowReserves").addEventListener("change",function(){recompute()});
   var resInfo={months:0};
   function assetsCalc(){
-    var liq=0,non=0,earn=0,earnNo=0,giftC=0,giftD=0,giftNo=0,items=[];
+    var liq=0,non=0,nonR=0,earn=0,earnNo=0,giftC=0,giftD=0,giftNo=0,items=[];
     assetLines.forEach(function(id){
-      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),fl=ASSET[k][1],isE=fl===2,isG=fl===3,isL=fl===1,Lq=0;
+      var t="ast"+id,k=$(t+"Type").value,a=n(t+"Amt"),fl=ASSET[k][1],isE=fl===2,isG=fl===3,isL=fl===1,Lq=0,RP=100;
       $(t+"PaidField").hidden=!isE;$(t+"LiqField").hidden=fl!==0;
       var gdEl=document.querySelector('input[name="'+t+'GiftDep"]:checked'),gcEl=document.querySelector('input[name="'+t+'GiftClose"]:checked'),gd=gdEl?gdEl.value:"",gc=gcEl?gcEl.value:"";
       $(t+"GiftDepField").hidden=!isG;$(t+"GiftCloseField").hidden=!(isG&&gd==="no");
@@ -2147,6 +2257,11 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         $(t+"LValF").hidden=mode==="none";
         $(t+"LValL").textContent=mode==="pct"?"Percent of balance (%)":"Amount you would have, after taxes or penalties ($)";
         Lq=mode==="pct"?a*Math.min(lv,100)/100:(mode==="amt"?Math.min(lv,a):0);
+        var rpE=$(t+"RPct"),rdef=RDEF[k]!=null?RDEF[k]:100,old=rpE.getAttribute("data-def");
+        if(old===null){if(rpE.value==="")rpE.value=rdef}else if(old!==String(rdef)&&(rpE.value===""||rpE.value===old))rpE.value=rdef;
+        rpE.setAttribute("data-def",String(rdef));
+        var rpv=parseFloat(rpE.value);RP=isFinite(rpv)?Math.max(0,Math.min(100,rpv)):rdef;
+        $(t+"ROut").textContent=usd.format((a-Lq)*RP/100);
       }
       $(t+"LOut").textContent=usd.format(Lq);
       if(isE){
@@ -2165,8 +2280,8 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
         return;
       }
       $(t+"After").textContent=usd.format(a);
-      if(isL)liq+=a;else{liq+=Lq;non+=a-Lq}
-      items.push({id:id,type:ASSET[k][0],liquid:isL,earnest:false,amt:a,used:0,lq:isL?a:Lq,nl:isL?0:a-Lq,lqOwn:isL?0:Lq});
+      if(isL)liq+=a;else{liq+=Lq;non+=a-Lq;nonR+=(a-Lq)*RP/100}
+      items.push({id:id,type:ASSET[k][0],liquid:isL,earnest:false,amt:a,used:0,lq:isL?a:Lq,nl:isL?0:a-Lq,nlR:isL?0:(a-Lq)*RP/100,rp:RP,lqOwn:isL?0:Lq});
     });
     var ldx=0,ldm=ldDeduct();
     items.forEach(function(x){if(x.earnest||x.gift||!x.liquid)return;var d=Math.min(ldm[x.id]||0,x.lq);if(d>0){x.lq-=d;x.ex=d;ldx+=d}});
@@ -2207,10 +2322,10 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       if(on&&on.checked&&u>0&&pp>0){var am=u*pp/100;upbItems.push({name:x.name,upb:u,pct:pp,amt:am});upbTotal+=u;upbReq+=am}
     });
     var base=subj+other,upbPct=Math.max(0,parseFloat($("resUpbPct").value)||0);
-    var req=months*base+upbReq,usedN=Math.min(req,non),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
+    var req=months*base+upbReq,usedN=Math.min(req,nonR),usedL=Math.min(req-usedN,liq),covered=usedN+usedL,short=req-covered,left=liq-usedL;
     // spread the reserves across accounts: non-liquid portions first, then liquid portions
     var rem=req,real=items.filter(function(x){return !x.earnest&&!x.gift});
-    real.forEach(function(x){var u=Math.min(rem,x.nl);x.used=u>0?u:0;rem-=x.used});
+    real.forEach(function(x){var u=Math.min(rem,x.nlR||0);x.used=u>0?u:0;rem-=x.used});
     real.forEach(function(x){var u=Math.min(rem,x.lq);u=u>0?u:0;x.used+=u;rem-=u});
     items.forEach(function(x){
       if(x.earnest||x.gift)return;
@@ -2218,7 +2333,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
       x.note=note;$(t+"Note").textContent="";
       $(t+"After").textContent=usd.format(x.amt-(x.ex||0)-x.used);
     });
-    assetsInfo={liquid:liq,nonliquid:non,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo,giftClose:giftC,giftDep:giftD,giftPending:giftNo,ldExcl:ldx};
+    assetsInfo={liquid:liq,nonliquid:non,nonliquidR:nonR,items:items,reserved:covered,avail:tot-covered,earnest:earn,earnestPending:earnNo,giftClose:giftC,giftDep:giftD,giftPending:giftNo,ldExcl:ldx};
     $("assetsSummary").textContent=usd.format(tot-covered);
     var eTxt=earn>0?" Earnest money already paid, credited at closing: "+usd.format(earn)+".":"";
     if(giftC>0)eTxt+=" Gift to be received at closing, credited at closing: "+usd.format(giftC)+".";
@@ -2354,7 +2469,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
     var tot=ai.liquid+ai.nonliquid,hasRes=ri.req>0&&(ai.reserved>0||ri.short>0);
     var f2=function(v){return usd.format(v).replace("$","")},sp=function(c,t){return '<span class="'+c+'">'+t+'</span>'};
     function body(title){
-      var m=sp("c","// total assets")+'\nliquid       = '+sp("v","$"+f2(ai.liquid))+'\nnon_liquid   = '+sp("v","$"+f2(ai.nonliquid))+'\ntotal_assets = '+sp("r","$"+f2(tot));
+      var m=sp("c","// total assets")+'\nliquid       = '+sp("v","$"+f2(ai.liquid))+'\nnon_liquid   = '+sp("v","$"+f2(ai.nonliquid))+'\ntotal_assets = '+sp("r","$"+f2(tot))+(Math.abs((ai.nonliquidR||0)-ai.nonliquid)>0.5?'\n\n'+sp("c","// part of non-liquid that counts for reserves")+'\nreserve_eligible = '+sp("r","$"+f2(ai.nonliquidR||0)):'');
       if(title==="Reserves"&&!hasRes)m=sp("c","// required reserves")+'\nrequired_reserves = months x monthly_payment';
       if(hasRes){
         m+='\n\n'+sp("c","// required reserves")+'\nrequired_reserves = months x monthly_payment\n';
@@ -2885,7 +3000,7 @@ input:focus,select:focus,textarea:focus{border-color:#0EA5E9!important;outline:1
           as.push(R(x.earnest?x.type+(x.paid?" (paid and cleared)":" (not yet paid)"):(x.gift?x.type+(x.dep?" (received and deposited)":(x.atClose?" (to be received at closing)":" (not counted)")):x.type+(x.liquid?"":" (non-liquid)")),usd.format(x.amt)));
           if(x.lqOwn>0)as.push(Sm(usd.format(x.lqOwn)+" of this is counted as liquid, after selling or withdrawing."));
         }});
-        as.push(R("Liquid",usd.format(ac.liquid)));as.push(R("Non-liquid",usd.format(ac.nonliquid)));as.push(R("Total assets (liquid + non-liquid)",usd.format(ac.liquid+ac.nonliquid),1));
+        as.push(R("Liquid",usd.format(ac.liquid)));as.push(R("Non-liquid",usd.format(ac.nonliquid)));as.push(R("Total assets (liquid + non-liquid)",usd.format(ac.liquid+ac.nonliquid),1));if(Math.abs((ac.nonliquidR||0)-ac.nonliquid)>0.5)as.push(R("Non-liquid counted toward reserves",usd.format(ac.nonliquidR||0)));
         if(ac.earnest>0)as.push(Sm("Earnest money already paid ("+usd.format(ac.earnest)+") is not included in the totals above. It is credited under Cash required at closing."));
         if(ac.giftDep>0)as.push(Sm("Gift funds already deposited ("+usd.format(ac.giftDep)+") are not counted again here. Please confirm they are included in the checking or savings balance listed above."));
         if(ac.giftClose>0)as.push(Sm("Gift to be received at closing ("+usd.format(ac.giftClose)+") is not included in the totals above. It is credited under Cash required at closing."));
